@@ -1,0 +1,43 @@
+kind: Skill
+metadata:
+  name: onboarding-guide
+  version: "1.0.0"
+  description: "Create developer onboarding documentation for a project"
+  author: jarvis
+  tags: [onboarding, documentation, developer-experience, setup]
+  domain: development
+spec:
+  system_prompt: |
+    You are a developer experience specialist. Create comprehensive onboarding
+    guides that help new developers become productive quickly. Cover:
+    1. Prerequisites and local environment setup
+    2. Repository structure and key directories explained
+    3. Build, test, and run commands
+    4. Architecture overview with component diagram descriptions
+    5. Development workflow (branching, PRs, CI/CD)
+    6. Common tasks and troubleshooting FAQ
+    7. Key contacts and communication channels
+  steps:
+    - order: 1
+      action: "Analyze project structure, README, and existing docs"
+      tool: read_file
+    - order: 2
+      action: "Identify build tools, test frameworks, and CI pipelines"
+      tool: shell_execute
+    - order: 3
+      action: "Map out codebase architecture and module responsibilities"
+    - order: 4
+      action: "Generate onboarding guide with setup instructions"
+      tool: write_file
+    - order: 5
+      action: "Create troubleshooting FAQ from common issues"
+      tool: write_file
+  constraints:
+    - "Instructions must be copy-pasteable and tested"
+    - "Assume the reader has basic programming knowledge but no project context"
+    - "Include both macOS and Linux setup instructions where applicable"
+    - "Never include real credentials — use placeholder values"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

@@ -1,0 +1,57 @@
+name: security-compliance
+description: "Security compliance audit: vulnerability scan -> code review -> policy check -> report"
+category: security
+parameters:
+  - name: compliance_standard
+    required: true
+    description: "Compliance framework: SOC2, GDPR, HIPAA, PCI-DSS, ISO27001"
+  - name: scope
+    required: false
+    default: "full"
+    description: "Audit scope: full, backend-only, frontend-only, infrastructure"
+steps:
+  - name: "Asset Inventory"
+    agent: research-agent
+    description: "Catalog all services, databases, APIs, and third-party integrations"
+  - name: "Dependency Vulnerability Scan"
+    agent: security-agent
+    description: "Scan all dependencies for known CVEs"
+    skills: [dependency-audit]
+  - name: "Static Code Analysis"
+    agent: security-agent
+    depends_on: ["Asset Inventory"]
+    description: "Run SAST tools and review findings"
+    skills: [code-review, security-audit]
+  - name: "Secret Detection"
+    agent: security-agent
+    depends_on: ["Asset Inventory"]
+    description: "Scan repository for hardcoded secrets and credentials"
+  - name: "Access Control Review"
+    agent: security-agent
+    depends_on: ["Asset Inventory"]
+    description: "Review authentication, authorization, and RBAC configuration"
+  - name: "Data Protection Assessment"
+    agent: research-agent
+    depends_on: ["Asset Inventory"]
+    description: "Evaluate encryption at rest, in transit, and PII handling"
+  - name: "Infrastructure Security Review"
+    agent: devops-agent
+    depends_on: ["Asset Inventory"]
+    description: "Review network policies, firewall rules, and cloud configuration"
+  - name: "Compliance Gap Analysis"
+    agent: research-agent
+    depends_on:
+      - "Static Code Analysis"
+      - "Secret Detection"
+      - "Access Control Review"
+      - "Data Protection Assessment"
+      - "Infrastructure Security Review"
+    description: "Map findings to compliance requirements and identify gaps"
+  - name: "Remediation Plan"
+    agent: writing-agent
+    depends_on: ["Compliance Gap Analysis"]
+    description: "Generate prioritized remediation plan with timelines"
+  - name: "Compliance Report"
+    agent: writing-agent
+    depends_on: ["Remediation Plan"]
+    description: "Produce formal compliance audit report"

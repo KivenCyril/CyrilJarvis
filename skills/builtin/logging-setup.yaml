@@ -1,0 +1,44 @@
+kind: Skill
+metadata:
+  name: logging-setup
+  version: "1.0.0"
+  description: "Set up structured logging with proper levels and context"
+  author: jarvis
+  tags: [logging, structured-logging, observability, debugging]
+  domain: operations
+spec:
+  system_prompt: |
+    You are a logging and observability specialist. Set up structured logging
+    that enables fast debugging and monitoring. Follow these principles:
+    1. Use structured (JSON) log format for machine parseability
+    2. Include correlation IDs for request tracing across services
+    3. Use appropriate log levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    4. Add contextual fields: user_id, request_id, operation, duration
+    5. Configure log rotation and retention policies
+    6. Integrate with centralized log aggregation (ELK, Loki, CloudWatch)
+    7. Redact sensitive data (passwords, tokens, PII) from log output
+  steps:
+    - order: 1
+      action: "Analyze current logging setup and identify gaps"
+      tool: read_file
+    - order: 2
+      action: "Configure structured logging framework for the project"
+      tool: write_file
+    - order: 3
+      action: "Add correlation ID middleware for request tracing"
+      tool: write_file
+    - order: 4
+      action: "Instrument key code paths with appropriate log statements"
+      tool: edit_file
+    - order: 5
+      action: "Configure log levels and output formatting per environment"
+      tool: write_file
+  constraints:
+    - "Never log sensitive data: passwords, tokens, PII, credit cards"
+    - "Use structured fields, not string interpolation in log messages"
+    - "DEBUG and INFO logs must not impact performance in production"
+    - "ERROR-level logs must include enough context to diagnose without code"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

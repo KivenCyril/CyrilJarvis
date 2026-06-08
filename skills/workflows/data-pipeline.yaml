@@ -1,0 +1,56 @@
+name: data-pipeline
+description: "Data pipeline development: schema design -> ETL -> validation -> monitoring"
+category: data
+parameters:
+  - name: pipeline_name
+    required: true
+    description: "Name of the data pipeline"
+  - name: source_system
+    required: true
+    description: "Source data system (e.g., PostgreSQL, S3, Kafka)"
+  - name: destination
+    required: true
+    description: "Destination data store (e.g., data warehouse, data lake)"
+  - name: schedule
+    required: false
+    default: "daily"
+    description: "Pipeline execution schedule: realtime, hourly, daily, weekly"
+steps:
+  - name: "Source Data Profiling"
+    agent: data-agent
+    description: "Profile source data: schema, volume, quality, freshness"
+  - name: "Schema Design"
+    agent: data-agent
+    depends_on: ["Source Data Profiling"]
+    description: "Design destination schema and mapping rules"
+    skills: [database-migration]
+  - name: "Extract Layer"
+    agent: code-agent
+    depends_on: ["Schema Design"]
+    description: "Build data extraction with incremental load support"
+  - name: "Transform Layer"
+    agent: code-agent
+    depends_on: ["Schema Design"]
+    description: "Implement data transformations, cleaning, and enrichment"
+  - name: "Load Layer"
+    agent: code-agent
+    depends_on: ["Transform Layer"]
+    description: "Build data loading with upsert and idempotency"
+  - name: "Data Validation"
+    agent: code-agent
+    depends_on: ["Load Layer"]
+    description: "Add data quality checks: completeness, accuracy, freshness"
+  - name: "Pipeline Tests"
+    agent: code-agent
+    depends_on: ["Data Validation"]
+    description: "Write unit and integration tests for each pipeline stage"
+    skills: [test-generation]
+  - name: "Monitoring and Alerting"
+    agent: devops-agent
+    depends_on: ["Pipeline Tests"]
+    description: "Set up pipeline monitoring, SLA tracking, and failure alerts"
+    skills: [monitoring-setup]
+  - name: "Documentation"
+    agent: writing-agent
+    depends_on: ["Pipeline Tests"]
+    description: "Document pipeline architecture, data lineage, and runbook"

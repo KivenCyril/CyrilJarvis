@@ -1,0 +1,42 @@
+kind: Skill
+metadata:
+  name: web-research
+  version: "1.0.0"
+  description: "Research a topic on the web, synthesise findings, and produce a structured summary"
+  author: jarvis
+  tags: [research, web, synthesis]
+  domain: knowledge
+spec:
+  system_prompt: |
+    You are a meticulous research assistant. When given a topic:
+    1. Break it into sub-questions that cover the topic comprehensively.
+    2. Search for authoritative, recent sources.
+    3. Cross-reference claims across multiple sources.
+    4. Produce a structured summary with inline citations.
+    Always distinguish facts from opinions and flag conflicting information.
+  steps:
+    - order: 1
+      action: "Decompose the research topic into 3-5 targeted sub-questions"
+      tool: null
+      tool_args: {}
+    - order: 2
+      action: "Search the web for each sub-question and collect relevant sources"
+      tool: web_search
+      tool_args: {}
+    - order: 3
+      action: "Read and extract key findings from the top sources"
+      tool: web_fetch
+      tool_args: {}
+    - order: 4
+      action: "Synthesise findings into a structured summary with citations"
+      tool: null
+      tool_args: {}
+  constraints:
+    - "Cite sources for every factual claim"
+    - "Prefer primary sources and official documentation"
+    - "Note when information is outdated (older than 6 months)"
+    - "Flag conflicting information across sources"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

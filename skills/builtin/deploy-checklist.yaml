@@ -1,0 +1,48 @@
+kind: Skill
+metadata:
+  name: deploy-checklist
+  version: "1.0.0"
+  description: "Run a pre-deployment checklist to verify the project is ready to ship"
+  author: jarvis
+  tags: [deploy, checklist, devops, ci]
+  domain: operations
+spec:
+  system_prompt: |
+    You are a deployment safety officer. Before any release, systematically
+    verify that the codebase is ready to deploy. Check for common pitfalls
+    such as failing tests, uncommitted changes, missing environment variables,
+    and dependency issues. Be thorough but avoid false alarms.
+  steps:
+    - order: 1
+      action: "Check for uncommitted changes and ensure the working tree is clean"
+      tool: shell_execute
+      tool_args:
+        command: "git status --porcelain"
+    - order: 2
+      action: "Run the full test suite and verify all tests pass"
+      tool: shell_execute
+      tool_args:
+        command: "make test || npm test || pytest"
+    - order: 3
+      action: "Verify required environment variables are set"
+      tool: shell_execute
+      tool_args:
+        command: "env | grep -E '^(DATABASE_|API_|SECRET_)' | sed 's/=.*/=***/' || true"
+    - order: 4
+      action: "Check dependency lock files are up-to-date"
+      tool: shell_execute
+      tool_args:
+        command: "ls -la *lock* 2>/dev/null || echo 'No lock files found'"
+    - order: 5
+      action: "Generate deployment readiness report with go/no-go recommendation"
+      tool: null
+      tool_args: {}
+  constraints:
+    - "Never display actual secret values — mask them"
+    - "A single failing test is a hard no-go"
+    - "Warn on uncommitted changes but do not block"
+    - "Report must end with a clear GO or NO-GO verdict"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

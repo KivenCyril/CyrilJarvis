@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS - User Profile</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --accent-purple: #a855f7;
+      --border: #334155;
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header .title { font-size: 1.25rem; font-weight: 600; }
+
+    .header .nav-links { display: flex; gap: 1rem; }
+
+    .header .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .header .nav-links a:hover,
+    .header .nav-links a.active {
+      color: var(--text-primary);
+      background: var(--bg-card-hover);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .profile-info .name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .profile-info .role {
+      font-size: 0.9rem;
+      color: var(--accent-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-info .meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .form-input,
+    .form-select {
+      padding: 0.65rem 0.9rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .form-input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+    }
+
+    .toggle-row:last-child { border-bottom: none; }
+
+    .toggle-info .toggle-label {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .toggle-info .toggle-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--border);
+      border-radius: 12px;
+      transition: var(--transition);
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--accent-blue);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.65rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-primary { background: var(--accent-blue); color: white; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary { background: var(--bg-card-hover); color: var(--text-primary); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-danger { background: var(--accent-red); color: white; }
+    .btn-danger:hover { opacity: 0.9; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+
+    .activity-list {
+      list-style: none;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .activity-dot.spec { background: var(--accent-blue); }
+    .activity-dot.agent { background: var(--accent-green); }
+    .activity-dot.tool { background: var(--accent-purple); }
+    .activity-dot.login { background: var(--accent-yellow); }
+
+    .activity-text {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .activity-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--accent-green);
+      color: white;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .profile-header { flex-direction: column; text-align: center; }
+      .form-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="title">User Profile</div>
+    <nav class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="agents.html">Agents</a>
+      <a href="settings.html">Settings</a>
+      <a href="user-profile.html" class="active">Profile</a>
+    </nav>
+  </header>
+
+  <div class="container">
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="avatar" id="avatar">JA</div>
+      <div class="profile-info">
+        <div class="name" id="display-name">JARVIS Admin</div>
+        <div class="role" id="role">Administrator</div>
+        <div class="meta" id="meta-info">Member since Jan 2025 | Last login: Today</div>
+      </div>
+    </div>
+
+    <!-- Usage Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--accent-blue)">142</div>
+        <div class="stat-label">Specs Created</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--accent-green)">89</div>
+        <div class="stat-label">Tasks Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--accent-purple)">1.2K</div>
+        <div class="stat-label">Tool Calls</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--accent-yellow)">28</div>
+        <div class="stat-label">Days Active</div>
+      </div>
+    </div>
+
+    <!-- Profile Settings -->
+    <div class="section">
+      <div class="section-title">Profile Information</div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Display Name</label>
+            <input type="text" class="form-input" id="input-name" value="JARVIS Admin">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-input" id="input-username" value="jarvis-admin" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="input-email" value="admin@jarvis.local">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <input type="text" class="form-input" value="admin" disabled>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="resetProfile()">Reset</button>
+          <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="section">
+      <div class="section-title">Preferences</div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Theme</label>
+            <select class="form-select" id="pref-theme">
+              <option value="dark" selected>Dark</option>
+              <option value="light">Light</option>
+              <option value="auto">System</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Language</label>
+            <select class="form-select" id="pref-language">
+              <option value="en" selected>English</option>
+              <option value="zh">Chinese</option>
+              <option value="ja">Japanese</option>
+              <option value="es">Spanish</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Timezone</label>
+            <select class="form-select" id="pref-timezone">
+              <option value="UTC" selected>UTC</option>
+              <option value="US/Pacific">US/Pacific</option>
+              <option value="US/Eastern">US/Eastern</option>
+              <option value="Europe/London">Europe/London</option>
+              <option value="Asia/Shanghai">Asia/Shanghai</option>
+              <option value="Asia/Tokyo">Asia/Tokyo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Page Size</label>
+            <select class="form-select" id="pref-pagesize">
+              <option value="10">10</option>
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Notifications</div>
+              <div class="toggle-desc">Receive in-app notifications for events and alerts</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="pref-notifications" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Auto-execute Specs</div>
+              <div class="toggle-desc">Automatically execute specs after creation</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="pref-autoexec">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Show Debug Info</div>
+              <div class="toggle-desc">Display debug information in the UI</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="pref-debug">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Keyboard Shortcuts</div>
+              <div class="toggle-desc">Enable keyboard shortcuts for common actions</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="pref-shortcuts" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Compact View</div>
+              <div class="toggle-desc">Use a compact layout with less padding</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="pref-compact">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="resetPreferences()">Reset to Defaults</button>
+          <button class="btn btn-primary" onclick="savePreferences()">Save Preferences</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="section">
+      <div class="section-title">Recent Activity</div>
+      <div class="card">
+        <ul class="activity-list" id="activity-list">
+          <li class="activity-item">
+            <span class="activity-dot spec"></span>
+            <span class="activity-text">Created spec: "Code Review #42"</span>
+            <span class="activity-time">2 min ago</span>
+          </li>
+          <li class="activity-item">
+            <span class="activity-dot agent"></span>
+            <span class="activity-text">Chatted with code-agent</span>
+            <span class="activity-time">15 min ago</span>
+          </li>
+          <li class="activity-item">
+            <span class="activity-dot tool"></span>
+            <span class="activity-text">Ran tool: git_diff on 12 files</span>
+            <span class="activity-time">20 min ago</span>
+          </li>
+          <li class="activity-item">
+            <span class="activity-dot spec"></span>
+            <span class="activity-text">Completed spec: "Deploy Pipeline"</span>
+            <span class="activity-time">45 min ago</span>
+          </li>
+          <li class="activity-item">
+            <span class="activity-dot login"></span>
+            <span class="activity-text">Logged in from 127.0.0.1</span>
+            <span class="activity-time">1 hour ago</span>
+          </li>
+          <li class="activity-item">
+            <span class="activity-dot agent"></span>
+            <span class="activity-text">Delegated task to research-agent</span>
+            <span class="activity-time">2 hours ago</span>
+          </li>
+          <li class="activity-item">
+            <span class="activity-dot tool"></span>
+            <span class="activity-text">Ran tool: python_exec (analysis script)</span>
+            <span class="activity-time">3 hours ago</span>
+          </li>
+          <li class="activity-item">
+            <span class="activity-dot spec"></span>
+            <span class="activity-text">Redirected spec: "API Design" to new requirements</span>
+            <span class="activity-time">4 hours ago</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="section">
+      <div class="section-title" style="color: var(--accent-red);">Danger Zone</div>
+      <div class="card" style="border-color: rgba(239, 68, 68, 0.3);">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Clear All Memories</div>
+            <div class="toggle-desc">Permanently delete all stored memories. This cannot be undone.</div>
+          </div>
+          <button class="btn btn-danger" onclick="confirmClear('memories')">Clear</button>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Reset Knowledge Graph</div>
+            <div class="toggle-desc">Delete all nodes and edges from the knowledge graph.</div>
+          </div>
+          <button class="btn btn-danger" onclick="confirmClear('knowledge')">Reset</button>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Clear All Specs</div>
+            <div class="toggle-desc">Remove all Streaming Specs and their history.</div>
+          </div>
+          <button class="btn btn-danger" onclick="confirmClear('specs')">Clear</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast">Changes saved successfully!</div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 3000);
+    }
+
+    async function saveProfile() {
+      const name = document.getElementById('input-name').value;
+      const email = document.getElementById('input-email').value;
+      try {
+        await fetch(`${API_BASE}/user/profile`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ display_name: name, email }),
+        });
+      } catch (e) {}
+      document.getElementById('display-name').textContent = name;
+      document.getElementById('avatar').textContent = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      showToast('Profile saved successfully!');
+    }
+
+    function resetProfile() {
+      document.getElementById('input-name').value = 'JARVIS Admin';
+      document.getElementById('input-email').value = 'admin@jarvis.local';
+    }
+
+    async function savePreferences() {
+      const prefs = {
+        theme: document.getElementById('pref-theme').value,
+        language: document.getElementById('pref-language').value,
+        timezone: document.getElementById('pref-timezone').value,
+        page_size: parseInt(document.getElementById('pref-pagesize').value),
+        notifications_enabled: document.getElementById('pref-notifications').checked,
+        auto_execute_specs: document.getElementById('pref-autoexec').checked,
+        show_debug_info: document.getElementById('pref-debug').checked,
+        keyboard_shortcuts: document.getElementById('pref-shortcuts').checked,
+        compact_view: document.getElementById('pref-compact').checked,
+      };
+      try {
+        await fetch(`${API_BASE}/user/preferences`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(prefs),
+        });
+      } catch (e) {}
+      showToast('Preferences saved successfully!');
+    }
+
+    function resetPreferences() {
+      document.getElementById('pref-theme').value = 'dark';
+      document.getElementById('pref-language').value = 'en';
+      document.getElementById('pref-timezone').value = 'UTC';
+      document.getElementById('pref-pagesize').value = '25';
+      document.getElementById('pref-notifications').checked = true;
+      document.getElementById('pref-autoexec').checked = false;
+      document.getElementById('pref-debug').checked = false;
+      document.getElementById('pref-shortcuts').checked = true;
+      document.getElementById('pref-compact').checked = false;
+    }
+
+    function confirmClear(type) {
+      if (confirm(`Are you sure you want to clear all ${type}? This cannot be undone.`)) {
+        showToast(`${type} cleared (simulated).`);
+      }
+    }
+
+    // Load profile from API
+    async function loadProfile() {
+      try {
+        const resp = await fetch(`${API_BASE}/user/profile`);
+        const data = await resp.json();
+        document.getElementById('input-name').value = data.display_name || '';
+        document.getElementById('input-email').value = data.email || '';
+        document.getElementById('display-name').textContent = data.display_name || 'User';
+        document.getElementById('role').textContent = data.role || 'user';
+      } catch (e) {}
+    }
+
+    async function loadPreferences() {
+      try {
+        const resp = await fetch(`${API_BASE}/user/preferences`);
+        const data = await resp.json();
+        if (data.theme) document.getElementById('pref-theme').value = data.theme;
+        if (data.language) document.getElementById('pref-language').value = data.language;
+        if (data.timezone) document.getElementById('pref-timezone').value = data.timezone;
+        if (data.page_size) document.getElementById('pref-pagesize').value = data.page_size;
+        document.getElementById('pref-notifications').checked = data.notifications_enabled !== false;
+        document.getElementById('pref-autoexec').checked = data.auto_execute_specs === true;
+        document.getElementById('pref-debug').checked = data.show_debug_info === true;
+        document.getElementById('pref-shortcuts').checked = data.keyboard_shortcuts !== false;
+        document.getElementById('pref-compact').checked = data.compact_view === true;
+      } catch (e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+      loadPreferences();
+    });
+  </script>
+
+</body>
+</html>

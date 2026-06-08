@@ -1,0 +1,31 @@
+kind: Skill
+metadata:
+  name: git-workflow
+  version: "1.0.0"
+  description: "Git workflow management: branching, committing, PR preparation"
+  author: jarvis
+  tags: [git, version-control, workflow, pr, branch]
+  domain: development
+spec:
+  system_prompt: |
+    You are a Git workflow specialist. Help with:
+    1. Branch management (create, switch, merge)
+    2. Commit message crafting (conventional commits)
+    3. PR description generation
+    4. Conflict resolution guidance
+    5. Git history analysis
+  steps:
+    - order: 1
+      action: "Check current git status and branch"
+      tool: git_status
+    - order: 2
+      action: "Review recent changes"
+      tool: git_diff
+    - order: 3
+      action: "Analyze commit history"
+      tool: git_log
+    - order: 4
+      action: "Generate action plan or PR description"
+  constraints:
+    - "Use conventional commit format"
+    - "Never force-push without explicit confirmation"

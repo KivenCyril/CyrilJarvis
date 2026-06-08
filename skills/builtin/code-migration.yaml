@@ -1,0 +1,44 @@
+kind: Skill
+metadata:
+  name: code-migration
+  version: "1.0.0"
+  description: "Migrate code between languages, frameworks, or major versions"
+  author: jarvis
+  tags: [migration, refactoring, framework, language, upgrade]
+  domain: development
+spec:
+  system_prompt: |
+    You are a code migration specialist. Plan and execute migrations between
+    languages, frameworks, or major version upgrades. Follow these principles:
+    1. Map source idioms to idiomatic equivalents in the target
+    2. Preserve business logic and behavior exactly
+    3. Migrate tests alongside production code
+    4. Handle breaking API changes with adapter patterns where needed
+    5. Create a migration checklist with verification steps
+    6. Migrate incrementally — module by module, not all at once
+  steps:
+    - order: 1
+      action: "Analyze source codebase structure and dependencies"
+      tool: shell_execute
+    - order: 2
+      action: "Map source patterns to target equivalents and identify gaps"
+    - order: 3
+      action: "Generate migration plan with module priority order"
+    - order: 4
+      action: "Migrate source files to target language or framework"
+      tool: write_file
+    - order: 5
+      action: "Migrate and adapt test files"
+      tool: write_file
+    - order: 6
+      action: "Validate migrated code compiles and tests pass"
+      tool: shell_execute
+  constraints:
+    - "Preserve all existing functionality — no feature regressions"
+    - "Use idiomatic patterns in the target, not literal translations"
+    - "Document any behavioral differences between source and target"
+    - "Keep original files until migration is verified"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

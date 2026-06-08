@@ -1,0 +1,142 @@
+version: "3.9"
+
+# =============================================================================
+# JARVIS - Docker Compose Stack
+# =============================================================================
+#
+# Usage:
+#   docker compose up -d                          # Core JARVIS only
+#   docker compose --profile full up -d           # + Redis + PostgreSQL
+#   docker compose --profile local-llm up -d      # + Ollama (local models)
+#   docker compose --profile full --profile local-llm up -d  # Everything
+#
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Core: JARVIS Server
+  # ---------------------------------------------------------------------------
+  jarvis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jarvis-server
+    ports:
+      - "${JARVIS_PORT:-8000}:8000"
+    environment:
+      - JARVIS_DEFAULT_MODEL=${JARVIS_DEFAULT_MODEL:-gpt-4o-mini}
+      - JARVIS_LOG_LEVEL=${JARVIS_LOG_LEVEL:-INFO}
+      - JARVIS_LOG_FORMAT=${JARVIS_LOG_FORMAT:-human}
+      - JARVIS_SANDBOX_MODE=${JARVIS_SANDBOX_MODE:-basic}
+      - JARVIS_SECRET_SCANNING=${JARVIS_SECRET_SCANNING:-true}
+      # LLM API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      # Database (when using full profile)
+      - DATABASE_URL=${DATABASE_URL:-}
+      - REDIS_URL=${REDIS_URL:-}
+    volumes:
+      - jarvis-data:/app/data
+      - jarvis-memory:/root/.jarvis
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import httpx; r=httpx.get('http://localhost:8000/health'); assert r.status_code==200",
+        ]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+    networks:
+      - jarvis-net
+
+  # ---------------------------------------------------------------------------
+  # Optional: Redis for caching and pub/sub
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: jarvis-redis
+    ports:
+      - "6379:6379"
+    profiles: ["full"]
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - jarvis-net
+
+  # ---------------------------------------------------------------------------
+  # Optional: PostgreSQL for persistent storage
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: jarvis-postgres
+    environment:
+      POSTGRES_DB: jarvis
+      POSTGRES_USER: jarvis
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jarvis_dev}
+    ports:
+      - "5432:5432"
+    profiles: ["full"]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jarvis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jarvis-net
+
+  # ---------------------------------------------------------------------------
+  # Optional: Ollama for local LLM inference
+  # ---------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: jarvis-ollama
+    ports:
+      - "11434:11434"
+    profiles: ["local-llm"]
+    volumes:
+      - ollama-data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - jarvis-net
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  jarvis-data:
+    name: jarvis-data
+  jarvis-memory:
+    name: jarvis-memory
+  redis-data:
+    name: jarvis-redis-data
+  postgres-data:
+    name: jarvis-postgres-data
+  ollama-data:
+    name: jarvis-ollama-data
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  jarvis-net:
+    name: jarvis-network

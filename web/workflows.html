@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Workflow Manager</title>
+<style>
+/* ====================================================================
+   JARVIS Workflow Manager — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --green-bg:     rgba(34,197,94,0.12);
+  --orange:       #f59e0b;
+  --orange-bg:    rgba(245,158,11,0.12);
+  --red:          #ef4444;
+  --red-bg:       rgba(239,68,68,0.12);
+  --purple:       #a855f7;
+  --purple-bg:    rgba(168,85,247,0.12);
+  --cyan:         #06b6d4;
+  --cyan-bg:      rgba(6,182,212,0.12);
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Navigation ---------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Main Layout ------------------------------------------------------- */
+.main-layout { flex: 1; display: flex; overflow: hidden; }
+
+/* -- Left Panel: Workflow List ----------------------------------------- */
+.wf-list-panel {
+  width: 340px; background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.wf-list-header {
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.wf-list-header h2 { font-size: 15px; font-weight: 600; }
+.btn-new {
+  padding: 6px 14px; background: var(--accent); color: #fff; border: none;
+  border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer;
+}
+.btn-new:hover { background: var(--accent-hover); }
+.wf-list { flex: 1; overflow-y: auto; }
+.wf-item {
+  padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: var(--transition);
+}
+.wf-item:hover { background: var(--bg-hover); }
+.wf-item.active { background: var(--bg-surface); border-left: 3px solid var(--accent); }
+.wf-item-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.wf-item-meta { display: flex; gap: 8px; align-items: center; }
+.wf-item-meta span { font-size: 11px; color: var(--text-muted); }
+
+/* Badges */
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+}
+.badge-running  { background: var(--green-bg); color: var(--green); }
+.badge-pending  { background: var(--orange-bg); color: var(--orange); }
+.badge-failed   { background: var(--red-bg); color: var(--red); }
+.badge-completed{ background: var(--cyan-bg); color: var(--cyan); }
+.badge-draft    { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+
+/* -- Center: Workflow Editor ------------------------------------------- */
+.wf-editor {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+}
+.wf-editor-toolbar {
+  height: 48px; padding: 0 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; background: var(--bg-base);
+}
+.wf-editor-toolbar .wf-name {
+  font-size: 15px; font-weight: 600; flex: 1;
+}
+.wf-editor-toolbar button {
+  padding: 6px 14px; border-radius: var(--radius); font-size: 12px;
+  font-weight: 500; border: none; cursor: pointer;
+}
+.btn-run { background: var(--green); color: #fff; }
+.btn-run:hover { background: #16a34a; }
+.btn-save { background: var(--accent); color: #fff; }
+.btn-save:hover { background: var(--accent-hover); }
+.btn-delete { background: var(--red); color: #fff; }
+.btn-delete:hover { opacity: 0.9; }
+
+/* -- Canvas ------------------------------------------------------------ */
+.wf-canvas {
+  flex: 1; position: relative; overflow: auto; background: var(--bg-deep);
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.wf-canvas-inner { position: relative; min-height: 600px; padding: 40px; }
+
+/* -- Step Card --------------------------------------------------------- */
+.step-card {
+  position: absolute; width: 220px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 14px; cursor: grab; box-shadow: var(--shadow); transition: box-shadow 150ms;
+  user-select: none;
+}
+.step-card:hover { box-shadow: var(--shadow-md); }
+.step-card.dragging { opacity: 0.8; cursor: grabbing; z-index: 100; }
+.step-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.step-icon {
+  width: 28px; height: 28px; border-radius: 6px; display: flex;
+  align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+}
+.step-icon.action   { background: var(--green-bg); color: var(--green); }
+.step-icon.condition { background: var(--orange-bg); color: var(--orange); }
+.step-icon.loop     { background: var(--purple-bg); color: var(--purple); }
+.step-icon.parallel { background: var(--cyan-bg); color: var(--cyan); }
+.step-icon.approval { background: var(--red-bg); color: var(--red); }
+.step-name { font-size: 13px; font-weight: 600; flex: 1; }
+.step-desc { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
+.step-status { font-size: 10px; }
+.step-actions {
+  display: flex; gap: 4px; margin-top: 8px; opacity: 0; transition: opacity 150ms;
+}
+.step-card:hover .step-actions { opacity: 1; }
+.step-actions button {
+  padding: 3px 8px; font-size: 10px; border-radius: 4px; border: 1px solid var(--border);
+  color: var(--text-dim); background: var(--bg-surface); cursor: pointer;
+}
+.step-actions button:hover { color: var(--text); border-color: var(--accent); }
+
+/* -- Connectors -------------------------------------------------------- */
+.wf-connectors { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.wf-connectors svg { width: 100%; height: 100%; }
+
+/* -- Right Panel: Variables & Progress --------------------------------- */
+.wf-right-panel {
+  width: 320px; background: var(--bg-base); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+}
+.panel-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.panel-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); margin-bottom: 10px;
+}
+
+/* -- Template Selector ------------------------------------------------- */
+.template-select {
+  width: 100%; padding: 8px 10px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-size: 13px; margin-bottom: 8px;
+}
+
+/* -- Progress Steps ---------------------------------------------------- */
+.progress-step { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.progress-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.progress-dot.done { background: var(--green); }
+.progress-dot.running { background: var(--accent); animation: pulse 1.5s infinite; }
+.progress-dot.pending { background: var(--text-muted); }
+.progress-dot.failed { background: var(--red); }
+.progress-label { font-size: 12px; color: var(--text-dim); flex: 1; }
+.progress-time { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
+
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* -- Variable Inspector ------------------------------------------------ */
+.var-item { display: flex; align-items: center; padding: 6px 0; gap: 8px; border-bottom: 1px solid var(--border); }
+.var-name { font-size: 12px; font-family: var(--mono); color: var(--cyan); min-width: 80px; }
+.var-value { font-size: 12px; color: var(--text-dim); flex: 1; word-break: break-all; }
+.var-type {
+  font-size: 9px; padding: 1px 5px; border-radius: 3px;
+  background: var(--bg-surface); color: var(--text-muted);
+}
+
+/* -- Add Step Toolbar -------------------------------------------------- */
+.add-step-bar {
+  padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--bg-base);
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.add-step-btn {
+  padding: 5px 10px; border-radius: var(--radius); font-size: 11px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-dim);
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+}
+.add-step-btn:hover { border-color: var(--accent); color: var(--text); }
+
+/* -- Create Workflow Dialog -------------------------------------------- */
+.dialog-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+}
+.dialog-overlay.visible { display: flex; }
+.dialog {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 24px; width: 420px; box-shadow: var(--shadow-md);
+}
+.dialog h3 { font-size: 16px; margin-bottom: 16px; }
+.dialog .form-group { margin-bottom: 12px; }
+.dialog label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+.dialog input, .dialog select, .dialog textarea {
+  width: 100%; padding: 8px 10px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-size: 13px;
+}
+.dialog textarea { resize: vertical; min-height: 60px; }
+.dialog-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.dialog-actions button {
+  padding: 8px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  border: none; cursor: pointer;
+}
+.btn-cancel { background: var(--bg-surface); color: var(--text-dim); }
+.btn-create { background: var(--accent); color: #fff; }
+.btn-create:hover { background: var(--accent-hover); }
+
+/* -- Toast ------------------------------------------------------------- */
+.toast-container { position: fixed; top: 60px; right: 16px; z-index: 1001; }
+.toast {
+  padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; margin-bottom: 8px; box-shadow: var(--shadow);
+  animation: toastIn 300ms ease;
+}
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>Workflows</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html">Knowledge</a>
+    <a href="workflows.html" class="active">Workflows</a>
+    <a href="memory.html">Memory</a>
+    <a href="skills.html">Skills</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html">API Docs</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- Left Panel: Workflow List -->
+  <div class="wf-list-panel">
+    <div class="wf-list-header">
+      <h2>Workflows</h2>
+      <button class="btn-new" onclick="showCreateDialog()">+ New</button>
+    </div>
+    <div class="wf-list" id="workflowList"></div>
+  </div>
+
+  <!-- Center: Workflow Editor -->
+  <div class="wf-editor">
+    <div class="wf-editor-toolbar">
+      <div class="wf-name" id="editorTitle">Select a workflow</div>
+      <button class="btn-run" id="btnRun" onclick="runWorkflow()" style="display:none">Run</button>
+      <button class="btn-save" id="btnSave" onclick="saveWorkflow()" style="display:none">Save</button>
+      <button class="btn-delete" id="btnDelete" onclick="deleteWorkflow()" style="display:none">Delete</button>
+    </div>
+    <div class="add-step-bar" id="addStepBar" style="display:none">
+      <button class="add-step-btn" onclick="addStep('action')">
+        <span style="color:var(--green)">&#9654;</span> Action
+      </button>
+      <button class="add-step-btn" onclick="addStep('condition')">
+        <span style="color:var(--orange)">&#9670;</span> Condition
+      </button>
+      <button class="add-step-btn" onclick="addStep('loop')">
+        <span style="color:var(--purple)">&#8634;</span> Loop
+      </button>
+      <button class="add-step-btn" onclick="addStep('parallel')">
+        <span style="color:var(--cyan)">&#8741;</span> Parallel
+      </button>
+      <button class="add-step-btn" onclick="addStep('approval')">
+        <span style="color:var(--red)">&#10003;</span> Approval
+      </button>
+    </div>
+    <div class="wf-canvas" id="wfCanvas">
+      <div class="wf-canvas-inner" id="canvasInner">
+        <div class="wf-connectors" id="connectorsLayer">
+          <svg id="connectorsSvg"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="wf-right-panel">
+    <!-- Template -->
+    <div class="panel-section">
+      <div class="panel-title">Create from Template</div>
+      <select class="template-select" id="templateSelect" onchange="applyTemplate()">
+        <option value="">-- Select template --</option>
+        <option value="research">Research & Report</option>
+        <option value="code-review">Code Review Pipeline</option>
+        <option value="data-pipeline">Data Processing Pipeline</option>
+        <option value="deployment">Deployment Workflow</option>
+        <option value="onboarding">User Onboarding</option>
+      </select>
+    </div>
+
+    <!-- Execution Progress -->
+    <div class="panel-section">
+      <div class="panel-title">Execution Progress</div>
+      <div id="progressList">
+        <div style="font-size:12px;color:var(--text-muted)">No active execution</div>
+      </div>
+    </div>
+
+    <!-- Variable Inspector -->
+    <div class="panel-section">
+      <div class="panel-title">Variables</div>
+      <div id="variableList">
+        <div style="font-size:12px;color:var(--text-muted)">No variables defined</div>
+      </div>
+    </div>
+
+    <!-- Workflow Info -->
+    <div class="panel-section" id="wfInfoPanel" style="display:none">
+      <div class="panel-title">Workflow Info</div>
+      <div id="wfInfo"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Workflow Dialog -->
+<div class="dialog-overlay" id="createDialog">
+  <div class="dialog">
+    <h3>Create Workflow</h3>
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="newWfName" placeholder="My Workflow">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="newWfDesc" placeholder="What does this workflow do?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Template</label>
+      <select id="newWfTemplate">
+        <option value="">Blank</option>
+        <option value="research">Research & Report</option>
+        <option value="code-review">Code Review Pipeline</option>
+        <option value="data-pipeline">Data Processing Pipeline</option>
+        <option value="deployment">Deployment Workflow</option>
+        <option value="onboarding">User Onboarding</option>
+      </select>
+    </div>
+    <div class="dialog-actions">
+      <button class="btn-cancel" onclick="hideCreateDialog()">Cancel</button>
+      <button class="btn-create" onclick="createWorkflow()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+/* ====================================================================
+   JARVIS Workflow Manager
+   ==================================================================== */
+
+const API_BASE = window.location.origin;
+
+const stepIcons = {
+  action:   { symbol: '▶', cssClass: 'action' },
+  condition:{ symbol: '◆', cssClass: 'condition' },
+  loop:     { symbol: '↺', cssClass: 'loop' },
+  parallel: { symbol: '‖', cssClass: 'parallel' },
+  approval: { symbol: '✓', cssClass: 'approval' },
+};
+
+let workflows = [];
+let activeWfId = null;
+let dragTarget = null;
+let dragOffset = { x: 0, y: 0 };
+
+// -- Templates ----------------------------------------------------------
+
+const templates = {
+  research: {
+    steps: [
+      { id: 's1', name: 'Gather Sources', type: 'action', desc: 'Search and collect relevant sources', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: 'Filter Quality', type: 'condition', desc: 'Check source reliability', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: 'Extract Data', type: 'loop', desc: 'Extract key facts from each source', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: 'Generate Report', type: 'action', desc: 'Compile findings into report', x: 60, y: 400, status: 'pending' },
+    ],
+    connections: [['s1','s2'],['s2','s3'],['s3','s4']],
+    variables: [
+      { name: 'query', value: '', type: 'string' },
+      { name: 'max_sources', value: '10', type: 'number' },
+    ],
+  },
+  'code-review': {
+    steps: [
+      { id: 's1', name: 'Fetch PR', type: 'action', desc: 'Get pull request diff', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: 'Static Analysis', type: 'parallel', desc: 'Run linting, type checks, security scan', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: 'AI Review', type: 'action', desc: 'LLM-based code review', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: 'Approve/Reject', type: 'approval', desc: 'Human approval gate', x: 60, y: 400, status: 'pending' },
+    ],
+    connections: [['s1','s2'],['s2','s3'],['s3','s4']],
+    variables: [
+      { name: 'pr_url', value: '', type: 'string' },
+      { name: 'auto_approve', value: 'false', type: 'boolean' },
+    ],
+  },
+  'data-pipeline': {
+    steps: [
+      { id: 's1', name: 'Ingest Data', type: 'action', desc: 'Read from data source', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: 'Validate Schema', type: 'condition', desc: 'Ensure data matches schema', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: 'Transform', type: 'loop', desc: 'Apply transformations row by row', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: 'Load', type: 'action', desc: 'Write to destination', x: 60, y: 400, status: 'pending' },
+    ],
+    connections: [['s1','s2'],['s2','s3'],['s3','s4']],
+    variables: [
+      { name: 'source_path', value: '', type: 'string' },
+      { name: 'dest_path', value: '', type: 'string' },
+    ],
+  },
+  deployment: {
+    steps: [
+      { id: 's1', name: 'Build', type: 'action', desc: 'Compile and package', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: 'Test', type: 'parallel', desc: 'Run unit + integration tests', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: 'Stage Deploy', type: 'action', desc: 'Deploy to staging environment', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: 'Approve Prod', type: 'approval', desc: 'Manual approval for production', x: 60, y: 400, status: 'pending' },
+      { id: 's5', name: 'Deploy Prod', type: 'action', desc: 'Deploy to production', x: 60, y: 520, status: 'pending' },
+    ],
+    connections: [['s1','s2'],['s2','s3'],['s3','s4'],['s4','s5']],
+    variables: [
+      { name: 'branch', value: 'main', type: 'string' },
+      { name: 'env', value: 'staging', type: 'string' },
+    ],
+  },
+  onboarding: {
+    steps: [
+      { id: 's1', name: 'Create Account', type: 'action', desc: 'Set up user account', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: 'Send Welcome', type: 'action', desc: 'Send welcome email', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: 'Setup Workspace', type: 'parallel', desc: 'Configure tools and permissions', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: 'Check Completion', type: 'condition', desc: 'Verify all steps done', x: 60, y: 400, status: 'pending' },
+    ],
+    connections: [['s1','s2'],['s2','s3'],['s3','s4']],
+    variables: [
+      { name: 'user_email', value: '', type: 'string' },
+      { name: 'role', value: 'member', type: 'string' },
+    ],
+  },
+};
+
+// -- Initialize ---------------------------------------------------------
+
+function init() {
+  loadDemoWorkflows();
+  renderWorkflowList();
+}
+
+function loadDemoWorkflows() {
+  workflows = [
+    {
+      id: 'wf1', name: 'Research Pipeline', description: 'Automated research and report generation',
+      status: 'running', created: '2025-05-28', steps: templates.research.steps.map(s => ({...s})),
+      connections: [...templates.research.connections],
+      variables: templates.research.variables.map(v => ({...v})),
+    },
+    {
+      id: 'wf2', name: 'Code Review Bot', description: 'Automated PR review pipeline',
+      status: 'completed', created: '2025-05-25', steps: templates['code-review'].steps.map(s => ({...s, status: 'done'})),
+      connections: [...templates['code-review'].connections],
+      variables: templates['code-review'].variables.map(v => ({...v})),
+    },
+    {
+      id: 'wf3', name: 'Daily Deploy', description: 'CI/CD pipeline',
+      status: 'pending', created: '2025-05-30', steps: templates.deployment.steps.map(s => ({...s})),
+      connections: [...templates.deployment.connections],
+      variables: templates.deployment.variables.map(v => ({...v})),
+    },
+  ];
+}
+
+// -- Workflow List -------------------------------------------------------
+
+function renderWorkflowList() {
+  const container = document.getElementById('workflowList');
+  container.innerHTML = workflows.map(wf => `
+    <div class="wf-item ${wf.id === activeWfId ? 'active' : ''}" onclick="selectWorkflow('${wf.id}')">
+      <div class="wf-item-title">${wf.name}</div>
+      <div class="wf-item-meta">
+        <span class="badge badge-${wf.status}">${wf.status}</span>
+        <span>${wf.steps.length} steps</span>
+        <span>${wf.created}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectWorkflow(id) {
+  activeWfId = id;
+  const wf = workflows.find(w => w.id === id);
+  if (!wf) return;
+
+  document.getElementById('editorTitle').textContent = wf.name;
+  document.getElementById('btnRun').style.display = '';
+  document.getElementById('btnSave').style.display = '';
+  document.getElementById('btnDelete').style.display = '';
+  document.getElementById('addStepBar').style.display = '';
+
+  renderWorkflowList();
+  renderSteps(wf);
+  renderConnectors(wf);
+  renderProgress(wf);
+  renderVariables(wf);
+  renderWfInfo(wf);
+}
+
+// -- Step Rendering ------------------------------------------------------
+
+function renderSteps(wf) {
+  const container = document.getElementById('canvasInner');
+  // Remove old step cards (keep connectors layer)
+  container.querySelectorAll('.step-card').forEach(el => el.remove());
+
+  for (const step of wf.steps) {
+    const iconInfo = stepIcons[step.type] || stepIcons.action;
+    const card = document.createElement('div');
+    card.className = 'step-card';
+    card.id = `step-${step.id}`;
+    card.style.left = `${step.x}px`;
+    card.style.top = `${step.y}px`;
+    card.dataset.stepId = step.id;
+
+    card.innerHTML = `
+      <div class="step-header">
+        <div class="step-icon ${iconInfo.cssClass}">${iconInfo.symbol}</div>
+        <div class="step-name">${step.name}</div>
+      </div>
+      <div class="step-desc">${step.desc}</div>
+      <div class="step-status"><span class="badge badge-${step.status}">${step.status}</span></div>
+      <div class="step-actions">
+        <button onclick="editStep('${step.id}')">Edit</button>
+        <button onclick="removeStep('${step.id}')">Remove</button>
+      </div>
+    `;
+
+    // Drag support
+    card.addEventListener('mousedown', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      dragTarget = step;
+      const rect = card.getBoundingClientRect();
+      dragOffset.x = e.clientX - rect.left;
+      dragOffset.y = e.clientY - rect.top;
+      card.classList.add('dragging');
+    });
+
+    container.appendChild(card);
+  }
+}
+
+// Global drag handlers
+document.addEventListener('mousemove', e => {
+  if (!dragTarget) return;
+  const canvas = document.getElementById('wfCanvas');
+  const canvasRect = canvas.getBoundingClientRect();
+  const newX = e.clientX - canvasRect.left - dragOffset.x + canvas.scrollLeft;
+  const newY = e.clientY - canvasRect.top - dragOffset.y + canvas.scrollTop;
+  dragTarget.x = Math.max(0, newX);
+  dragTarget.y = Math.max(0, newY);
+  const card = document.getElementById(`step-${dragTarget.id}`);
+  if (card) {
+    card.style.left = `${dragTarget.x}px`;
+    card.style.top = `${dragTarget.y}px`;
+  }
+  const wf = workflows.find(w => w.id === activeWfId);
+  if (wf) renderConnectors(wf);
+});
+
+document.addEventListener('mouseup', () => {
+  if (dragTarget) {
+    const card = document.getElementById(`step-${dragTarget.id}`);
+    if (card) card.classList.remove('dragging');
+    dragTarget = null;
+  }
+});
+
+// -- Connectors ----------------------------------------------------------
+
+function renderConnectors(wf) {
+  const svg = document.getElementById('connectorsSvg');
+  let html = '';
+
+  for (const [fromId, toId] of wf.connections) {
+    const fromStep = wf.steps.find(s => s.id === fromId);
+    const toStep = wf.steps.find(s => s.id === toId);
+    if (!fromStep || !toStep) continue;
+
+    const x1 = fromStep.x + 110;
+    const y1 = fromStep.y + 90;
+    const x2 = toStep.x + 110;
+    const y2 = toStep.y;
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+
+    html += `<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}"
+      fill="none" stroke="var(--border-light)" stroke-width="2"
+      stroke-dasharray="4,4" />`;
+    // Arrowhead
+    html += `<polygon points="${x2-5},${y2-8} ${x2+5},${y2-8} ${x2},${y2}"
+      fill="var(--border-light)" />`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// -- Add / Edit / Remove Steps -------------------------------------------
+
+let stepCounter = 100;
+
+function addStep(type) {
+  const wf = workflows.find(w => w.id === activeWfId);
+  if (!wf) return;
+
+  const id = `s${++stepCounter}`;
+  const lastStep = wf.steps[wf.steps.length - 1];
+  const y = lastStep ? lastStep.y + 120 : 40;
+
+  wf.steps.push({
+    id, name: `New ${type}`, type, desc: `${type} step`, x: 60, y, status: 'pending',
+  });
+
+  if (lastStep) {
+    wf.connections.push([lastStep.id, id]);
+  }
+
+  selectWorkflow(wf.id);
+  showToast(`${type} step added`);
+}
+
+function editStep(stepId) {
+  const wf = workflows.find(w => w.id === activeWfId);
+  if (!wf) return;
+  const step = wf.steps.find(s => s.id === stepId);
+  if (!step) return;
+
+  const name = prompt('Step name:', step.name);
+  if (name !== null && name.trim()) {
+    step.name = name.trim();
+    const desc = prompt('Description:', step.desc);
+    if (desc !== null) step.desc = desc.trim();
+    selectWorkflow(wf.id);
+  }
+}
+
+function removeStep(stepId) {
+  const wf = workflows.find(w => w.id === activeWfId);
+  if (!wf) return;
+  wf.steps = wf.steps.filter(s => s.id !== stepId);
+  wf.connections = wf.connections.filter(([a, b]) => a !== stepId && b !== stepId);
+  selectWorkflow(wf.id);
+  showToast('Step removed');
+}
+
+// -- Progress Rendering --------------------------------------------------
+
+function renderProgress(wf) {
+  const container = document.getElementById('progressList');
+  if (wf.status === 'pending' || wf.status === 'draft') {
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">Workflow not started</div>';
+    return;
+  }
+
+  container.innerHTML = wf.steps.map(step => {
+    const dotClass = step.status === 'done' ? 'done' :
+                     step.status === 'running' ? 'running' :
+                     step.status === 'failed' ? 'failed' : 'pending';
+    return `<div class="progress-step">
+      <div class="progress-dot ${dotClass}"></div>
+      <div class="progress-label">${step.name}</div>
+      <div class="progress-time">${step.status === 'done' ? '2.1s' : step.status === 'running' ? '...' : '--'}</div>
+    </div>`;
+  }).join('');
+}
+
+// -- Variable Inspector --------------------------------------------------
+
+function renderVariables(wf) {
+  const container = document.getElementById('variableList');
+  if (!wf.variables || wf.variables.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">No variables</div>';
+    return;
+  }
+
+  container.innerHTML = wf.variables.map(v => `
+    <div class="var-item">
+      <span class="var-name">${v.name}</span>
+      <span class="var-value">${v.value || '(empty)'}</span>
+      <span class="var-type">${v.type}</span>
+    </div>
+  `).join('');
+}
+
+// -- Workflow Info --------------------------------------------------------
+
+function renderWfInfo(wf) {
+  const panel = document.getElementById('wfInfoPanel');
+  panel.style.display = '';
+  document.getElementById('wfInfo').innerHTML = `
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px">
+      <strong>ID:</strong> ${wf.id}<br>
+      <strong>Created:</strong> ${wf.created}<br>
+      <strong>Steps:</strong> ${wf.steps.length}<br>
+      <strong>Status:</strong> <span class="badge badge-${wf.status}">${wf.status}</span>
+    </div>
+    <div style="font-size:12px;color:var(--text-dim)">${wf.description}</div>
+  `;
+}
+
+// -- Template Application ------------------------------------------------
+
+function applyTemplate() {
+  const sel = document.getElementById('templateSelect');
+  const tplName = sel.value;
+  if (!tplName || !templates[tplName]) return;
+
+  const tpl = templates[tplName];
+  const id = `wf${Date.now()}`;
+  workflows.push({
+    id, name: `${tplName.replace(/-/g,' ')} Workflow`, description: `Created from ${tplName} template`,
+    status: 'draft', created: new Date().toISOString().slice(0,10),
+    steps: tpl.steps.map(s => ({...s})),
+    connections: tpl.connections.map(c => [...c]),
+    variables: tpl.variables.map(v => ({...v})),
+  });
+
+  renderWorkflowList();
+  selectWorkflow(id);
+  sel.value = '';
+  showToast('Workflow created from template');
+}
+
+// -- CRUD Operations -----------------------------------------------------
+
+function showCreateDialog() { document.getElementById('createDialog').classList.add('visible'); }
+function hideCreateDialog() { document.getElementById('createDialog').classList.remove('visible'); }
+
+function createWorkflow() {
+  const name = document.getElementById('newWfName').value.trim() || 'Untitled Workflow';
+  const desc = document.getElementById('newWfDesc').value.trim();
+  const tplName = document.getElementById('newWfTemplate').value;
+
+  const id = `wf${Date.now()}`;
+  const tpl = tplName && templates[tplName] ? templates[tplName] : { steps: [], connections: [], variables: [] };
+
+  workflows.push({
+    id, name, description: desc, status: 'draft',
+    created: new Date().toISOString().slice(0,10),
+    steps: tpl.steps.map(s => ({...s})),
+    connections: tpl.connections.map(c => [...c]),
+    variables: tpl.variables.map(v => ({...v})),
+  });
+
+  hideCreateDialog();
+  renderWorkflowList();
+  selectWorkflow(id);
+  showToast(`Workflow "${name}" created`);
+}
+
+function saveWorkflow() {
+  showToast('Workflow saved');
+}
+
+function deleteWorkflow() {
+  if (!activeWfId) return;
+  workflows = workflows.filter(w => w.id !== activeWfId);
+  activeWfId = null;
+  document.getElementById('editorTitle').textContent = 'Select a workflow';
+  document.getElementById('btnRun').style.display = 'none';
+  document.getElementById('btnSave').style.display = 'none';
+  document.getElementById('btnDelete').style.display = 'none';
+  document.getElementById('addStepBar').style.display = 'none';
+  document.getElementById('canvasInner').querySelectorAll('.step-card').forEach(el => el.remove());
+  document.getElementById('connectorsSvg').innerHTML = '';
+  document.getElementById('wfInfoPanel').style.display = 'none';
+  renderWorkflowList();
+  showToast('Workflow deleted');
+}
+
+function runWorkflow() {
+  const wf = workflows.find(w => w.id === activeWfId);
+  if (!wf) return;
+  wf.status = 'running';
+  wf.steps[0].status = 'running';
+  selectWorkflow(wf.id);
+  renderWorkflowList();
+  showToast('Workflow started');
+
+  // Simulate step progression
+  let idx = 0;
+  const interval = setInterval(() => {
+    if (idx < wf.steps.length) {
+      wf.steps[idx].status = 'done';
+      idx++;
+      if (idx < wf.steps.length) wf.steps[idx].status = 'running';
+    }
+    if (idx >= wf.steps.length) {
+      wf.status = 'completed';
+      clearInterval(interval);
+      showToast('Workflow completed');
+    }
+    if (wf.id === activeWfId) {
+      renderSteps(wf);
+      renderProgress(wf);
+      renderWorkflowList();
+    }
+  }, 1500);
+}
+
+// -- Toast ---------------------------------------------------------------
+
+function showToast(message) {
+  const container = document.getElementById('toasts');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// -- Start ---------------------------------------------------------------
+
+init();
+</script>
+</body>
+</html>

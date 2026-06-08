@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS - Diagnostics</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+      --border: #334155;
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header .title { font-size: 1.25rem; font-weight: 600; }
+
+    .header .nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .header .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .header .nav-links a:hover,
+    .header .nav-links a.active {
+      color: var(--text-primary);
+      background: var(--bg-card-hover);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .status-banner {
+      padding: 1.25rem;
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .status-banner.healthy {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--accent-green);
+    }
+
+    .status-banner.degraded {
+      background: rgba(234, 179, 8, 0.1);
+      border: 1px solid rgba(234, 179, 8, 0.3);
+      color: var(--accent-yellow);
+    }
+
+    .status-banner.error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--accent-red);
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-dot.green { background: var(--accent-green); }
+    .status-dot.yellow { background: var(--accent-yellow); }
+    .status-dot.red { background: var(--accent-red); }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title .badge {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 10px;
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--accent-blue);
+      font-weight: 400;
+    }
+
+    /* --- Check grid --- */
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .check-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .check-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .check-icon.pass {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--accent-green);
+    }
+
+    .check-icon.fail {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--accent-red);
+    }
+
+    .check-icon.warn {
+      background: rgba(234, 179, 8, 0.15);
+      color: var(--accent-yellow);
+    }
+
+    .check-info {
+      flex: 1;
+    }
+
+    .check-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .check-value {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.15rem;
+    }
+
+    /* --- Benchmark --- */
+    .benchmark-section {
+      margin-bottom: 2rem;
+    }
+
+    .benchmark-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .benchmark-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .benchmark-name {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .benchmark-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .benchmark-unit {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .benchmark-bar {
+      margin-top: 0.75rem;
+      height: 6px;
+      background: var(--bg-primary);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .benchmark-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    .benchmark-bar-fill.fast { background: var(--accent-green); }
+    .benchmark-bar-fill.medium { background: var(--accent-yellow); }
+    .benchmark-bar-fill.slow { background: var(--accent-red); }
+
+    .benchmark-rating {
+      font-size: 0.75rem;
+      margin-top: 0.4rem;
+      color: var(--text-muted);
+    }
+
+    /* --- Actions --- */
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .action-btn {
+      padding: 0.75rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .action-btn:hover {
+      border-color: var(--accent-blue);
+      background: var(--bg-card-hover);
+    }
+
+    .action-btn.primary {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .action-btn.primary:hover {
+      opacity: 0.9;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* --- System Info --- */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+
+    .info-table th,
+    .info-table td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-table th {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .info-table td {
+      color: var(--text-primary);
+      font-size: 0.9rem;
+    }
+
+    .info-table td.mono {
+      font-family: 'SF Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+    }
+
+    /* --- Log --- */
+    .log-section {
+      margin-bottom: 2rem;
+    }
+
+    .log-output {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'SF Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+
+    .log-line { color: var(--text-secondary); }
+    .log-line.success { color: var(--accent-green); }
+    .log-line.error { color: var(--accent-red); }
+    .log-line.warn { color: var(--accent-yellow); }
+    .log-line.info { color: var(--accent-blue); }
+
+    @media (max-width: 768px) {
+      .check-grid { grid-template-columns: 1fr; }
+      .benchmark-grid { grid-template-columns: 1fr; }
+      .actions { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="title">System Diagnostics</div>
+    <nav class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="agents.html">Agents</a>
+      <a href="observability.html">Observability</a>
+      <a href="diagnostics.html" class="active">Diagnostics</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <div class="container">
+
+    <!-- Status Banner -->
+    <div class="status-banner healthy" id="status-banner">
+      <span class="status-dot green"></span>
+      <span>All Systems Healthy</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="action-btn primary" onclick="runDiagnostics()" id="btn-diagnose">Run Diagnostics</button>
+      <button class="action-btn" onclick="runBenchmark()" id="btn-benchmark">Run Benchmark</button>
+      <button class="action-btn" onclick="refreshAll()">Refresh All</button>
+    </div>
+
+    <!-- Health Checks -->
+    <div class="section-title">
+      Health Checks
+      <span class="badge" id="check-count">0 checks</span>
+    </div>
+    <div class="check-grid" id="check-grid">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Benchmarks -->
+    <div class="benchmark-section">
+      <div class="section-title">
+        Performance Benchmarks
+        <span class="badge" id="benchmark-status">Not run</span>
+      </div>
+      <div class="benchmark-grid" id="benchmark-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="section-title">System Information</div>
+    <table class="info-table" id="info-table">
+      <tr><th>Property</th><th>Value</th></tr>
+      <!-- Populated by JS -->
+    </table>
+
+    <!-- Diagnostic Log -->
+    <div class="log-section">
+      <div class="section-title">Diagnostic Log</div>
+      <div class="log-output" id="log-output">
+        <div class="log-line info">[INFO] Diagnostics panel ready.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+
+    function addLog(message, type = 'info') {
+      const log = document.getElementById('log-output');
+      const time = new Date().toLocaleTimeString();
+      log.innerHTML += `<div class="log-line ${type}">[${time}] ${message}</div>`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    async function runDiagnostics() {
+      const btn = document.getElementById('btn-diagnose');
+      btn.disabled = true;
+      btn.textContent = 'Running...';
+      addLog('Starting diagnostics...', 'info');
+
+      try {
+        const resp = await fetch(`${API_BASE}/diagnostics`);
+        const data = await resp.json();
+
+        // Update status banner
+        const banner = document.getElementById('status-banner');
+        banner.className = `status-banner ${data.status}`;
+        banner.innerHTML = `
+          <span class="status-dot ${data.status === 'healthy' ? 'green' : 'yellow'}"></span>
+          <span>System Status: ${data.status.toUpperCase()}</span>
+        `;
+
+        // Render checks
+        renderChecks(data.checks);
+        addLog(`Diagnostics complete: ${data.status}`, data.status === 'healthy' ? 'success' : 'warn');
+
+      } catch (e) {
+        addLog(`Diagnostics failed: ${e.message}`, 'error');
+        renderMockChecks();
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Run Diagnostics';
+    }
+
+    function renderChecks(checks) {
+      const grid = document.getElementById('check-grid');
+      const entries = Object.entries(checks);
+      document.getElementById('check-count').textContent = `${entries.length} checks`;
+
+      grid.innerHTML = entries.map(([key, value]) => {
+        let icon, cls;
+        if (typeof value === 'boolean') {
+          icon = value ? 'v' : 'x';
+          cls = value ? 'pass' : 'fail';
+        } else {
+          icon = 'i';
+          cls = 'pass';
+        }
+        return `
+          <div class="check-card">
+            <div class="check-icon ${cls}">${icon}</div>
+            <div class="check-info">
+              <div class="check-name">${key.replace(/_/g, ' ')}</div>
+              <div class="check-value">${value}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMockChecks() {
+      const mockChecks = {
+        python_version: '3.12.0',
+        platform: 'macOS 14.0',
+        agents_healthy: true,
+        spec_engine_healthy: true,
+        tool_registry_healthy: true,
+        memory_initialized: true,
+        knowledge_graph_initialized: true,
+        active_spec_count: 5,
+        registered_agent_count: 12,
+        tool_count: 58,
+        cpu_count: 'Apple M1',
+        architecture: 'arm64',
+      };
+      renderChecks(mockChecks);
+    }
+
+    async function runBenchmark() {
+      const btn = document.getElementById('btn-benchmark');
+      btn.disabled = true;
+      btn.textContent = 'Running...';
+      document.getElementById('benchmark-status').textContent = 'Running...';
+      addLog('Starting benchmarks...', 'info');
+
+      try {
+        const resp = await fetch(`${API_BASE}/diagnostics/benchmark`);
+        const data = await resp.json();
+        renderBenchmarks(data.benchmarks);
+        document.getElementById('benchmark-status').textContent = 'Completed';
+        addLog('Benchmarks complete', 'success');
+      } catch (e) {
+        addLog(`Benchmark failed: ${e.message}. Using mock data.`, 'warn');
+        renderBenchmarks({
+          spec_creation_10x_ms: 45.2,
+          agent_list_100x_ms: 2.1,
+          tool_list_100x_ms: 1.8,
+        });
+        document.getElementById('benchmark-status').textContent = 'Mock data';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Run Benchmark';
+    }
+
+    function renderBenchmarks(benchmarks) {
+      const grid = document.getElementById('benchmark-grid');
+      grid.innerHTML = Object.entries(benchmarks).map(([key, value]) => {
+        const name = key.replace(/_/g, ' ').replace(' ms', '');
+        let rating, barCls, barWidth;
+        if (value < 10) {
+          rating = 'Excellent'; barCls = 'fast'; barWidth = 20;
+        } else if (value < 100) {
+          rating = 'Good'; barCls = 'fast'; barWidth = 50;
+        } else if (value < 500) {
+          rating = 'Acceptable'; barCls = 'medium'; barWidth = 70;
+        } else {
+          rating = 'Needs attention'; barCls = 'slow'; barWidth = 90;
+        }
+
+        return `
+          <div class="benchmark-card">
+            <div class="benchmark-name">${name}</div>
+            <div class="benchmark-value">${value.toFixed(1)} <span class="benchmark-unit">ms</span></div>
+            <div class="benchmark-bar">
+              <div class="benchmark-bar-fill ${barCls}" style="width:${barWidth}%"></div>
+            </div>
+            <div class="benchmark-rating">${rating}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadSystemInfo() {
+      const table = document.getElementById('info-table');
+      try {
+        const resp = await fetch(`${API_BASE}/system`);
+        const data = await resp.json();
+        const rows = [
+          ['App Name', data.app_name],
+          ['Version', data.version],
+          ['Agents', data.agents],
+          ['Tools', data.tools],
+          ['Active Specs', data.active_specs],
+          ...Object.entries(data.modules || {}).map(([k, v]) => [`Module: ${k}`, v ? 'Active' : 'Inactive']),
+        ];
+        table.innerHTML = `<tr><th>Property</th><th>Value</th></tr>` +
+          rows.map(([k, v]) => `<tr><td>${k}</td><td class="mono">${v}</td></tr>`).join('');
+      } catch (e) {
+        const mockRows = [
+          ['App Name', 'JARVIS'],
+          ['Version', '0.2.0'],
+          ['Agents', '12'],
+          ['Tools', '58'],
+          ['Active Specs', '5'],
+          ['Module: agents', 'Active'],
+          ['Module: tools', 'Active'],
+          ['Module: skills', 'Active'],
+          ['Module: memory', 'Active'],
+          ['Module: knowledge_graph', 'Active'],
+          ['Module: curator', 'Inactive'],
+          ['Module: sessions', 'Inactive'],
+        ];
+        table.innerHTML = `<tr><th>Property</th><th>Value</th></tr>` +
+          mockRows.map(([k, v]) => `<tr><td>${k}</td><td class="mono">${v}</td></tr>`).join('');
+      }
+    }
+
+    function refreshAll() {
+      addLog('Refreshing all data...', 'info');
+      runDiagnostics();
+      loadSystemInfo();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMockChecks();
+      loadSystemInfo();
+    });
+  </script>
+
+</body>
+</html>

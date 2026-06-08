@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - API Documentation</title>
+<style>
+/* ====================================================================
+   JARVIS API Documentation — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --orange:       #f59e0b;
+  --red:          #ef4444;
+  --purple:       #a855f7;
+  --cyan:         #06b6d4;
+  --pink:         #ec4899;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Nav ----------------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Layout ------------------------------------------------------------ */
+.main-layout { flex: 1; display: grid; grid-template-columns: 260px 1fr; overflow: hidden; }
+.sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+.content-area { overflow-y: auto; padding: 24px; }
+
+/* -- Sidebar ----------------------------------------------------------- */
+.sidebar-search {
+  padding: 12px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.sidebar-search input {
+  width: 100%; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-size: 12px;
+}
+.sidebar-search input:focus { border-color: var(--border-focus); outline: none; }
+
+.sidebar-group { padding: 10px 0; }
+.sidebar-group-title {
+  padding: 6px 14px; font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--text-muted); font-weight: 700;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 8px; padding: 7px 14px;
+  cursor: pointer; transition: var(--transition); font-size: 12px; color: var(--text-dim);
+}
+.sidebar-item:hover { background: var(--bg-hover); color: var(--text); }
+.sidebar-item.active { background: rgba(59,130,246,0.1); color: var(--accent); border-right: 2px solid var(--accent); }
+
+/* -- Method Badges ----------------------------------------------------- */
+.method-badge {
+  display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 4px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  flex-shrink: 0; min-width: 38px; justify-content: center;
+}
+.method-GET { background: rgba(34,197,94,0.15); color: var(--green); }
+.method-POST { background: rgba(245,158,11,0.15); color: var(--orange); }
+.method-DELETE { background: rgba(239,68,68,0.15); color: var(--red); }
+.method-PATCH { background: rgba(168,85,247,0.15); color: var(--purple); }
+.method-PUT { background: rgba(59,130,246,0.15); color: var(--accent); }
+.method-WS { background: rgba(6,182,212,0.15); color: var(--cyan); }
+
+/* -- Endpoint Card ----------------------------------------------------- */
+.endpoint-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 24px; margin-bottom: 20px; scroll-margin-top: 20px;
+  animation: fadeInUp 0.3s ease both;
+}
+.endpoint-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.endpoint-method { font-size: 12px; }
+.endpoint-path { font-family: var(--mono); font-size: 15px; font-weight: 600; }
+.endpoint-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
+
+/* Parameters table */
+.params-table {
+  width: 100%; border-collapse: collapse; margin-bottom: 16px;
+}
+.params-table th {
+  text-align: left; padding: 8px 12px; font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+.params-table td {
+  padding: 8px 12px; font-size: 12px; border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.params-table tr:last-child td { border-bottom: none; }
+.param-name { font-family: var(--mono); color: var(--accent); font-weight: 500; }
+.param-type { font-size: 11px; color: var(--purple); padding: 1px 6px; background: rgba(168,85,247,0.1); border-radius: 3px; }
+.param-required { font-size: 10px; color: var(--red); font-weight: 600; }
+.param-optional { font-size: 10px; color: var(--text-muted); }
+
+/* Request body / Response */
+.schema-section { margin-bottom: 16px; }
+.schema-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
+  font-weight: 600; margin-bottom: 8px;
+}
+.schema-json {
+  background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+  white-space: pre-wrap; word-break: break-word; max-height: 250px; overflow-y: auto;
+  line-height: 1.6;
+}
+
+/* Try it */
+.try-section {
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; margin-top: 16px;
+}
+.try-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.try-title { font-size: 13px; font-weight: 600; }
+.try-form { display: flex; flex-direction: column; gap: 10px; }
+.try-field { display: flex; flex-direction: column; gap: 4px; }
+.try-field-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.try-field-input {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 8px 12px; color: var(--text); font-size: 12px; font-family: var(--mono);
+}
+.try-field-input:focus { border-color: var(--border-focus); outline: none; }
+textarea.try-field-input { resize: vertical; min-height: 60px; font-family: var(--mono); }
+.try-actions { display: flex; gap: 8px; margin-top: 8px; }
+.try-response {
+  margin-top: 12px; background: var(--bg-deep); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; font-family: var(--mono); font-size: 11px;
+  color: var(--text-dim); white-space: pre-wrap; word-break: break-word; max-height: 200px;
+  overflow-y: auto; display: none;
+}
+.try-response.show { display: block; }
+.try-status { font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+.try-status.ok { color: var(--green); }
+.try-status.error { color: var(--red); }
+
+.btn {
+  padding: 8px 16px; border-radius: var(--radius); font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none; transition: var(--transition); display: inline-flex;
+  align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* -- Section Divider --------------------------------------------------- */
+.category-header {
+  font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* -- No results -------------------------------------------------------- */
+.no-results {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 60px 20px; color: var(--text-muted); text-align: center;
+}
+.no-results-icon { font-size: 36px; opacity: 0.3; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>API Docs</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html">Knowledge</a>
+    <a href="workflows.html">Workflows</a>
+    <a href="memory.html">Memory</a>
+    <a href="skills.html">Skills</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html" class="active">API Docs</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-search">
+      <input type="text" id="endpointSearch" placeholder="Search endpoints..." />
+    </div>
+    <div id="sidebarContent">
+      <!-- Populated by JS -->
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <div class="content-area" id="contentArea">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<script>
+/* ====================================================================
+   JARVIS API Documentation — JavaScript
+   ==================================================================== */
+(() => {
+'use strict';
+
+/* ── Endpoint Data ────────────────────────────────────────────────── */
+const ENDPOINTS = [
+  // System
+  { category: 'System', method: 'GET', path: '/health', description: 'Health check endpoint. Returns system status, version, and uptime.', params: [], body: null, response: '{\n  "status": "healthy",\n  "version": "2.0.0",\n  "uptime_seconds": 86400,\n  "agents_online": 5\n}' },
+  { category: 'System', method: 'GET', path: '/version', description: 'Returns the current JARVIS version and build info.', params: [], body: null, response: '{\n  "version": "2.0.0",\n  "build": "abc123",\n  "timestamp": "2024-01-15T10:00:00Z"\n}' },
+  { category: 'System', method: 'GET', path: '/metrics', description: 'Returns system metrics: counters, gauges, and histograms.', params: [], body: null, response: '{\n  "counters": [...],\n  "gauges": [...],\n  "histogram": {...}\n}' },
+
+  // Specs
+  { category: 'Specs', method: 'GET', path: '/specs', description: 'List all streaming specs. Supports pagination and filtering.', params: [{ name: 'status', type: 'string', required: false, desc: 'Filter by status (planning, executing, completed, failed)' }, { name: 'limit', type: 'integer', required: false, desc: 'Max results (default 50)' }, { name: 'offset', type: 'integer', required: false, desc: 'Pagination offset' }], body: null, response: '[\n  {\n    "id": "spec-123",\n    "intent": "Build a REST API...",\n    "status": "executing",\n    "steps": [...]\n  }\n]' },
+  { category: 'Specs', method: 'POST', path: '/specs', description: 'Create a new streaming spec from a natural language intent.', params: [], body: '{\n  "intent": "Build a REST API for user management",\n  "constraints": ["Use PostgreSQL", "Include auth"]\n}', response: '{\n  "id": "spec-456",\n  "intent": "Build a REST API...",\n  "status": "planning",\n  "steps": [],\n  "created_at": "2024-01-15T10:00:00Z"\n}' },
+  { category: 'Specs', method: 'GET', path: '/specs/{spec_id}', description: 'Get a specific spec by ID, including all steps and constraints.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '{\n  "id": "spec-123",\n  "intent": "...",\n  "status": "executing",\n  "steps": [...],\n  "constraints": [...],\n  "changelog": [...]\n}' },
+  { category: 'Specs', method: 'PATCH', path: '/specs/{spec_id}', description: 'Update a spec (e.g., change intent/redirect, modify constraints).', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: '{\n  "intent": "Updated intent...",\n  "status": "paused"\n}', response: '{\n  "id": "spec-123",\n  "status": "paused",\n  "updated_at": "..."\n}' },
+  { category: 'Specs', method: 'DELETE', path: '/specs/{spec_id}', description: 'Delete a spec and all associated data.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '{\n  "deleted": true\n}' },
+  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/execute', description: 'Start or resume execution of a spec.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '{\n  "status": "executing",\n  "message": "Execution started"\n}' },
+  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/pause', description: 'Pause execution of a running spec.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '{\n  "status": "paused"\n}' },
+  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/redirect', description: 'Redirect a spec to a new intent while preserving completed work.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: '{\n  "new_intent": "Change to GraphQL API instead"\n}', response: '{\n  "status": "redirected",\n  "new_steps": [...]\n}' },
+  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/constraints', description: 'Add a constraint to a spec.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: '{\n  "content": "Must use TypeScript",\n  "source": "human"\n}', response: '{\n  "id": "constraint-789",\n  "content": "Must use TypeScript",\n  "source": "human"\n}' },
+
+  // Steps
+  { category: 'Steps', method: 'GET', path: '/specs/{spec_id}/steps', description: 'List all steps in a spec.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '[\n  {\n    "id": "step-1",\n    "name": "Setup project",\n    "status": "completed",\n    "agent": "coding-agent"\n  }\n]' },
+  { category: 'Steps', method: 'PATCH', path: '/specs/{spec_id}/steps/{step_id}', description: 'Modify a step (change description, reorder, skip).', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }, { name: 'step_id', type: 'string', required: true, desc: 'The step ID' }], body: '{\n  "description": "Updated description",\n  "status": "skipped"\n}', response: '{\n  "id": "step-1",\n  "status": "skipped"\n}' },
+
+  // Agents
+  { category: 'Agents', method: 'GET', path: '/agents', description: 'List all registered agents with their capabilities and status.', params: [], body: null, response: '[\n  {\n    "name": "coding-agent",\n    "domain": "coding",\n    "status": "idle",\n    "skills": ["python", "typescript"]\n  }\n]' },
+  { category: 'Agents', method: 'GET', path: '/agents/{name}', description: 'Get detailed info about a specific agent.', params: [{ name: 'name', type: 'string', required: true, desc: 'Agent name' }], body: null, response: '{\n  "name": "coding-agent",\n  "domain": "coding",\n  "status": "idle",\n  "skills": [...],\n  "metadata": {...}\n}' },
+  { category: 'Agents', method: 'POST', path: '/agents/{name}/task', description: 'Assign a task directly to a specific agent.', params: [{ name: 'name', type: 'string', required: true, desc: 'Agent name' }], body: '{\n  "instruction": "Write a function to...",\n  "context": {...}\n}', response: '{\n  "task_id": "task-123",\n  "status": "accepted"\n}' },
+  { category: 'Agents', method: 'GET', path: '/agents/{name}/delegations', description: 'List delegations for an agent.', params: [{ name: 'name', type: 'string', required: true, desc: 'Agent name' }], body: null, response: '[\n  {\n    "from": "orchestrator",\n    "task": "...",\n    "status": "completed"\n  }\n]' },
+
+  // Tools
+  { category: 'Tools', method: 'GET', path: '/tools', description: 'List all available tools across agents.', params: [{ name: 'category', type: 'string', required: false, desc: 'Filter by tool category' }], body: null, response: '[\n  {\n    "name": "code_gen",\n    "description": "Generate code...",\n    "agent": "coding-agent"\n  }\n]' },
+  { category: 'Tools', method: 'POST', path: '/tools/{name}/invoke', description: 'Invoke a tool directly with parameters.', params: [{ name: 'name', type: 'string', required: true, desc: 'Tool name' }], body: '{\n  "params": {\n    "language": "python",\n    "description": "Sort function"\n  }\n}', response: '{\n  "result": "def sort_list(items):\\n  ...",\n  "duration_ms": 1200\n}' },
+
+  // Memory
+  { category: 'Memory', method: 'GET', path: '/memory', description: 'List all memory entries (facts, episodes, procedures).', params: [{ name: 'type', type: 'string', required: false, desc: 'Filter by type (fact, episode, procedure)' }, { name: 'query', type: 'string', required: false, desc: 'Semantic search query' }], body: null, response: '[\n  {\n    "id": "mem-1",\n    "type": "fact",\n    "content": "User prefers TypeScript",\n    "importance": 0.9\n  }\n]' },
+  { category: 'Memory', method: 'POST', path: '/memory', description: 'Store a new memory entry.', params: [], body: '{\n  "type": "fact",\n  "content": "The project uses PostgreSQL",\n  "importance": 0.8\n}', response: '{\n  "id": "mem-123",\n  "stored": true\n}' },
+  { category: 'Memory', method: 'DELETE', path: '/memory/{id}', description: 'Delete a memory entry.', params: [{ name: 'id', type: 'string', required: true, desc: 'Memory entry ID' }], body: null, response: '{\n  "deleted": true\n}' },
+  { category: 'Memory', method: 'POST', path: '/memory/search', description: 'Semantic search across memory entries.', params: [], body: '{\n  "query": "database preferences",\n  "top_k": 5\n}', response: '[\n  {\n    "id": "mem-1",\n    "content": "...",\n    "score": 0.95\n  }\n]' },
+
+  // Knowledge
+  { category: 'Knowledge', method: 'GET', path: '/knowledge', description: 'List all knowledge base documents.', params: [], body: null, response: '[\n  {\n    "id": "kb-1",\n    "title": "API Design Guide",\n    "chunks": 24\n  }\n]' },
+  { category: 'Knowledge', method: 'POST', path: '/knowledge/ingest', description: 'Ingest a new document into the knowledge base.', params: [], body: '{\n  "title": "System Architecture",\n  "content": "...",\n  "metadata": {...}\n}', response: '{\n  "id": "kb-123",\n  "chunks": 15,\n  "status": "indexed"\n}' },
+  { category: 'Knowledge', method: 'POST', path: '/knowledge/query', description: 'Query the knowledge base with semantic search.', params: [], body: '{\n  "query": "How does authentication work?",\n  "top_k": 3\n}', response: '[\n  {\n    "chunk_id": "ch-1",\n    "content": "...",\n    "score": 0.92\n  }\n]' },
+
+  // Sessions
+  { category: 'Sessions', method: 'GET', path: '/sessions', description: 'List all active and recent sessions.', params: [], body: null, response: '[\n  {\n    "id": "sess-1",\n    "agent": "coding-agent",\n    "status": "active",\n    "messages": 12\n  }\n]' },
+  { category: 'Sessions', method: 'GET', path: '/sessions/{id}', description: 'Get session details including message history.', params: [{ name: 'id', type: 'string', required: true, desc: 'Session ID' }], body: null, response: '{\n  "id": "sess-1",\n  "messages": [...],\n  "created_at": "..."\n}' },
+  { category: 'Sessions', method: 'DELETE', path: '/sessions/{id}', description: 'End and delete a session.', params: [{ name: 'id', type: 'string', required: true, desc: 'Session ID' }], body: null, response: '{\n  "deleted": true\n}' },
+
+  // Skills
+  { category: 'Skills', method: 'GET', path: '/skills',
+    description: 'List all registered skills across all agents.',
+    params: [
+      { name: 'agent', type: 'string', required: false, desc: 'Filter by agent name' },
+      { name: 'category', type: 'string', required: false, desc: 'Filter by skill category' }
+    ],
+    body: null,
+    response: '[\n  {\n    "name": "code_review",\n    "agent": "review-agent",\n    "description": "Review code for quality...",\n    "category": "analysis",\n    "enabled": true\n  }\n]' },
+  { category: 'Skills', method: 'GET', path: '/skills/{name}',
+    description: 'Get detailed information about a specific skill.',
+    params: [{ name: 'name', type: 'string', required: true, desc: 'Skill name' }],
+    body: null,
+    response: '{\n  "name": "code_review",\n  "agent": "review-agent",\n  "description": "Review code for quality and best practices",\n  "parameters": {\n    "language": "string",\n    "strictness": "number"\n  },\n  "usage_count": 234,\n  "avg_duration_ms": 4500\n}' },
+  { category: 'Skills', method: 'POST', path: '/skills/{name}/invoke',
+    description: 'Invoke a skill directly with given parameters.',
+    params: [{ name: 'name', type: 'string', required: true, desc: 'Skill name' }],
+    body: '{\n  "params": {\n    "code": "def hello(): ...",\n    "language": "python"\n  }\n}',
+    response: '{\n  "result": "...",\n  "duration_ms": 3200,\n  "agent": "review-agent"\n}' },
+
+  // Workflows
+  { category: 'Workflows', method: 'GET', path: '/workflows',
+    description: 'List all workflows with status and execution history.',
+    params: [
+      { name: 'status', type: 'string', required: false, desc: 'Filter by status (active, paused, completed)' },
+      { name: 'limit', type: 'integer', required: false, desc: 'Max results (default 50)' }
+    ],
+    body: null,
+    response: '[\n  {\n    "id": "wf-1",\n    "name": "CI/CD Pipeline",\n    "status": "active",\n    "steps_total": 5,\n    "steps_completed": 3,\n    "created_at": "2024-01-15T10:00:00Z"\n  }\n]' },
+  { category: 'Workflows', method: 'POST', path: '/workflows',
+    description: 'Create a new workflow from a step definition.',
+    params: [],
+    body: '{\n  "name": "Deploy Pipeline",\n  "description": "Full deployment workflow",\n  "steps": [\n    {\n      "name": "Build",\n      "action": "build_project",\n      "params": {}\n    },\n    {\n      "name": "Test",\n      "action": "run_tests",\n      "depends_on": ["Build"]\n    }\n  ]\n}',
+    response: '{\n  "id": "wf-123",\n  "status": "created",\n  "steps_total": 2\n}' },
+  { category: 'Workflows', method: 'GET', path: '/workflows/{id}',
+    description: 'Get detailed workflow information including step status.',
+    params: [{ name: 'id', type: 'string', required: true, desc: 'Workflow ID' }],
+    body: null,
+    response: '{\n  "id": "wf-1",\n  "name": "CI/CD Pipeline",\n  "status": "active",\n  "steps": [\n    {\n      "name": "Build",\n      "status": "completed",\n      "duration_ms": 12000\n    }\n  ]\n}' },
+  { category: 'Workflows', method: 'POST', path: '/workflows/{id}/execute',
+    description: 'Start or resume execution of a workflow.',
+    params: [{ name: 'id', type: 'string', required: true, desc: 'Workflow ID' }],
+    body: null,
+    response: '{\n  "status": "executing",\n  "message": "Workflow execution started"\n}' },
+  { category: 'Workflows', method: 'DELETE', path: '/workflows/{id}',
+    description: 'Delete a workflow and its execution history.',
+    params: [{ name: 'id', type: 'string', required: true, desc: 'Workflow ID' }],
+    body: null,
+    response: '{\n  "deleted": true\n}' },
+
+  // Chat
+  { category: 'Chat', method: 'POST', path: '/chat',
+    description: 'Send a message and get a response. Supports auto-routing to the best agent or targeting a specific agent.',
+    params: [],
+    body: '{\n  "message": "How do I implement auth?",\n  "agent": "auto",\n  "session_id": "sess-1",\n  "context": {\n    "spec_id": "spec-123"\n  }\n}',
+    response: '{\n  "response": "To implement authentication, I recommend...",\n  "agent": "coding-agent",\n  "session_id": "sess-1",\n  "routing_scores": {\n    "coding-agent": 0.95,\n    "research-agent": 0.3,\n    "orchestrator": 0.5\n  },\n  "timestamp": "2024-01-15T10:05:00Z"\n}' },
+  { category: 'Chat', method: 'GET', path: '/chat/history/{session_id}',
+    description: 'Get the message history for a specific chat session.',
+    params: [
+      { name: 'session_id', type: 'string', required: true, desc: 'Session ID' },
+      { name: 'limit', type: 'integer', required: false, desc: 'Max messages to return' }
+    ],
+    body: null,
+    response: '[\n  {\n    "role": "user",\n    "content": "Hello",\n    "timestamp": "2024-01-15T10:00:00Z"\n  },\n  {\n    "role": "agent",\n    "content": "Hi! How can I help?",\n    "agent": "orchestrator",\n    "timestamp": "2024-01-15T10:00:01Z"\n  }\n]' },
+
+  // Observability
+  { category: 'Observability', method: 'GET', path: '/traces',
+    description: 'List recent traces with filtering and pagination support.',
+    params: [
+      { name: 'limit', type: 'integer', required: false, desc: 'Max results (default 50)' },
+      { name: 'status', type: 'string', required: false, desc: 'Filter by status (ok, error)' },
+      { name: 'operation', type: 'string', required: false, desc: 'Filter by root operation name' }
+    ],
+    body: null,
+    response: '[\n  {\n    "trace_id": "tr-a1b2c3d4e5f6",\n    "root_operation": "POST /specs",\n    "span_count": 8,\n    "duration_ms": 1243,\n    "status": "ok",\n    "timestamp": "2024-01-15T10:00:00Z"\n  }\n]' },
+  { category: 'Observability', method: 'GET', path: '/traces/{trace_id}',
+    description: 'Get a specific trace with all spans, timing data, and tags.',
+    params: [{ name: 'trace_id', type: 'string', required: true, desc: 'Trace ID' }],
+    body: null,
+    response: '{\n  "trace_id": "tr-a1b2c3d4e5f6",\n  "root_operation": "POST /specs",\n  "duration_ms": 1243,\n  "status": "ok",\n  "spans": [\n    {\n      "span_id": "sp-001",\n      "operation": "POST /specs",\n      "service": "gateway",\n      "start_ms": 0,\n      "duration_ms": 1243,\n      "status": "ok",\n      "tags": {\n        "http.method": "POST"\n      }\n    }\n  ]\n}' },
+  { category: 'Observability', method: 'GET', path: '/metrics',
+    description: 'Get system metrics including counters, gauges, and histograms. Used by the observability dashboard for live monitoring.',
+    params: [],
+    body: null,
+    response: '{\n  "counters": [\n    { "name": "requests_total", "value": 12847 }\n  ],\n  "gauges": [\n    { "name": "active_specs", "value": 5 }\n  ],\n  "histogram": {\n    "title": "Request Latency",\n    "buckets": [\n      { "label": "0-50ms", "count": 4520 }\n    ]\n  }\n}' },
+
+  // Curator
+  { category: 'Curator', method: 'POST', path: '/curator/review',
+    description: 'Submit a request/output pair for automated quality review. The curator evaluates the output against the request and any constraints, returning a verdict and score.',
+    params: [],
+    body: '{\n  "request": "Write a sort function",\n  "output": "def sort(arr):\\n    return sorted(arr)",\n  "constraints": "Must be O(n log n)"\n}',
+    response: '{\n  "id": "rev-123",\n  "verdict": "approved",\n  "score": 0.88,\n  "feedback": "Clean implementation using Python built-in sorted() which uses Timsort (O(n log n)). Meets the constraint.",\n  "timestamp": "2024-01-15T10:00:00Z"\n}' },
+  { category: 'Curator', method: 'GET', path: '/curator/stats',
+    description: 'Get curator quality statistics including total reviews, average score, verdict distribution, and score trends over time.',
+    params: [],
+    body: null,
+    response: '{\n  "total_reviews": 156,\n  "average_score": 0.74,\n  "approved_count": 89,\n  "needs_revision_count": 34,\n  "rejected_count": 12,\n  "flagged_count": 21,\n  "scores_over_time": [0.68, 0.72, 0.75, 0.78, 0.82]\n}' },
+  { category: 'Curator', method: 'GET', path: '/curator/reviews',
+    description: 'List all review history with verdicts and scores.',
+    params: [
+      { name: 'verdict', type: 'string', required: false, desc: 'Filter by verdict (approved, needs_revision, rejected, flagged)' },
+      { name: 'limit', type: 'integer', required: false, desc: 'Max results' }
+    ],
+    body: null,
+    response: '[\n  {\n    "id": "rev-001",\n    "verdict": "approved",\n    "score": 0.92,\n    "request": "Generate a REST API...",\n    "timestamp": "2024-01-15T10:00:00Z"\n  }\n]' },
+  { category: 'Curator', method: 'GET', path: '/curator/flagged',
+    description: 'List all flagged reviews that need human attention.',
+    params: [],
+    body: null,
+    response: '[\n  {\n    "id": "rev-005",\n    "score": 0.55,\n    "request": "Refactor the user model...",\n    "flag_reason": "Backward compatibility concern"\n  }\n]' },
+
+  // Settings
+  { category: 'Settings', method: 'GET', path: '/settings',
+    description: 'Get current system settings and configuration.',
+    params: [],
+    body: null,
+    response: '{\n  "api_url": "http://localhost:8000",\n  "ws_reconnect_ms": 3000,\n  "theme": "dark",\n  "max_agents": 10,\n  "log_level": "info"\n}' },
+  { category: 'Settings', method: 'PATCH', path: '/settings',
+    description: 'Update system settings. Partial updates are supported.',
+    params: [],
+    body: '{\n  "theme": "light",\n  "log_level": "debug"\n}',
+    response: '{\n  "updated": true,\n  "settings": {\n    "theme": "light",\n    "log_level": "debug"\n  }\n}' },
+
+  // WebSocket
+  { category: 'WebSocket', method: 'WS', path: '/ws/{spec_id}',
+    description: 'WebSocket connection for real-time spec updates. Receives events for step status changes, constraint additions, spec redirections, and completion. Automatically reconnects on disconnection.',
+    params: [
+      { name: 'spec_id', type: 'string', required: true, desc: 'Spec ID to subscribe to' },
+      { name: 'client_id', type: 'string', required: false, desc: 'Unique client identifier for deduplication' }
+    ],
+    body: null,
+    response: '// Event types:\n// step_status_changed\n// constraint_added\n// constraint_removed\n// spec_redirected\n// spec_completed\n// spec_failed\n// step_output\n{\n  "event": "step_status_changed",\n  "data": {\n    "step_id": "step-1",\n    "old_status": "executing",\n    "new_status": "completed",\n    "output": "Task completed successfully"\n  },\n  "timestamp": "2024-01-15T10:05:00Z"\n}' },
+  { category: 'WebSocket', method: 'WS', path: '/ws/agents',
+    description: 'WebSocket for real-time agent status updates. Broadcasts when agents come online, go offline, or change from idle to busy.',
+    params: [
+      { name: 'client_id', type: 'string', required: false, desc: 'Unique client identifier' }
+    ],
+    body: null,
+    response: '{\n  "event": "agent_status",\n  "data": {\n    "name": "coding-agent",\n    "old_status": "idle",\n    "new_status": "busy",\n    "task": "Executing step-3"\n  },\n  "timestamp": "2024-01-15T10:03:00Z"\n}' },
+  { category: 'WebSocket', method: 'WS', path: '/ws/metrics',
+    description: 'WebSocket for real-time metrics streaming. Pushes counter and gauge updates every second.',
+    params: [],
+    body: null,
+    response: '{\n  "event": "metric_update",\n  "data": {\n    "counters": {\n      "requests_total": 12848\n    },\n    "gauges": {\n      "active_specs": 5\n    }\n  },\n  "timestamp": "2024-01-15T10:05:01Z"\n}' },
+];
+
+/* ── Helper Functions ─────────────────────────────────────────────── */
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
+
+function slugify(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
+
+/* ── Group Endpoints ──────────────────────────────────────────────── */
+function groupEndpoints(endpoints) {
+  const groups = {};
+  endpoints.forEach(ep => {
+    if (!groups[ep.category]) groups[ep.category] = [];
+    groups[ep.category].push(ep);
+  });
+  return groups;
+}
+
+/* ── Render Sidebar ───────────────────────────────────────────────── */
+function renderSidebar(endpoints) {
+  const groups = groupEndpoints(endpoints);
+  const el = document.getElementById('sidebarContent');
+
+  el.innerHTML = Object.entries(groups).map(([cat, eps]) => `
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">${esc(cat)}</div>
+      ${eps.map(ep => `
+        <div class="sidebar-item" data-endpoint="${slugify(ep.method + '-' + ep.path)}"
+             onclick="scrollToEndpoint('${slugify(ep.method + '-' + ep.path)}')">
+          <span class="method-badge method-${ep.method}">${ep.method}</span>
+          <span style="font-family:var(--mono); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(ep.path)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+/* ── Render Endpoints ─────────────────────────────────────────────── */
+function renderEndpoints(endpoints) {
+  const groups = groupEndpoints(endpoints);
+  const area = document.getElementById('contentArea');
+
+  if (!endpoints.length) {
+    area.innerHTML = `
+      <div class="no-results">
+        <span class="no-results-icon">&#128269;</span>
+        <span>No endpoints match your search</span>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  for (const [cat, eps] of Object.entries(groups)) {
+    html += `<div class="category-header" id="cat-${slugify(cat)}">${esc(cat)}</div>`;
+    eps.forEach((ep, idx) => {
+      const epId = slugify(ep.method + '-' + ep.path);
+      const hasParams = ep.params && ep.params.length > 0;
+      const hasBody = ep.body != null;
+      const tryId = 'try-' + epId;
+      const respId = 'resp-' + epId;
+
+      html += `
+        <div class="endpoint-card" id="${epId}" style="animation-delay:${idx * 0.04}s;">
+          <div class="endpoint-header">
+            <span class="method-badge method-${ep.method} endpoint-method">${ep.method}</span>
+            <span class="endpoint-path">${esc(ep.path)}</span>
+          </div>
+          <div class="endpoint-desc">${esc(ep.description)}</div>
+
+          ${hasParams ? `
+          <div class="schema-section">
+            <div class="schema-label">Parameters</div>
+            <table class="params-table">
+              <thead><tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+              <tbody>
+                ${ep.params.map(p => `
+                  <tr>
+                    <td><span class="param-name">${esc(p.name)}</span></td>
+                    <td><span class="param-type">${esc(p.type)}</span></td>
+                    <td>${p.required ? '<span class="param-required">required</span>' : '<span class="param-optional">optional</span>'}</td>
+                    <td style="color:var(--text-dim);">${esc(p.desc)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>` : ''}
+
+          ${hasBody ? `
+          <div class="schema-section">
+            <div class="schema-label">Request Body</div>
+            <div class="schema-json">${esc(ep.body)}</div>
+          </div>` : ''}
+
+          <div class="schema-section">
+            <div class="schema-label">Response</div>
+            <div class="schema-json">${esc(ep.response)}</div>
+          </div>
+
+          ${ep.method !== 'WS' ? `
+          <div class="try-section" id="${tryId}">
+            <div class="try-header">
+              <span class="try-title">Try it</span>
+            </div>
+            <div class="try-form">
+              ${hasParams ? ep.params.map(p => `
+                <div class="try-field">
+                  <label class="try-field-label">${esc(p.name)} ${p.required ? '(required)' : ''}</label>
+                  <input class="try-field-input" data-param="${esc(p.name)}" placeholder="${esc(p.desc)}" />
+                </div>
+              `).join('') : ''}
+              ${hasBody ? `
+                <div class="try-field">
+                  <label class="try-field-label">Request Body</label>
+                  <textarea class="try-field-input" data-body="true" rows="4">${esc(ep.body)}</textarea>
+                </div>
+              ` : ''}
+              <div class="try-actions">
+                <button class="btn btn-primary btn-sm" onclick="executeEndpoint('${epId}', '${ep.method}', '${esc(ep.path)}')">Execute</button>
+                <button class="btn btn-ghost btn-sm" onclick="clearResponse('${respId}')">Clear</button>
+              </div>
+            </div>
+            <div class="try-response" id="${respId}"></div>
+          </div>` : ''}
+        </div>
+      `;
+    });
+  }
+
+  area.innerHTML = html;
+}
+
+/* ── Scroll To Endpoint ───────────────────────────────────────────── */
+window.scrollToEndpoint = function(epId) {
+  const el = document.getElementById(epId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Highlight sidebar
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    const sItem = document.querySelector(`.sidebar-item[data-endpoint="${epId}"]`);
+    if (sItem) sItem.classList.add('active');
+  }
+};
+
+/* ── Execute Endpoint ─────────────────────────────────────────────── */
+window.executeEndpoint = async function(epId, method, path) {
+  const trySection = document.getElementById('try-' + epId);
+  const respEl = document.getElementById('resp-' + epId);
+  if (!trySection || !respEl) return;
+
+  // Collect params
+  let url = path;
+  trySection.querySelectorAll('input[data-param]').forEach(input => {
+    const val = input.value.trim();
+    if (val) {
+      url = url.replace(`{${input.dataset.param}}`, encodeURIComponent(val));
+    }
+  });
+
+  // Collect body
+  let body = null;
+  const bodyEl = trySection.querySelector('textarea[data-body]');
+  if (bodyEl) {
+    try { body = bodyEl.value.trim(); } catch {}
+  }
+
+  respEl.classList.add('show');
+  respEl.innerHTML = '<div style="color:var(--text-muted);">Sending request...</div>';
+
+  try {
+    const opts = {
+      method: method === 'GET' || method === 'DELETE' ? method : method,
+      headers: { 'Content-Type': 'application/json' },
+    };
+    if (body && method !== 'GET' && method !== 'DELETE') {
+      opts.body = body;
+    }
+
+    const res = await fetch(location.origin + url, opts);
+    const text = await res.text();
+    let formatted = text;
+    try { formatted = JSON.stringify(JSON.parse(text), null, 2); } catch {}
+
+    respEl.innerHTML = `
+      <div class="try-status ${res.ok ? 'ok' : 'error'}">${res.status} ${res.statusText}</div>
+      <div>${esc(formatted)}</div>
+    `;
+  } catch (err) {
+    respEl.innerHTML = `
+      <div class="try-status error">Error</div>
+      <div>${esc(err.message)}</div>
+    `;
+  }
+};
+
+window.clearResponse = function(respId) {
+  const el = document.getElementById(respId);
+  if (el) { el.classList.remove('show'); el.innerHTML = ''; }
+};
+
+/* ── Search ───────────────────────────────────────────────────────── */
+document.getElementById('endpointSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  const filtered = q
+    ? ENDPOINTS.filter(ep =>
+        ep.path.toLowerCase().includes(q) ||
+        ep.method.toLowerCase().includes(q) ||
+        ep.category.toLowerCase().includes(q) ||
+        ep.description.toLowerCase().includes(q)
+      )
+    : ENDPOINTS;
+  renderSidebar(filtered);
+  renderEndpoints(filtered);
+});
+
+/* ── Init ─────────────────────────────────────────────────────────── */
+renderSidebar(ENDPOINTS);
+renderEndpoints(ENDPOINTS);
+
+})();
+</script>
+</body>
+</html>

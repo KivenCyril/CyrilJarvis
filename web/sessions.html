@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Session Manager</title>
+<style>
+/* ====================================================================
+   JARVIS Session Manager — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --orange:       #f59e0b;
+  --red:          #ef4444;
+  --purple:       #a855f7;
+  --cyan:         #06b6d4;
+  --pink:         #ec4899;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Nav ----------------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Layout ------------------------------------------------------------ */
+.main-layout { flex: 1; display: grid; grid-template-columns: 400px 1fr; overflow: hidden; }
+.session-list-panel {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.session-detail-panel { overflow-y: auto; padding: 0; display: flex; flex-direction: column; }
+
+/* -- List Panel -------------------------------------------------------- */
+.list-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: center;
+}
+.list-header input {
+  flex: 1; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-size: 13px;
+}
+.list-header input:focus { border-color: var(--border-focus); }
+.btn {
+  padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: var(--transition);
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { opacity: 0.85; }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:hover { background: var(--bg-hover); }
+
+.session-list { flex: 1; overflow-y: auto; }
+.session-item {
+  padding: 14px 20px; border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: var(--transition); animation: fadeIn 0.2s ease both;
+}
+.session-item:hover { background: var(--bg-hover); }
+.session-item.selected { background: var(--bg-hover); border-left: 3px solid var(--accent); }
+.session-id { font-size: 13px; font-family: var(--mono); color: var(--accent); margin-bottom: 4px; }
+.session-row { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-active { background: rgba(34,197,94,0.15); color: var(--green); }
+.badge-idle { background: rgba(245,158,11,0.15); color: var(--orange); }
+.badge-expired { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+.badge-cli { background: rgba(59,130,246,0.15); color: var(--accent); }
+.badge-web { background: rgba(168,85,247,0.15); color: var(--purple); }
+.badge-api { background: rgba(6,182,212,0.15); color: var(--cyan); }
+
+/* -- Metrics Panel ----------------------------------------------------- */
+.metrics-bar {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  padding: 20px; border-bottom: 1px solid var(--border); background: var(--bg-base);
+}
+.metric-card {
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; text-align: center;
+}
+.metric-number { font-size: 24px; font-weight: 700; }
+.metric-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+/* -- Agent Usage Chart ------------------------------------------------- */
+.usage-chart { display: flex; gap: 6px; align-items: flex-end; height: 100px; padding: 0 20px; }
+.usage-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.usage-bar {
+  width: 100%; border-radius: 4px 4px 0 0; min-height: 4px;
+  transition: height 0.5s ease;
+}
+.usage-bar-label { font-size: 10px; color: var(--text-muted); margin-top: 4px; writing-mode: vertical-lr; text-orientation: mixed; }
+
+/* -- Detail Panel ------------------------------------------------------ */
+.detail-empty {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 14px;
+}
+.detail-header {
+  padding: 20px; border-bottom: 1px solid var(--border); background: var(--bg-base);
+}
+.detail-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.detail-meta { display: flex; gap: 16px; font-size: 13px; color: var(--text-dim); flex-wrap: wrap; }
+
+/* -- Chat View --------------------------------------------------------- */
+.chat-container {
+  flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px;
+}
+.chat-msg {
+  display: flex; gap: 12px; max-width: 80%; animation: fadeIn 0.2s ease;
+}
+.chat-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.chat-msg.agent { align-self: flex-start; }
+.chat-avatar {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.chat-avatar.user-avatar { background: var(--accent); color: #fff; }
+.chat-avatar.agent-avatar { background: var(--purple); color: #fff; }
+.chat-bubble {
+  padding: 10px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5;
+}
+.chat-msg.user .chat-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.chat-msg.agent .chat-bubble { background: var(--bg-surface); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+.chat-timestamp { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+.chat-agent-label { font-size: 11px; color: var(--purple); font-weight: 600; margin-bottom: 2px; }
+
+/* -- Timeline ---------------------------------------------------------- */
+.timeline { padding: 20px; border-top: 1px solid var(--border); }
+.timeline-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.timeline-event {
+  display: flex; gap: 12px; padding: 8px 0; font-size: 13px; color: var(--text-dim);
+  border-left: 2px solid var(--border); padding-left: 16px; margin-left: 6px; position: relative;
+}
+.timeline-event::before {
+  content: ''; position: absolute; left: -5px; top: 12px;
+  width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
+}
+.timeline-event-time { color: var(--text-muted); font-size: 11px; min-width: 70px; }
+
+/* -- Actions Bar ------------------------------------------------------- */
+.actions-bar {
+  padding: 14px 20px; border-top: 1px solid var(--border); background: var(--bg-base);
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
+  background: var(--green); color: #fff; border-radius: var(--radius);
+  font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(10px);
+  transition: all 0.3s ease; z-index: 200; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 900px) {
+  .main-layout { grid-template-columns: 1fr; }
+  .session-detail-panel { display: none; }
+  .metrics-bar { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>Session Manager</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html">Knowledge</a>
+    <a href="workflows.html">Workflows</a>
+    <a href="memory.html">Memory</a>
+    <a href="skills.html">Skills</a>
+    <a href="sessions.html" class="active">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html">API Docs</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- Session List Panel -->
+  <div class="session-list-panel">
+    <div class="list-header">
+      <input type="text" id="searchInput" placeholder="Search sessions..." onkeydown="if(event.key==='Enter')filterSessions()">
+      <button class="btn btn-danger" onclick="expireOld()" title="Expire idle sessions">Expire Old</button>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-bar">
+      <div class="metric-card">
+        <div class="metric-number" id="totalSessions">0</div>
+        <div class="metric-label">Total</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-number" style="color:var(--green)" id="activeSessions">0</div>
+        <div class="metric-label">Active</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-number" id="avgDuration">0m</div>
+        <div class="metric-label">Avg Duration</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-number" id="totalMessages">0</div>
+        <div class="metric-label">Messages</div>
+      </div>
+    </div>
+
+    <!-- Agent Usage -->
+    <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px">Agent Usage</div>
+      <div class="usage-chart" id="usageChart"></div>
+    </div>
+
+    <!-- Session List -->
+    <div class="session-list" id="sessionList">
+      <div class="detail-empty">Loading sessions...</div>
+    </div>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="session-detail-panel" id="detailPanel">
+    <div class="detail-empty" id="detailEmpty">Select a session to view details</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================================================================
+   JARVIS Session Manager — JavaScript
+   ==================================================================== */
+
+const API_BASE = window.location.origin;
+let allSessions = [];
+let selectedSession = null;
+
+// ── Demo Data ──────────────────────────────────────────────────────────
+function generateDemoSessions() {
+  const agents = ['orchestrator', 'coder', 'reviewer', 'researcher', 'ops', 'planner'];
+  const channels = ['cli', 'web', 'api'];
+  const states = ['active', 'idle', 'expired'];
+  const userNames = ['alice', 'bob', 'charlie', 'diana', 'eve'];
+  const msgSamples = [
+    { role: 'user', content: 'Can you review the latest PR for the auth module?' },
+    { role: 'agent', agent: 'orchestrator', content: 'I will route this to the reviewer agent for a thorough code review.' },
+    { role: 'agent', agent: 'reviewer', content: 'Reviewing PR #42. Found 3 issues: 1) Missing input validation on email field, 2) SQL injection risk in query builder, 3) Unused import on line 87.' },
+    { role: 'user', content: 'Fix the SQL injection issue first.' },
+    { role: 'agent', agent: 'coder', content: 'I have parameterized the query in `query_builder.py` line 34. The fix uses prepared statements with bound parameters.' },
+    { role: 'agent', agent: 'reviewer', content: 'Fix verified. The parameterized query correctly prevents SQL injection. Approving the change.' },
+    { role: 'user', content: 'Great, now deploy to staging.' },
+    { role: 'agent', agent: 'ops', content: 'Deploying to staging environment. Build #156 triggered. ETA: 3 minutes.' },
+  ];
+
+  return Array.from({ length: 12 }, (_, i) => {
+    const sessionAgents = agents.slice(0, 2 + Math.floor(Math.random() * 4));
+    const msgCount = 4 + Math.floor(Math.random() * 8);
+    const created = new Date(Date.now() - Math.random() * 7 * 86400000);
+    const duration = Math.floor(5 + Math.random() * 120);
+    const state = states[i < 4 ? 0 : i < 8 ? 1 : 2];
+
+    const messages = Array.from({ length: msgCount }, (_, j) => {
+      const sample = msgSamples[j % msgSamples.length];
+      return {
+        ...sample,
+        timestamp: new Date(created.getTime() + j * 60000).toISOString(),
+      };
+    });
+
+    const events = [
+      { time: created.toISOString(), event: 'Session created' },
+      { time: new Date(created.getTime() + 1000).toISOString(), event: `Routed to ${sessionAgents[0]}` },
+      ...sessionAgents.slice(1).map((a, j) => ({
+        time: new Date(created.getTime() + (j+2) * 30000).toISOString(),
+        event: `Delegated to ${a}`,
+      })),
+      { time: new Date(created.getTime() + duration * 60000).toISOString(), event: state === 'active' ? 'Awaiting input' : 'Session ended' },
+    ];
+
+    return {
+      id: `sess_${String(i+1).padStart(3,'0')}_${Math.random().toString(36).slice(2,8)}`,
+      user: userNames[i % userNames.length],
+      channel: channels[i % channels.length],
+      state,
+      message_count: msgCount,
+      agents: sessionAgents,
+      duration_min: duration,
+      last_activity: new Date(created.getTime() + duration * 60000).toISOString(),
+      created_at: created.toISOString(),
+      messages,
+      events,
+    };
+  });
+}
+
+// ── Fetch ──────────────────────────────────────────────────────────────
+async function fetchSessions() {
+  try {
+    const res = await fetch(`${API_BASE}/sessions`);
+    if (!res.ok) throw new Error();
+    let data = await res.json();
+    allSessions = Array.isArray(data) ? data : (data.data || []);
+  } catch {
+    allSessions = generateDemoSessions();
+  }
+  renderSessionList(allSessions);
+  updateMetrics();
+}
+
+// ── Render List ────────────────────────────────────────────────────────
+function renderSessionList(sessions) {
+  const list = document.getElementById('sessionList');
+  if (!sessions.length) {
+    list.innerHTML = '<div class="detail-empty">No sessions found</div>';
+    return;
+  }
+  list.innerHTML = sessions.map((s, i) => `
+    <div class="session-item ${selectedSession?.id === s.id ? 'selected' : ''}"
+         onclick="selectSession('${s.id}')" style="animation-delay:${i*0.04}s">
+      <div class="session-id">${s.id}</div>
+      <div class="session-row">
+        <span class="badge badge-${s.state}">${s.state}</span>
+        <span class="badge badge-${s.channel}">${s.channel}</span>
+        <span>User: ${s.user}</span>
+      </div>
+      <div class="session-row" style="margin-top:4px">
+        <span>${s.message_count} msgs</span>
+        <span>${s.agents?.length || 0} agents</span>
+        <span>${s.duration_min}m</span>
+        <span>${timeAgo(s.last_activity)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Select Session ─────────────────────────────────────────────────────
+async function selectSession(id) {
+  selectedSession = allSessions.find(s => s.id === id);
+  if (!selectedSession) return;
+
+  renderSessionList(allSessions);
+
+  const panel = document.getElementById('detailPanel');
+  const s = selectedSession;
+  const messages = (s.messages || []).map(m => {
+    const isUser = m.role === 'user';
+    return `
+      <div class="chat-msg ${isUser ? 'user' : 'agent'}">
+        <div class="chat-avatar ${isUser ? 'user-avatar' : 'agent-avatar'}">${isUser ? 'U' : (m.agent||'A')[0].toUpperCase()}</div>
+        <div>
+          ${!isUser ? `<div class="chat-agent-label">${m.agent || 'agent'}</div>` : ''}
+          <div class="chat-bubble">${m.content}</div>
+          <div class="chat-timestamp">${new Date(m.timestamp).toLocaleTimeString()}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  const events = (s.events || []).map(e => `
+    <div class="timeline-event">
+      <span class="timeline-event-time">${new Date(e.time).toLocaleTimeString()}</span>
+      <span>${e.event}</span>
+    </div>
+  `).join('');
+
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-title">Session ${s.id}</div>
+      <div class="detail-meta">
+        <span class="badge badge-${s.state}">${s.state}</span>
+        <span class="badge badge-${s.channel}">${s.channel}</span>
+        <span>User: ${s.user}</span>
+        <span>Duration: ${s.duration_min}m</span>
+        <span>Agents: ${(s.agents||[]).join(', ')}</span>
+      </div>
+    </div>
+    <div class="chat-container">${messages || '<div class="detail-empty">No messages</div>'}</div>
+    <div class="timeline">
+      <div class="timeline-title">Event Timeline</div>
+      ${events}
+    </div>
+    <div class="actions-bar">
+      <button class="btn btn-ghost" onclick="exportSession('${s.id}')">Export JSON</button>
+      <button class="btn btn-danger" onclick="expireSession('${s.id}')">Expire</button>
+    </div>
+  `;
+}
+
+// ── Metrics ────────────────────────────────────────────────────────────
+function updateMetrics() {
+  document.getElementById('totalSessions').textContent = allSessions.length;
+  const active = allSessions.filter(s => s.state === 'active').length;
+  document.getElementById('activeSessions').textContent = active;
+  const totalMsgs = allSessions.reduce((a,s) => a + (s.message_count||0), 0);
+  document.getElementById('totalMessages').textContent = totalMsgs;
+  const avgDur = allSessions.length ? Math.round(allSessions.reduce((a,s) => a + (s.duration_min||0), 0) / allSessions.length) : 0;
+  document.getElementById('avgDuration').textContent = avgDur + 'm';
+
+  // Agent usage chart
+  const agentCounts = {};
+  allSessions.forEach(s => (s.agents || []).forEach(a => { agentCounts[a] = (agentCounts[a]||0) + 1; }));
+  const maxAgent = Math.max(...Object.values(agentCounts), 1);
+  const colors = ['var(--accent)', 'var(--green)', 'var(--purple)', 'var(--orange)', 'var(--cyan)', 'var(--pink)'];
+  const chart = document.getElementById('usageChart');
+  chart.innerHTML = Object.entries(agentCounts).map(([name, count], i) => `
+    <div class="usage-bar-wrap">
+      <div class="usage-bar" style="height:${(count/maxAgent)*80}px;background:${colors[i%colors.length]}"></div>
+      <div class="usage-bar-label">${name.slice(0,8)}</div>
+    </div>
+  `).join('');
+
+  try {
+    fetch(`${API_BASE}/sessions/metrics`).then(r => r.json()).catch(() => {});
+  } catch {}
+}
+
+// ── Filter ─────────────────────────────────────────────────────────────
+function filterSessions() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allSessions.filter(s =>
+    s.id.includes(q) || s.user.includes(q) || s.channel.includes(q) || s.state.includes(q)
+  );
+  renderSessionList(filtered);
+}
+
+// ── Actions ────────────────────────────────────────────────────────────
+function expireOld() {
+  const expired = allSessions.filter(s => s.state === 'idle');
+  expired.forEach(s => s.state = 'expired');
+  renderSessionList(allSessions);
+  updateMetrics();
+  showToast(`Expired ${expired.length} idle sessions`);
+}
+
+function expireSession(id) {
+  const s = allSessions.find(s => s.id === id);
+  if (s) { s.state = 'expired'; selectSession(id); updateMetrics(); showToast('Session expired'); }
+}
+
+function exportSession(id) {
+  const s = allSessions.find(s => s.id === id);
+  if (!s) return;
+  const blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `session_${id}.json`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Session exported');
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────
+function timeAgo(isoStr) {
+  const diff = Date.now() - new Date(isoStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs/24)}d ago`;
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? 'var(--red)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────
+fetchSessions();
+</script>
+</body>
+</html>

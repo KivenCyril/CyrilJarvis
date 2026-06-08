@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS Dashboard v2</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+      --border: #334155;
+      --shadow: rgba(0, 0, 0, 0.3);
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* --- Top navigation bar --- */
+    .top-bar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      letter-spacing: 2px;
+    }
+
+    .top-bar .logo span {
+      color: var(--text-secondary);
+      font-weight: 400;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
+
+    .top-bar .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .top-bar .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: var(--transition);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+    }
+
+    .top-bar .nav-links a:hover,
+    .top-bar .nav-links a.active {
+      color: var(--text-primary);
+      background: var(--bg-card-hover);
+    }
+
+    .top-bar .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--accent-green);
+    }
+
+    .top-bar .status-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* --- Layout --- */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-rows: auto auto auto auto;
+      gap: 1.25rem;
+      padding: 1.5rem 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* --- Card base --- */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      border-color: var(--accent-blue);
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title .badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--accent-blue);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* --- System Health Overview (spans 4 cols) --- */
+    .health-overview {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1rem;
+    }
+
+    .health-metric {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .health-metric .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .health-metric .label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.3rem;
+    }
+
+    .health-metric .indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.3rem;
+      animation: pulse-dot 2s infinite;
+    }
+
+    .indicator.green { background: var(--accent-green); }
+    .indicator.yellow { background: var(--accent-yellow); }
+    .indicator.red { background: var(--accent-red); }
+    .indicator.blue { background: var(--accent-blue); }
+
+    /* --- Quick Actions (2 cols) --- */
+    .quick-actions {
+      grid-column: span 2;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .action-btn {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      text-align: center;
+      transition: var(--transition);
+      font-size: 0.85rem;
+    }
+
+    .action-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .action-btn .icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+
+    /* --- Activity Feed (2 cols) --- */
+    .activity-feed {
+      grid-column: span 2;
+    }
+
+    .feed-list {
+      list-style: none;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .feed-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .feed-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .feed-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .feed-item:last-child {
+      border-bottom: none;
+    }
+
+    .feed-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .feed-dot.spec { background: var(--accent-blue); }
+    .feed-dot.agent { background: var(--accent-green); }
+    .feed-dot.tool { background: var(--accent-purple); }
+    .feed-dot.system { background: var(--accent-yellow); }
+    .feed-dot.error { background: var(--accent-red); }
+
+    .feed-content {
+      flex: 1;
+    }
+
+    .feed-content .message {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    .feed-content .time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* --- Module Status Grid (4 cols) --- */
+    .module-status {
+      grid-column: 1 / -1;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .module-item {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .module-item:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .module-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .module-dot.active { background: var(--accent-green); }
+    .module-dot.inactive { background: var(--text-muted); }
+    .module-dot.warning { background: var(--accent-yellow); }
+
+    .module-name {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* --- Performance Metrics (2 cols) --- */
+    .perf-metrics {
+      grid-column: span 2;
+    }
+
+    .metric-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .metric-bar-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .metric-bar-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      width: 120px;
+      flex-shrink: 0;
+    }
+
+    .metric-bar-track {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .metric-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1s ease;
+    }
+
+    .metric-bar-fill.blue { background: var(--accent-blue); }
+    .metric-bar-fill.green { background: var(--accent-green); }
+    .metric-bar-fill.yellow { background: var(--accent-yellow); }
+    .metric-bar-fill.red { background: var(--accent-red); }
+    .metric-bar-fill.purple { background: var(--accent-purple); }
+
+    .metric-bar-value {
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      width: 60px;
+      text-align: right;
+    }
+
+    /* --- Resource Usage (2 cols) --- */
+    .resource-usage {
+      grid-column: span 2;
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .resource-item {
+      text-align: center;
+      padding: 1rem;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .resource-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 4px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.5rem;
+      position: relative;
+    }
+
+    .resource-ring .percentage {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .resource-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .resource-detail {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* --- Recent Specs (spans 2 cols) --- */
+    .recent-specs {
+      grid-column: span 2;
+    }
+
+    .spec-list {
+      list-style: none;
+    }
+
+    .spec-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .spec-item:last-child { border-bottom: none; }
+
+    .spec-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .spec-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .spec-status-dot.planning { background: var(--accent-yellow); }
+    .spec-status-dot.executing { background: var(--accent-blue); animation: pulse-dot 1.5s infinite; }
+    .spec-status-dot.completed { background: var(--accent-green); }
+    .spec-status-dot.paused { background: var(--accent-red); }
+
+    .spec-name {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    .spec-intent {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .spec-progress {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      background: var(--bg-primary);
+      padding: 0.2rem 0.6rem;
+      border-radius: 10px;
+    }
+
+    /* --- Agent Activity (2 cols) --- */
+    .agent-activity {
+      grid-column: span 2;
+    }
+
+    .agent-list {
+      list-style: none;
+    }
+
+    .agent-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .agent-item:last-child { border-bottom: none; }
+
+    .agent-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .agent-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .agent-name {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    .agent-domain {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .agent-status {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+    }
+
+    .agent-status.active {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--accent-green);
+    }
+
+    .agent-status.idle {
+      background: rgba(100, 116, 139, 0.15);
+      color: var(--text-muted);
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 1200px) {
+      .dashboard {
+        grid-template-columns: 1fr 1fr;
+      }
+      .health-overview {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      .health-overview {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .quick-actions,
+      .activity-feed,
+      .perf-metrics,
+      .resource-usage,
+      .recent-specs,
+      .agent-activity,
+      .module-status {
+        grid-column: span 1;
+      }
+      .action-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div style="display:flex;align-items:center;gap:1.5rem;">
+      <div class="logo">JARVIS <span>Dashboard v2</span></div>
+      <nav class="nav-links">
+        <a href="index.html" class="active">Dashboard</a>
+        <a href="agents.html">Agents</a>
+        <a href="workflows.html">Workflows</a>
+        <a href="tools.html">Tools</a>
+        <a href="memory.html">Memory</a>
+        <a href="observability.html">Observability</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </div>
+    <div class="status-badge">
+      <span class="dot"></span>
+      All Systems Operational
+    </div>
+  </header>
+
+  <!-- Dashboard Grid -->
+  <main class="dashboard">
+
+    <!-- System Health Overview -->
+    <div class="health-overview">
+      <div class="card health-metric">
+        <div class="value"><span class="indicator green"></span>12</div>
+        <div class="label">Active Agents</div>
+      </div>
+      <div class="card health-metric">
+        <div class="value"><span class="indicator blue"></span>58</div>
+        <div class="label">Tools Loaded</div>
+      </div>
+      <div class="card health-metric">
+        <div class="value"><span class="indicator green"></span>5</div>
+        <div class="label">Active Specs</div>
+      </div>
+      <div class="card health-metric">
+        <div class="value"><span class="indicator yellow"></span>23</div>
+        <div class="label">Skills</div>
+      </div>
+      <div class="card health-metric">
+        <div class="value"><span class="indicator green"></span>142</div>
+        <div class="label">Memories</div>
+      </div>
+      <div class="card health-metric">
+        <div class="value"><span class="indicator blue"></span>38</div>
+        <div class="label">Modules</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card quick-actions">
+      <div class="card-title">Quick Actions <span class="badge">6 actions</span></div>
+      <div class="action-grid">
+        <button class="action-btn" onclick="createSpec()">
+          <span class="icon">+</span> New Spec
+        </button>
+        <button class="action-btn" onclick="startChat()">
+          <span class="icon">C</span> Chat
+        </button>
+        <button class="action-btn" onclick="runWorkflow()">
+          <span class="icon">W</span> Workflow
+        </button>
+        <button class="action-btn" onclick="viewAgents()">
+          <span class="icon">A</span> Agents
+        </button>
+        <button class="action-btn" onclick="viewMetrics()">
+          <span class="icon">M</span> Metrics
+        </button>
+        <button class="action-btn" onclick="runDiagnostics()">
+          <span class="icon">D</span> Diagnose
+        </button>
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="card activity-feed">
+      <div class="card-title">Recent Activity <span class="badge" id="activity-count">20 events</span></div>
+      <ul class="feed-list" id="activity-feed">
+        <!-- Populated by JS -->
+      </ul>
+    </div>
+
+    <!-- Module Status Grid -->
+    <div class="card module-status">
+      <div class="card-title">Module Status <span class="badge" id="module-count">38 modules</span></div>
+      <div class="module-grid" id="module-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="card perf-metrics">
+      <div class="card-title">Performance Metrics</div>
+      <div class="metric-bars">
+        <div class="metric-bar-item">
+          <span class="metric-bar-label">Request Rate</span>
+          <div class="metric-bar-track"><div class="metric-bar-fill blue" style="width:65%"></div></div>
+          <span class="metric-bar-value">65 req/s</span>
+        </div>
+        <div class="metric-bar-item">
+          <span class="metric-bar-label">Avg Latency</span>
+          <div class="metric-bar-track"><div class="metric-bar-fill green" style="width:35%"></div></div>
+          <span class="metric-bar-value">142 ms</span>
+        </div>
+        <div class="metric-bar-item">
+          <span class="metric-bar-label">Error Rate</span>
+          <div class="metric-bar-track"><div class="metric-bar-fill red" style="width:8%"></div></div>
+          <span class="metric-bar-value">0.8%</span>
+        </div>
+        <div class="metric-bar-item">
+          <span class="metric-bar-label">Cache Hit</span>
+          <div class="metric-bar-track"><div class="metric-bar-fill purple" style="width:82%"></div></div>
+          <span class="metric-bar-value">82%</span>
+        </div>
+        <div class="metric-bar-item">
+          <span class="metric-bar-label">Agent Util</span>
+          <div class="metric-bar-track"><div class="metric-bar-fill yellow" style="width:58%"></div></div>
+          <span class="metric-bar-value">58%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resource Usage -->
+    <div class="card resource-usage">
+      <div class="card-title">Resource Usage</div>
+      <div class="resource-grid">
+        <div class="resource-item">
+          <div class="resource-ring" style="border-color: var(--accent-blue)">
+            <span class="percentage" style="color: var(--accent-blue)">45%</span>
+          </div>
+          <div class="resource-label">Memory</div>
+          <div class="resource-detail">1.8 GB / 4.0 GB</div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-ring" style="border-color: var(--accent-green)">
+            <span class="percentage" style="color: var(--accent-green)">32%</span>
+          </div>
+          <div class="resource-label">CPU</div>
+          <div class="resource-detail">2 / 8 cores active</div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-ring" style="border-color: var(--accent-purple)">
+            <span class="percentage" style="color: var(--accent-purple)">12%</span>
+          </div>
+          <div class="resource-label">Disk I/O</div>
+          <div class="resource-detail">24 MB/s read</div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-ring" style="border-color: var(--accent-cyan)">
+            <span class="percentage" style="color: var(--accent-cyan)">8%</span>
+          </div>
+          <div class="resource-label">Network</div>
+          <div class="resource-detail">1.2 MB/s total</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Specs -->
+    <div class="card recent-specs">
+      <div class="card-title">Recent Specs <span class="badge">5 active</span></div>
+      <ul class="spec-list" id="spec-list">
+        <!-- Populated by JS -->
+      </ul>
+    </div>
+
+    <!-- Agent Activity -->
+    <div class="card agent-activity">
+      <div class="card-title">Agent Activity <span class="badge" id="agent-count">12 agents</span></div>
+      <ul class="agent-list" id="agent-list">
+        <!-- Populated by JS -->
+      </ul>
+    </div>
+
+  </main>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+
+    // --- Mock data for initial render ---
+    const MOCK_ACTIVITIES = [
+      { type: 'spec', message: 'Spec "Code Review" completed successfully', time: '2 min ago' },
+      { type: 'agent', message: 'code-agent handled task: refactor auth module', time: '5 min ago' },
+      { type: 'tool', message: 'Tool "shell" executed: git status', time: '8 min ago' },
+      { type: 'system', message: 'System health check passed', time: '10 min ago' },
+      { type: 'spec', message: 'Spec "Deploy Pipeline" step 3/5 completed', time: '12 min ago' },
+      { type: 'agent', message: 'research-agent indexed 42 new documents', time: '15 min ago' },
+      { type: 'tool', message: 'Tool "python_exec" ran analysis script', time: '18 min ago' },
+      { type: 'spec', message: 'Spec "API Design" created with 4 steps', time: '20 min ago' },
+      { type: 'system', message: 'Memory compaction completed (freed 120MB)', time: '25 min ago' },
+      { type: 'agent', message: 'knowledge-agent extracted 15 entities', time: '28 min ago' },
+      { type: 'error', message: 'Tool "http_request" timeout after 30s', time: '32 min ago' },
+      { type: 'spec', message: 'Spec "Bug Fix #234" redirected to new intent', time: '35 min ago' },
+      { type: 'agent', message: 'writer-agent generated documentation (1.2k words)', time: '40 min ago' },
+      { type: 'tool', message: 'Tool "git_diff" analyzed 12 changed files', time: '42 min ago' },
+      { type: 'system', message: 'Agent registry refreshed', time: '45 min ago' },
+      { type: 'spec', message: 'Spec "Data Migration" paused by user', time: '50 min ago' },
+      { type: 'agent', message: 'devops-agent deployed v1.2.3 to staging', time: '55 min ago' },
+      { type: 'tool', message: 'Tool "sqlite_query" scanned 50k rows', time: '58 min ago' },
+      { type: 'system', message: 'Skill registry loaded 23 skills', time: '1 hour ago' },
+      { type: 'agent', message: 'qa-agent verified 8 test cases', time: '1 hour ago' },
+    ];
+
+    const MOCK_MODULES = [
+      'Agents', 'Agent Cards', 'Agent Registry', 'Orchestrator', 'Executor',
+      'Streaming Spec', 'Spec Engine', 'Spec Steps', 'Spec Constraints',
+      'Tools', 'Tool Registry', 'Shell Tool', 'Python Exec', 'File Ops',
+      'Web Search', 'Git Ops', 'HTTP Client', 'JSON Ops', 'Database Ops',
+      'Memory', 'Memory Search', 'Knowledge Graph', 'Entity Extraction',
+      'Skills', 'Skill Registry', 'Curator', 'Quality Review',
+      'Sessions', 'Session Manager', 'Workflows', 'Workflow Engine',
+      'Events', 'Notifications', 'Templates', 'Observability',
+      'Metrics', 'Traces', 'Gateway',
+    ];
+
+    const MOCK_SPECS = [
+      { name: 'Code Review', intent: 'Review PR #42 for security issues', status: 'executing', progress: '2/4' },
+      { name: 'Deploy Pipeline', intent: 'Deploy v1.3.0 to production', status: 'paused', progress: '3/5' },
+      { name: 'API Design', intent: 'Design REST API for user service', status: 'planning', progress: '0/3' },
+      { name: 'Bug Fix #234', intent: 'Fix memory leak in session manager', status: 'completed', progress: '4/4' },
+      { name: 'Data Migration', intent: 'Migrate user data to new schema', status: 'executing', progress: '1/6' },
+    ];
+
+    const MOCK_AGENTS = [
+      { name: 'code-agent', domain: 'Software Engineering', status: 'active', initials: 'CO' },
+      { name: 'research-agent', domain: 'Research & Analysis', status: 'active', initials: 'RE' },
+      { name: 'knowledge-agent', domain: 'Knowledge Management', status: 'active', initials: 'KN' },
+      { name: 'writer-agent', domain: 'Content Creation', status: 'idle', initials: 'WR' },
+      { name: 'devops-agent', domain: 'DevOps & Infrastructure', status: 'active', initials: 'DO' },
+      { name: 'qa-agent', domain: 'Quality Assurance', status: 'idle', initials: 'QA' },
+    ];
+
+    // --- Render functions ---
+    function renderActivityFeed() {
+      const feed = document.getElementById('activity-feed');
+      feed.innerHTML = MOCK_ACTIVITIES.map(a => `
+        <li class="feed-item">
+          <span class="feed-dot ${a.type}"></span>
+          <div class="feed-content">
+            <div class="message">${a.message}</div>
+            <div class="time">${a.time}</div>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    function renderModuleGrid() {
+      const grid = document.getElementById('module-grid');
+      grid.innerHTML = MOCK_MODULES.map((name, i) => {
+        const status = i < 30 ? 'active' : (i < 35 ? 'warning' : 'inactive');
+        return `
+          <div class="module-item">
+            <span class="module-dot ${status}"></span>
+            <span class="module-name">${name}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSpecList() {
+      const list = document.getElementById('spec-list');
+      list.innerHTML = MOCK_SPECS.map(s => `
+        <li class="spec-item">
+          <div class="spec-info">
+            <span class="spec-status-dot ${s.status}"></span>
+            <div>
+              <div class="spec-name">${s.name}</div>
+              <div class="spec-intent">${s.intent}</div>
+            </div>
+          </div>
+          <span class="spec-progress">${s.progress}</span>
+        </li>
+      `).join('');
+    }
+
+    function renderAgentList() {
+      const list = document.getElementById('agent-list');
+      list.innerHTML = MOCK_AGENTS.map(a => `
+        <li class="agent-item">
+          <div class="agent-info">
+            <div class="agent-avatar">${a.initials}</div>
+            <div>
+              <div class="agent-name">${a.name}</div>
+              <div class="agent-domain">${a.domain}</div>
+            </div>
+          </div>
+          <span class="agent-status ${a.status}">${a.status}</span>
+        </li>
+      `).join('');
+    }
+
+    // --- Quick action handlers ---
+    function createSpec() { window.location.href = 'chat.html'; }
+    function startChat() { window.location.href = 'chat.html'; }
+    function runWorkflow() { window.location.href = 'workflows.html'; }
+    function viewAgents() { window.location.href = 'agents.html'; }
+    function viewMetrics() { window.location.href = 'observability.html'; }
+    function runDiagnostics() {
+      fetch(`${API_BASE}/diagnostics`).then(r => r.json()).then(data => {
+        alert(`Diagnostics: ${data.status}\nChecks: ${JSON.stringify(data.checks, null, 2)}`);
+      }).catch(() => alert('Server not reachable'));
+    }
+
+    // --- Live data fetch ---
+    async function refreshFromAPI() {
+      try {
+        const [healthResp, agentsResp, specsResp] = await Promise.all([
+          fetch(`${API_BASE}/health`),
+          fetch(`${API_BASE}/agents`),
+          fetch(`${API_BASE}/specs`),
+        ]);
+
+        if (healthResp.ok) {
+          const health = await healthResp.json();
+          document.querySelector('.health-metric:nth-child(1) .value').innerHTML =
+            `<span class="indicator green"></span>${health.agents}`;
+          document.querySelector('.health-metric:nth-child(3) .value').innerHTML =
+            `<span class="indicator green"></span>${health.specs}`;
+        }
+      } catch (e) {
+        // Server not running - use mock data
+        console.log('Using mock data (server not reachable)');
+      }
+    }
+
+    // --- Initialize ---
+    document.addEventListener('DOMContentLoaded', () => {
+      renderActivityFeed();
+      renderModuleGrid();
+      renderSpecList();
+      renderAgentList();
+      refreshFromAPI();
+
+      // Auto-refresh every 30 seconds
+      setInterval(refreshFromAPI, 30000);
+    });
+  </script>
+
+</body>
+</html>

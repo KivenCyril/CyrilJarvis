@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS - Templates</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --accent-purple: #a855f7;
+      --border: #334155;
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header .title { font-size: 1.25rem; font-weight: 600; }
+
+    .header .nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .header .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .header .nav-links a:hover,
+    .header .nav-links a.active {
+      color: var(--text-primary);
+      background: var(--bg-card-hover);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: none;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: var(--transition);
+    }
+
+    .tab:hover { color: var(--text-primary); }
+
+    .tab.active {
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .template-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .template-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .template-card .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .template-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .template-type {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .template-type.spec {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .template-type.prompt {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--accent-purple);
+    }
+
+    .template-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .template-meta {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .meta-item {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .template-tags {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 8px;
+      background: rgba(100, 116, 139, 0.2);
+      color: var(--text-secondary);
+    }
+
+    .template-preview {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-family: 'SF Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent-green);
+      margin-top: 0.75rem;
+      max-height: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .template-preview::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(transparent, var(--bg-primary));
+    }
+
+    /* --- Detail modal --- */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .modal-close:hover { color: var(--text-primary); }
+
+    .modal-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .variable-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .variable-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .variable-name {
+      font-family: 'SF Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.1);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .variable-input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .variable-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .rendered-output {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'SF Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent-green);
+      white-space: pre-wrap;
+      min-height: 80px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-primary { background: var(--accent-blue); color: white; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary { background: var(--bg-card-hover); color: var(--text-primary); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-success { background: var(--accent-green); color: white; }
+    .btn-success:hover { opacity: 0.9; }
+
+    .constraint-list {
+      list-style: none;
+    }
+
+    .constraint-item {
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .constraint-icon {
+      color: var(--accent-yellow);
+      font-size: 0.9rem;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    @media (max-width: 768px) {
+      .template-grid { grid-template-columns: 1fr; }
+      .stats-bar { flex-wrap: wrap; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="title">Templates</div>
+    <nav class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="agents.html">Agents</a>
+      <a href="workflows.html">Workflows</a>
+      <a href="templates.html" class="active">Templates</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-value" id="spec-count">5</div>
+        <div class="stat-label">Spec Templates</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="prompt-count">4</div>
+        <div class="stat-label">Prompt Templates</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="total-vars">12</div>
+        <div class="stat-label">Total Variables</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="total-constraints">6</div>
+        <div class="stat-label">Default Constraints</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('specs')">Spec Templates</button>
+      <button class="tab" onclick="switchTab('prompts')">Prompt Templates</button>
+    </div>
+
+    <!-- Spec Templates -->
+    <div class="tab-content active" id="tab-specs">
+      <div class="template-grid" id="spec-templates">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Prompt Templates -->
+    <div class="tab-content" id="tab-prompts">
+      <div class="template-grid" id="prompt-templates">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" id="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">Template Detail</div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="modal-body">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+
+    const MOCK_SPEC_TEMPLATES = [
+      {
+        name: 'code_review',
+        description: 'Review code changes for quality and correctness',
+        intent_template: 'Review the following code changes: {changes}',
+        variables: ['changes'],
+        tags: ['code', 'review'],
+        constraints: ['Focus on correctness', 'Check for security issues'],
+      },
+      {
+        name: 'bug_fix',
+        description: 'Diagnose and fix a reported bug',
+        intent_template: 'Fix the bug: {description}. Affected component: {component}',
+        variables: ['description', 'component'],
+        tags: ['bug', 'fix'],
+        constraints: ['Write tests for the fix', 'Document root cause'],
+      },
+      {
+        name: 'feature_implementation',
+        description: 'Implement a new feature end-to-end',
+        intent_template: 'Implement feature: {feature_name}. Requirements: {requirements}',
+        variables: ['feature_name', 'requirements'],
+        tags: ['feature', 'implementation'],
+        constraints: ['Follow existing patterns', 'Add documentation'],
+      },
+      {
+        name: 'data_analysis',
+        description: 'Analyze data and produce a report',
+        intent_template: 'Analyze {dataset} and report on {metrics}',
+        variables: ['dataset', 'metrics'],
+        tags: ['data', 'analysis'],
+        constraints: ['Include visualizations', 'Cite data sources'],
+      },
+      {
+        name: 'documentation',
+        description: 'Generate or update documentation',
+        intent_template: 'Document {target} with focus on {audience}',
+        variables: ['target', 'audience'],
+        tags: ['docs', 'documentation'],
+        constraints: ['Use clear language', 'Include examples'],
+      },
+    ];
+
+    const MOCK_PROMPT_TEMPLATES = [
+      {
+        name: 'system_prompt',
+        description: 'Base system prompt for JARVIS agents',
+        template: 'You are {agent_name}, a specialist in {domain}. {extra_instructions}',
+        variables: ['agent_name', 'domain', 'extra_instructions'],
+      },
+      {
+        name: 'task_decomposition',
+        description: 'Decompose a complex task into subtasks',
+        template: 'Break down the following task into 3-7 concrete steps: {task}',
+        variables: ['task'],
+      },
+      {
+        name: 'code_generation',
+        description: 'Generate code from requirements',
+        template: 'Generate {language} code that: {requirements}\nConstraints: {constraints}',
+        variables: ['language', 'requirements', 'constraints'],
+      },
+      {
+        name: 'summarization',
+        description: 'Summarize text content',
+        template: 'Summarize the following in {max_words} words or fewer:\n{content}',
+        variables: ['max_words', 'content'],
+      },
+    ];
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+
+    function renderSpecTemplates() {
+      const grid = document.getElementById('spec-templates');
+      grid.innerHTML = MOCK_SPEC_TEMPLATES.map(t => `
+        <div class="template-card" onclick="openSpecDetail('${t.name}')">
+          <div class="card-header">
+            <span class="template-name">${t.name.replace(/_/g, ' ')}</span>
+            <span class="template-type spec">Spec</span>
+          </div>
+          <div class="template-desc">${t.description}</div>
+          <div class="template-meta">
+            <span class="meta-item">${t.variables.length} variable${t.variables.length !== 1 ? 's' : ''}</span>
+            <span class="meta-item">${(t.constraints || []).length} constraint${(t.constraints || []).length !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="template-tags">
+            ${t.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          </div>
+          <div class="template-preview">${t.intent_template}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderPromptTemplates() {
+      const grid = document.getElementById('prompt-templates');
+      grid.innerHTML = MOCK_PROMPT_TEMPLATES.map(t => `
+        <div class="template-card" onclick="openPromptDetail('${t.name}')">
+          <div class="card-header">
+            <span class="template-name">${t.name.replace(/_/g, ' ')}</span>
+            <span class="template-type prompt">Prompt</span>
+          </div>
+          <div class="template-desc">${t.description}</div>
+          <div class="template-meta">
+            <span class="meta-item">${t.variables.length} variable${t.variables.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="template-preview">${t.template}</div>
+        </div>
+      `).join('');
+    }
+
+    function openSpecDetail(name) {
+      const t = MOCK_SPEC_TEMPLATES.find(t => t.name === name);
+      if (!t) return;
+
+      document.getElementById('modal-title').textContent = t.name.replace(/_/g, ' ');
+      document.getElementById('modal-body').innerHTML = `
+        <div class="modal-section">
+          <div class="modal-section-title">Description</div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">${t.description}</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Intent Template</div>
+          <div class="rendered-output">${t.intent_template}</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Variables</div>
+          <ul class="variable-list">
+            ${t.variables.map(v => `
+              <li class="variable-item">
+                <span class="variable-name">{${v}}</span>
+                <input type="text" class="variable-input" placeholder="Enter ${v}..." id="var-${v}" oninput="updatePreview('${name}')">
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        ${t.constraints && t.constraints.length > 0 ? `
+        <div class="modal-section">
+          <div class="modal-section-title">Default Constraints</div>
+          <ul class="constraint-list">
+            ${t.constraints.map(c => `
+              <li class="constraint-item">
+                <span class="constraint-icon">!</span>
+                ${c}
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        <div class="modal-section">
+          <div class="modal-section-title">Preview</div>
+          <div class="rendered-output" id="render-preview">${t.intent_template}</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+          <button class="btn btn-primary" onclick="renderTemplate('${name}', 'spec')">Render & Use</button>
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.add('active');
+    }
+
+    function openPromptDetail(name) {
+      const t = MOCK_PROMPT_TEMPLATES.find(t => t.name === name);
+      if (!t) return;
+
+      document.getElementById('modal-title').textContent = t.name.replace(/_/g, ' ');
+      document.getElementById('modal-body').innerHTML = `
+        <div class="modal-section">
+          <div class="modal-section-title">Description</div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">${t.description}</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Template</div>
+          <div class="rendered-output">${t.template}</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Variables</div>
+          <ul class="variable-list">
+            ${t.variables.map(v => `
+              <li class="variable-item">
+                <span class="variable-name">{${v}}</span>
+                <input type="text" class="variable-input" placeholder="Enter ${v}..." id="var-${v}" oninput="updatePromptPreview('${name}')">
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Preview</div>
+          <div class="rendered-output" id="render-preview">${t.template}</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+          <button class="btn btn-primary" onclick="renderTemplate('${name}', 'prompt')">Render</button>
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.add('active');
+    }
+
+    function updatePreview(name) {
+      const t = MOCK_SPEC_TEMPLATES.find(t => t.name === name);
+      if (!t) return;
+      let rendered = t.intent_template;
+      t.variables.forEach(v => {
+        const input = document.getElementById(`var-${v}`);
+        if (input && input.value) {
+          rendered = rendered.replace(`{${v}}`, input.value);
+        }
+      });
+      document.getElementById('render-preview').textContent = rendered;
+    }
+
+    function updatePromptPreview(name) {
+      const t = MOCK_PROMPT_TEMPLATES.find(t => t.name === name);
+      if (!t) return;
+      let rendered = t.template;
+      t.variables.forEach(v => {
+        const input = document.getElementById(`var-${v}`);
+        if (input && input.value) {
+          rendered = rendered.replace(`{${v}}`, input.value);
+        }
+      });
+      document.getElementById('render-preview').textContent = rendered;
+    }
+
+    async function renderTemplate(name, type) {
+      const templates = type === 'spec' ? MOCK_SPEC_TEMPLATES : MOCK_PROMPT_TEMPLATES;
+      const t = templates.find(t => t.name === name);
+      if (!t) return;
+
+      const variables = {};
+      t.variables.forEach(v => {
+        const input = document.getElementById(`var-${v}`);
+        if (input && input.value) {
+          variables[v] = input.value;
+        }
+      });
+
+      try {
+        const endpoint = type === 'spec' ? 'specs' : 'prompts';
+        const resp = await fetch(`${API_BASE}/templates/${endpoint}/${name}/render`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ variables }),
+        });
+        const data = await resp.json();
+        const rendered = data.rendered_intent || data.rendered || 'Rendering failed';
+        document.getElementById('render-preview').textContent = rendered;
+      } catch (e) {
+        // Render locally if server is down
+        let rendered = type === 'spec' ? t.intent_template : t.template;
+        Object.entries(variables).forEach(([k, v]) => {
+          rendered = rendered.replace(`{${k}}`, v);
+        });
+        document.getElementById('render-preview').textContent = rendered;
+      }
+    }
+
+    function closeModal(event) {
+      if (event && event.target !== event.currentTarget) return;
+      document.getElementById('modal-overlay').classList.remove('active');
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderSpecTemplates();
+      renderPromptTemplates();
+    });
+  </script>
+
+</body>
+</html>

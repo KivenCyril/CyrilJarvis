@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Skill Browser</title>
+<style>
+/* ====================================================================
+   JARVIS Skill Browser — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --orange:       #f59e0b;
+  --red:          #ef4444;
+  --purple:       #a855f7;
+  --cyan:         #06b6d4;
+  --pink:         #ec4899;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Nav ----------------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Layout ------------------------------------------------------------ */
+.main-layout { flex: 1; display: grid; grid-template-columns: 1fr 320px; overflow: hidden; }
+.content-area { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.detail-sidebar {
+  background: var(--bg-base); border-left: 1px solid var(--border); overflow-y: auto;
+  padding: 0; display: flex; flex-direction: column;
+}
+
+/* -- Toolbar ----------------------------------------------------------- */
+.toolbar {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  background: var(--bg-surface); padding: 14px 20px; border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+.toolbar input, .toolbar select {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 9px 14px; color: var(--text); font-size: 13px;
+}
+.toolbar input { flex: 1; min-width: 180px; }
+.toolbar input:focus { border-color: var(--border-focus); }
+.toolbar select option { background: var(--bg-base); }
+.btn {
+  padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: var(--transition);
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+
+/* -- Stats Row --------------------------------------------------------- */
+.stats-row { display: flex; gap: 14px; }
+.mini-stat {
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 18px; flex: 1; text-align: center;
+}
+.mini-stat-number { font-size: 24px; font-weight: 700; }
+.mini-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+/* -- Skill Grid -------------------------------------------------------- */
+.skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.skill-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px; cursor: pointer; transition: var(--transition);
+  animation: fadeInUp 0.3s ease both;
+}
+.skill-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.skill-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.skill-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.skill-domain {
+  display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+}
+.domain-coding { background: rgba(59,130,246,0.15); color: var(--accent); }
+.domain-devops { background: rgba(34,197,94,0.15); color: var(--green); }
+.domain-research { background: rgba(168,85,247,0.15); color: var(--purple); }
+.domain-system { background: rgba(245,158,11,0.15); color: var(--orange); }
+.domain-communication { background: rgba(236,72,153,0.15); color: var(--pink); }
+.domain-general { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+.skill-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5; }
+.skill-meta { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); align-items: center; flex-wrap: wrap; }
+.success-bar { width: 60px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.success-fill { height: 100%; background: var(--green); border-radius: 3px; }
+.skill-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
+.skill-tag { padding: 2px 8px; background: rgba(99,102,241,0.12); color: #818cf8; border-radius: 4px; font-size: 11px; }
+
+/* -- Detail Sidebar ---------------------------------------------------- */
+.detail-empty {
+  display: flex; align-items: center; justify-content: center; height: 100%;
+  color: var(--text-muted); font-size: 14px; padding: 20px; text-align: center;
+}
+.detail-content { padding: 20px; }
+.detail-header { margin-bottom: 20px; }
+.detail-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.detail-section { margin-bottom: 18px; }
+.detail-section-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); margin-bottom: 8px;
+}
+.detail-text { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+.prompt-block {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px; font-size: 12px; font-family: var(--mono); color: var(--text-dim);
+  max-height: 180px; overflow-y: auto; white-space: pre-wrap; line-height: 1.6;
+}
+.steps-list { list-style: none; counter-reset: step; }
+.steps-list li {
+  counter-increment: step; padding: 8px 0 8px 32px; position: relative;
+  font-size: 13px; color: var(--text-dim); border-left: 2px solid var(--border); margin-left: 10px;
+}
+.steps-list li::before {
+  content: counter(step); position: absolute; left: -12px; top: 6px;
+  width: 22px; height: 22px; background: var(--accent); color: #fff; border-radius: 50%;
+  font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.history-chart { display: flex; align-items: flex-end; gap: 3px; height: 60px; margin-top: 8px; }
+.history-bar {
+  flex: 1; border-radius: 2px 2px 0 0; min-height: 3px; transition: height 0.3s ease;
+}
+.evo-entry {
+  padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim);
+}
+.evo-version { font-weight: 700; color: var(--accent); margin-right: 8px; }
+
+/* -- Import Modal ------------------------------------------------------ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none;
+  align-items: center; justify-content: center; z-index: 100;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 24px; width: 520px; max-height: 80vh; overflow-y: auto;
+}
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+.modal textarea {
+  width: 100%; min-height: 200px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px; color: var(--text); font-family: var(--mono);
+  font-size: 12px; resize: vertical;
+}
+.modal textarea:focus { border-color: var(--border-focus); }
+.modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+
+/* -- Toast ------------------------------------------------------------- */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
+  background: var(--green); color: #fff; border-radius: var(--radius);
+  font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(10px);
+  transition: all 0.3s ease; z-index: 200; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 960px) {
+  .main-layout { grid-template-columns: 1fr; }
+  .detail-sidebar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>Skill Browser</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html">Knowledge</a>
+    <a href="workflows.html">Workflows</a>
+    <a href="memory.html">Memory</a>
+    <a href="skills.html" class="active">Skills</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html">API Docs</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- Content -->
+  <div class="content-area">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Search skills by name, tags..." onkeydown="if(event.key==='Enter')filterSkills()">
+      <select id="domainFilter" onchange="filterSkills()">
+        <option value="all">All Domains</option>
+        <option value="coding">Coding</option>
+        <option value="devops">DevOps</option>
+        <option value="research">Research</option>
+        <option value="system">System</option>
+        <option value="communication">Communication</option>
+      </select>
+      <button class="btn btn-primary" onclick="filterSkills()">Search</button>
+      <button class="btn btn-ghost" onclick="showImportModal()">Import Skill</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="mini-stat">
+        <div class="mini-stat-number" id="totalSkills">0</div>
+        <div class="mini-stat-label">Total Skills</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-stat-number" id="domainCount">0</div>
+        <div class="mini-stat-label">Domains</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-stat-number" id="avgSuccess">0%</div>
+        <div class="mini-stat-label">Avg Success Rate</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-stat-number" id="totalUses">0</div>
+        <div class="mini-stat-label">Total Uses</div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="skill-grid" id="skillGrid"></div>
+  </div>
+
+  <!-- Detail Sidebar -->
+  <aside class="detail-sidebar">
+    <div class="detail-empty" id="detailEmpty">Select a skill to view details</div>
+    <div class="detail-content" id="detailContent" style="display:none"></div>
+  </aside>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <div class="modal-title">Import Skill (YAML)</div>
+    <textarea id="yamlInput" placeholder="Paste YAML skill definition here..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="hideImportModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="importSkill()">Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================================================================
+   JARVIS Skill Browser — JavaScript
+   ==================================================================== */
+
+const API_BASE = window.location.origin;
+let allSkills = [];
+let selectedSkill = null;
+
+// ── Demo Data ──────────────────────────────────────────────────────────
+function generateDemoSkills() {
+  const skills = [
+    { name: 'code_review', domain: 'coding', version: '2.1.0', description: 'Automated code review with style, bug, and security checks across multiple languages.',
+      steps: ['Parse diff/PR', 'Run linters', 'Analyze patterns', 'Check security', 'Generate report'], success_rate: 0.92, use_count: 347,
+      tags: ['review', 'quality', 'lint'], system_prompt: 'You are an expert code reviewer. Analyze the provided diff for bugs, style issues, security vulnerabilities, and performance problems.',
+      constraints: ['Must complete within 30s', 'Max 500 lines per review'], },
+    { name: 'git_workflow', domain: 'devops', version: '1.4.2', description: 'Manage Git operations including branching, merging, conflict resolution, and history analysis.',
+      steps: ['Identify operation', 'Validate state', 'Execute command', 'Verify result'], success_rate: 0.97, use_count: 512,
+      tags: ['git', 'vcs', 'branch'], system_prompt: 'You manage Git workflows. Always validate repo state before operations.',
+      constraints: ['Never force-push to main', 'Require confirmation for destructive ops'], },
+    { name: 'api_test_gen', domain: 'coding', version: '1.2.0', description: 'Generate comprehensive API test suites from OpenAPI specs or endpoint documentation.',
+      steps: ['Parse API spec', 'Generate test cases', 'Add edge cases', 'Create fixtures', 'Output test file'], success_rate: 0.85, use_count: 189,
+      tags: ['testing', 'api', 'openapi'], system_prompt: 'Generate thorough API tests covering happy path, edge cases, and error scenarios.',
+      constraints: ['Support REST and GraphQL', 'Generate both unit and integration tests'], },
+    { name: 'doc_search', domain: 'research', version: '3.0.1', description: 'Deep search across documentation, wikis, and knowledge bases with semantic understanding.',
+      steps: ['Parse query', 'Embed query', 'Vector search', 'Rank results', 'Format response'], success_rate: 0.88, use_count: 623,
+      tags: ['search', 'docs', 'semantic'], system_prompt: 'Search and retrieve relevant documentation. Rank by relevance and recency.',
+      constraints: ['Max 10 results per query', 'Include source citations'], },
+    { name: 'deploy_pipeline', domain: 'devops', version: '2.0.0', description: 'Orchestrate deployment pipelines with rollback support, health checks, and notifications.',
+      steps: ['Pre-flight checks', 'Build artifacts', 'Deploy to staging', 'Run smoke tests', 'Promote to prod', 'Monitor health'], success_rate: 0.94, use_count: 156,
+      tags: ['deploy', 'ci-cd', 'pipeline'], system_prompt: 'Manage deployments with safety-first approach. Always verify health before promoting.',
+      constraints: ['Require approval for prod', 'Auto-rollback on failure'], },
+    { name: 'incident_response', domain: 'system', version: '1.1.0', description: 'Coordinate incident response with runbooks, escalation, and post-mortem generation.',
+      steps: ['Assess severity', 'Notify on-call', 'Execute runbook', 'Monitor recovery', 'Draft post-mortem'], success_rate: 0.91, use_count: 42,
+      tags: ['incident', 'ops', 'runbook'], system_prompt: 'Coordinate incident response. Prioritize service restoration over root cause analysis.',
+      constraints: ['Escalate P0/P1 within 5min', 'Always create post-mortem'], },
+    { name: 'meeting_summary', domain: 'communication', version: '1.3.0', description: 'Generate structured meeting summaries with action items, decisions, and follow-ups.',
+      steps: ['Parse transcript', 'Extract topics', 'Identify decisions', 'List action items', 'Format summary'], success_rate: 0.89, use_count: 278,
+      tags: ['meeting', 'summary', 'notes'], system_prompt: 'Summarize meetings into structured notes with clear action items and owners.',
+      constraints: ['Max 500 words', 'Include all action items with owners'], },
+    { name: 'schema_migrate', domain: 'coding', version: '1.0.3', description: 'Generate and validate database schema migrations with rollback scripts.',
+      steps: ['Diff schemas', 'Generate migration', 'Create rollback', 'Validate syntax', 'Test on replica'], success_rate: 0.82, use_count: 95,
+      tags: ['database', 'migration', 'schema'], system_prompt: 'Generate safe database migrations. Always include rollback scripts.',
+      constraints: ['No data-loss migrations without confirmation', 'Support PostgreSQL and MySQL'], },
+    { name: 'perf_analyzer', domain: 'system', version: '2.2.1', description: 'Analyze system performance metrics, identify bottlenecks, and suggest optimizations.',
+      steps: ['Collect metrics', 'Identify anomalies', 'Profile hotspots', 'Generate recommendations'], success_rate: 0.86, use_count: 167,
+      tags: ['performance', 'profiling', 'optimization'], system_prompt: 'Analyze performance data and provide actionable optimization recommendations.',
+      constraints: ['Rank suggestions by impact', 'Include estimated improvement'], },
+  ];
+  return skills.map((s, i) => ({
+    ...s, id: `skill_${i+1}`,
+    evolution: [
+      { version: '1.0.0', date: '2024-01-15', change: 'Initial release' },
+      { version: s.version, date: '2024-06-01', change: 'Latest improvements and bug fixes' },
+    ],
+    execution_history: Array.from({length: 10}, () => Math.random() > 0.15 ? 1 : 0),
+  }));
+}
+
+// ── Fetch Skills ───────────────────────────────────────────────────────
+async function fetchSkills() {
+  try {
+    const res = await fetch(`${API_BASE}/skills`);
+    if (!res.ok) throw new Error();
+    let data = await res.json();
+    allSkills = Array.isArray(data) ? data : (data.data || []);
+  } catch {
+    allSkills = generateDemoSkills();
+  }
+  renderSkills(allSkills);
+  updateStats();
+}
+
+// ── Render Grid ────────────────────────────────────────────────────────
+function renderSkills(skills) {
+  const grid = document.getElementById('skillGrid');
+  if (!skills.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">No skills found</div>';
+    return;
+  }
+  grid.innerHTML = skills.map((s, i) => `
+    <div class="skill-card ${selectedSkill?.name === s.name ? 'selected' : ''}"
+         onclick="selectSkill('${s.name}')" style="animation-delay:${i*0.05}s">
+      <div class="skill-name">${s.name}</div>
+      <span class="skill-domain domain-${s.domain}">${s.domain}</span>
+      <span style="font-size:11px;color:var(--text-muted);margin-left:8px">v${s.version}</span>
+      <div class="skill-desc">${s.description}</div>
+      <div class="skill-meta">
+        <span>${s.steps?.length || 0} steps</span>
+        <span>|</span>
+        <span>Success:</span>
+        <div class="success-bar"><div class="success-fill" style="width:${(s.success_rate||0)*100}%"></div></div>
+        <span>${Math.round((s.success_rate||0)*100)}%</span>
+        <span>|</span>
+        <span>${s.use_count || 0} uses</span>
+      </div>
+      <div class="skill-tags">${(s.tags||[]).map(t => `<span class="skill-tag">${t}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+// ── Select Skill ───────────────────────────────────────────────────────
+async function selectSkill(name) {
+  let skill = allSkills.find(s => s.name === name);
+  try {
+    const res = await fetch(`${API_BASE}/skills/${name}`);
+    if (res.ok) { const d = await res.json(); skill = d.data || d; }
+  } catch {}
+
+  selectedSkill = skill;
+  renderSkills(allSkills.filter(s => {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const d = document.getElementById('domainFilter').value;
+    const matchQ = !q || s.name.includes(q) || (s.tags||[]).some(t => t.includes(q)) || s.description.toLowerCase().includes(q);
+    const matchD = d === 'all' || s.domain === d;
+    return matchQ && matchD;
+  }));
+
+  document.getElementById('detailEmpty').style.display = 'none';
+  const dc = document.getElementById('detailContent');
+  dc.style.display = 'block';
+
+  const histBars = (skill.execution_history || []).map(v =>
+    `<div class="history-bar" style="height:${v ? 100 : 20}%;background:${v ? 'var(--green)' : 'var(--red)'}"></div>`
+  ).join('');
+
+  const evoHtml = (skill.evolution || []).map(e =>
+    `<div class="evo-entry"><span class="evo-version">${e.version}</span>${e.date} - ${e.change}</div>`
+  ).join('');
+
+  dc.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-title">${skill.name}</div>
+      <span class="skill-domain domain-${skill.domain}">${skill.domain}</span>
+      <span style="font-size:13px;color:var(--text-dim);margin-left:8px">v${skill.version}</span>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Description</div>
+      <div class="detail-text">${skill.description}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">System Prompt</div>
+      <div class="prompt-block">${skill.system_prompt || 'N/A'}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Steps</div>
+      <ol class="steps-list">${(skill.steps||[]).map(s => `<li>${s}</li>`).join('')}</ol>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Constraints</div>
+      <ul style="padding-left:18px;font-size:13px;color:var(--text-dim)">${(skill.constraints||[]).map(c => `<li style="margin-bottom:4px">${c}</li>`).join('')}</ul>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Execution History (Last 10)</div>
+      <div class="history-chart">${histBars}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Evolution</div>
+      ${evoHtml}
+    </div>
+  `;
+}
+
+// ── Filter ─────────────────────────────────────────────────────────────
+function filterSkills() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const d = document.getElementById('domainFilter').value;
+  const filtered = allSkills.filter(s => {
+    const matchQ = !q || s.name.includes(q) || (s.tags||[]).some(t => t.includes(q)) || s.description.toLowerCase().includes(q);
+    const matchD = d === 'all' || s.domain === d;
+    return matchQ && matchD;
+  });
+  renderSkills(filtered);
+}
+
+// ── Stats ──────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('totalSkills').textContent = allSkills.length;
+  const domains = new Set(allSkills.map(s => s.domain));
+  document.getElementById('domainCount').textContent = domains.size;
+  const avgSr = allSkills.length ? allSkills.reduce((a,s) => a + (s.success_rate||0), 0) / allSkills.length : 0;
+  document.getElementById('avgSuccess').textContent = Math.round(avgSr * 100) + '%';
+  document.getElementById('totalUses').textContent = allSkills.reduce((a,s) => a + (s.use_count||0), 0);
+}
+
+// ── Import ─────────────────────────────────────────────────────────────
+function showImportModal() { document.getElementById('importModal').classList.add('show'); }
+function hideImportModal() { document.getElementById('importModal').classList.remove('show'); }
+
+function importSkill() {
+  const yaml = document.getElementById('yamlInput').value.trim();
+  if (!yaml) { showToast('Please paste YAML content', true); return; }
+  // Simple YAML-like parse for demo
+  const lines = yaml.split('\n');
+  const skill = { tags: [], steps: [], constraints: [], success_rate: 1.0, use_count: 0, version: '1.0.0',
+                  domain: 'general', execution_history: [], evolution: [] };
+  lines.forEach(line => {
+    const m = line.match(/^(\w+):\s*(.+)/);
+    if (m) {
+      if (m[1] === 'name') skill.name = m[2];
+      else if (m[1] === 'domain') skill.domain = m[2];
+      else if (m[1] === 'description') skill.description = m[2];
+      else if (m[1] === 'version') skill.version = m[2];
+    }
+  });
+  if (skill.name) {
+    skill.id = 'skill_' + Date.now();
+    allSkills.push(skill);
+    renderSkills(allSkills);
+    updateStats();
+    hideImportModal();
+    showToast('Skill imported: ' + skill.name);
+  } else {
+    showToast('Invalid YAML: missing "name" field', true);
+  }
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? 'var(--red)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────
+fetchSkills();
+</script>
+</body>
+</html>

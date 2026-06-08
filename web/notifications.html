@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS - Notifications</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --accent-purple: #a855f7;
+      --border: #334155;
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header .title { font-size: 1.25rem; font-weight: 600; }
+
+    .header .nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .header .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .header .nav-links a:hover,
+    .header .nav-links a.active {
+      color: var(--text-primary);
+      background: var(--bg-card-hover);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    .toolbar .filters {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-btn:hover { border-color: var(--accent-blue); }
+    .filter-btn.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+
+    .toolbar .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .action-btn.primary { background: var(--accent-blue); color: white; }
+    .action-btn.secondary { background: var(--bg-card-hover); color: var(--text-primary); }
+    .action-btn:hover { opacity: 0.9; }
+
+    .notification-list {
+      list-style: none;
+    }
+
+    .notification-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      gap: 1rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .notification-item:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .notification-item.unread {
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .notification-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .notification-icon.info { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .notification-icon.warning { background: rgba(234, 179, 8, 0.15); color: var(--accent-yellow); }
+    .notification-icon.error { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+    .notification-icon.critical { background: rgba(239, 68, 68, 0.3); color: var(--accent-red); }
+    .notification-icon.success { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+
+    .notification-content { flex: 1; }
+
+    .notification-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.3rem;
+    }
+
+    .notification-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .notification-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .notification-body {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .notification-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .notification-badge {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 8px;
+    }
+
+    .notification-badge.level-info { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .notification-badge.level-warning { background: rgba(234, 179, 8, 0.15); color: var(--accent-yellow); }
+    .notification-badge.level-error { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+    .notification-badge.level-critical { background: rgba(239, 68, 68, 0.3); color: var(--accent-red); }
+
+    .notification-action {
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+
+    .notification-action:hover { text-decoration: underline; }
+
+    .mark-read-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .mark-read-btn:hover { color: var(--accent-blue); }
+
+    /* --- Send notification form --- */
+    .send-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: none;
+    }
+
+    .send-form.visible { display: block; }
+
+    .form-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      padding: 0.6rem 0.8rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .form-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    .unread-count {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 8px;
+      background: var(--accent-red);
+      color: white;
+      margin-left: 0.3rem;
+    }
+
+    @media (max-width: 768px) {
+      .toolbar { flex-direction: column; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="title">Notifications <span class="unread-count" id="unread-badge">3</span></div>
+    <nav class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="agents.html">Agents</a>
+      <a href="events.html">Events</a>
+      <a href="notifications.html" class="active">Notifications</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <div class="container">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="filters">
+        <button class="filter-btn active" onclick="filterNotifs('all', this)">All</button>
+        <button class="filter-btn" onclick="filterNotifs('unread', this)">Unread</button>
+        <button class="filter-btn" onclick="filterNotifs('info', this)">Info</button>
+        <button class="filter-btn" onclick="filterNotifs('warning', this)">Warning</button>
+        <button class="filter-btn" onclick="filterNotifs('error', this)">Error</button>
+      </div>
+      <div class="actions">
+        <button class="action-btn secondary" onclick="markAllRead()">Mark All Read</button>
+        <button class="action-btn primary" onclick="toggleSendForm()">Send Notification</button>
+      </div>
+    </div>
+
+    <!-- Send Form -->
+    <div class="send-form" id="send-form">
+      <div class="form-title">Send Notification</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-input" id="notif-title" placeholder="Notification title">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Level</label>
+          <select class="form-select" id="notif-level">
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="error">Error</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">Body</label>
+          <textarea class="form-textarea" id="notif-body" placeholder="Notification body..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="action-btn secondary" onclick="toggleSendForm()">Cancel</button>
+        <button class="action-btn primary" onclick="sendNotification()">Send</button>
+      </div>
+    </div>
+
+    <!-- Notification List -->
+    <ul class="notification-list" id="notification-list">
+      <!-- Populated by JS -->
+    </ul>
+
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+
+    let currentFilter = 'all';
+
+    const MOCK_NOTIFICATIONS = [
+      { id: 'notif-001', title: 'Deployment Completed', body: 'Version 1.3.0 has been successfully deployed to production.', level: 'info', read: false, created_at: '2025-06-01T14:30:00Z', action_url: null },
+      { id: 'notif-002', title: 'High Memory Usage', body: 'Memory usage has exceeded 80% threshold. Consider scaling up or optimizing.', level: 'warning', read: false, created_at: '2025-06-01T14:25:00Z', action_url: null },
+      { id: 'notif-003', title: 'API Rate Limit Reached', body: 'External API rate limit reached for github.com. Requests will be throttled.', level: 'error', read: false, created_at: '2025-06-01T14:20:00Z', action_url: null },
+      { id: 'notif-004', title: 'Spec Completed', body: 'Streaming Spec "Code Review #42" completed with all 4 steps successful.', level: 'info', read: true, created_at: '2025-06-01T14:15:00Z', action_url: null },
+      { id: 'notif-005', title: 'New Agent Registered', body: 'Agent "devops-agent" has been registered and is ready for task routing.', level: 'info', read: true, created_at: '2025-06-01T14:10:00Z', action_url: null },
+      { id: 'notif-006', title: 'Knowledge Graph Updated', body: 'Extracted 15 new entities and 8 relations from recent conversation.', level: 'info', read: true, created_at: '2025-06-01T14:05:00Z', action_url: null },
+      { id: 'notif-007', title: 'Scheduled Maintenance', body: 'System will undergo maintenance at 2:00 AM UTC tomorrow.', level: 'warning', read: true, created_at: '2025-06-01T13:00:00Z', action_url: null },
+      { id: 'notif-008', title: 'Tool Execution Failed', body: 'Tool "http_request" failed with timeout error when contacting external service.', level: 'error', read: true, created_at: '2025-06-01T12:30:00Z', action_url: null },
+    ];
+
+    const LEVEL_ICONS = { info: 'i', warning: '!', error: 'x', critical: '!!', success: 'v' };
+
+    function renderNotifications() {
+      let notifs = [...MOCK_NOTIFICATIONS];
+
+      if (currentFilter === 'unread') {
+        notifs = notifs.filter(n => !n.read);
+      } else if (currentFilter !== 'all') {
+        notifs = notifs.filter(n => n.level === currentFilter);
+      }
+
+      const list = document.getElementById('notification-list');
+      if (notifs.length === 0) {
+        list.innerHTML = '<div class="empty-state">No notifications match the current filter.</div>';
+        return;
+      }
+
+      list.innerHTML = notifs.map(n => {
+        const time = new Date(n.created_at).toLocaleString();
+        const icon = LEVEL_ICONS[n.level] || 'i';
+        return `
+          <li class="notification-item${n.read ? '' : ' unread'}">
+            <div class="notification-icon ${n.level}">${icon}</div>
+            <div class="notification-content">
+              <div class="notification-header">
+                <span class="notification-title">${n.title}</span>
+                <span class="notification-time">${time}</span>
+              </div>
+              <div class="notification-body">${n.body}</div>
+              <div class="notification-footer">
+                <span class="notification-badge level-${n.level}">${n.level}</span>
+                ${!n.read ? `<button class="mark-read-btn" onclick="markRead('${n.id}')">Mark as read</button>` : ''}
+                ${n.action_url ? `<a class="notification-action" href="${n.action_url}">View details</a>` : ''}
+              </div>
+            </div>
+          </li>
+        `;
+      }).join('');
+
+      updateUnreadBadge();
+    }
+
+    function filterNotifs(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderNotifications();
+    }
+
+    function markRead(id) {
+      const notif = MOCK_NOTIFICATIONS.find(n => n.id === id);
+      if (notif) {
+        notif.read = true;
+        // Also try to mark on server
+        fetch(`${API_BASE}/notifications/${id}/read`, { method: 'POST' }).catch(() => {});
+      }
+      renderNotifications();
+    }
+
+    function markAllRead() {
+      MOCK_NOTIFICATIONS.forEach(n => n.read = true);
+      renderNotifications();
+    }
+
+    function updateUnreadBadge() {
+      const unread = MOCK_NOTIFICATIONS.filter(n => !n.read).length;
+      const badge = document.getElementById('unread-badge');
+      badge.textContent = unread;
+      badge.style.display = unread > 0 ? 'inline' : 'none';
+    }
+
+    function toggleSendForm() {
+      document.getElementById('send-form').classList.toggle('visible');
+    }
+
+    async function sendNotification() {
+      const title = document.getElementById('notif-title').value;
+      const level = document.getElementById('notif-level').value;
+      const body = document.getElementById('notif-body').value;
+
+      if (!title) { alert('Title is required'); return; }
+
+      const notif = {
+        id: `notif-local-${Date.now()}`,
+        title, body, level,
+        read: false,
+        created_at: new Date().toISOString(),
+        action_url: null,
+      };
+
+      try {
+        await fetch(`${API_BASE}/notifications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, body, level }),
+        });
+      } catch (e) {
+        // Server not available, add locally
+      }
+
+      MOCK_NOTIFICATIONS.unshift(notif);
+      renderNotifications();
+      toggleSendForm();
+      document.getElementById('notif-title').value = '';
+      document.getElementById('notif-body').value = '';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNotifications();
+    });
+  </script>
+
+</body>
+</html>

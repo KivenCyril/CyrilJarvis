@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Chat</title>
+<style>
+/* ====================================================================
+   JARVIS Chat Interface — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --orange:       #f59e0b;
+  --red:          #ef4444;
+  --purple:       #a855f7;
+  --cyan:         #06b6d4;
+  --pink:         #ec4899;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Nav ----------------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Layout ------------------------------------------------------------ */
+.main-layout { flex: 1; display: grid; grid-template-columns: 1fr 320px; overflow: hidden; }
+.chat-area { display: flex; flex-direction: column; overflow: hidden; }
+.right-panel {
+  background: var(--bg-base); border-left: 1px solid var(--border);
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+
+/* -- Chat Header ------------------------------------------------------- */
+.chat-header {
+  display: flex; align-items: center; gap: 14px; padding: 14px 20px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--bg-base);
+}
+.chat-header-title { font-size: 16px; font-weight: 700; }
+.agent-selector {
+  display: flex; align-items: center; gap: 8px; margin-left: auto;
+}
+.agent-selector label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.agent-selector select {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 6px 10px; color: var(--text); font-size: 12px;
+}
+.agent-selector select:focus { border-color: var(--border-focus); outline: none; }
+.clear-btn {
+  padding: 6px 12px; border-radius: var(--radius); font-size: 11px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-dim);
+  transition: var(--transition);
+}
+.clear-btn:hover { background: var(--bg-hover); color: var(--text); }
+
+/* -- Messages ---------------------------------------------------------- */
+.messages-container {
+  flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;
+}
+
+.message {
+  display: flex; gap: 12px; max-width: 85%; animation: fadeIn 0.3s ease;
+}
+.message.user { flex-direction: row-reverse; align-self: flex-end; }
+.message.agent { align-self: flex-start; }
+
+.message-avatar {
+  width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.message-avatar.agent-avatar { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+.message-avatar.user-avatar { background: linear-gradient(135deg, #06b6d4, #22c55e); }
+
+.message-content { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.message-name { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+.message.user .message-name { text-align: right; }
+
+.message-bubble {
+  padding: 12px 16px; border-radius: var(--radius-lg); font-size: 14px; line-height: 1.6;
+  word-wrap: break-word; overflow-wrap: break-word;
+}
+.message.agent .message-bubble {
+  background: var(--bg-card); border: 1px solid var(--border); border-bottom-left-radius: 4px;
+}
+.message.user .message-bubble {
+  background: var(--accent); color: #fff; border-bottom-right-radius: 4px;
+}
+
+.message-time { font-size: 10px; color: var(--text-muted); }
+.message.user .message-time { text-align: right; }
+
+/* Code blocks in messages */
+.message-bubble pre {
+  background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px; margin: 8px 0; overflow-x: auto; font-family: var(--mono); font-size: 12px;
+  line-height: 1.5;
+}
+.message-bubble code {
+  font-family: var(--mono); font-size: 12px;
+}
+.message-bubble p code {
+  background: rgba(99,102,241,0.15); padding: 2px 6px; border-radius: 3px; font-size: 12px;
+}
+.message.user .message-bubble pre {
+  background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);
+}
+.message.user .message-bubble p code {
+  background: rgba(255,255,255,0.15);
+}
+
+/* Typing indicator */
+.typing-indicator {
+  display: none; align-items: center; gap: 12px; padding: 0 20px; max-width: 85%;
+  animation: fadeIn 0.3s ease;
+}
+.typing-indicator.show { display: flex; }
+.typing-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.typing-dots { display: flex; gap: 4px; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); border-bottom-left-radius: 4px; }
+.typing-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);
+  animation: typingBounce 1.4s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* -- Input Area -------------------------------------------------------- */
+.input-area {
+  padding: 16px 20px; border-top: 1px solid var(--border); background: var(--bg-base);
+  flex-shrink: 0;
+}
+.input-row { display: flex; gap: 10px; align-items: flex-end; }
+.input-textarea {
+  flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 12px 16px; color: var(--text); font-size: 14px; font-family: var(--font);
+  resize: none; min-height: 48px; max-height: 160px; line-height: 1.5;
+  transition: border-color var(--transition);
+}
+.input-textarea:focus { border-color: var(--border-focus); outline: none; }
+.input-textarea::placeholder { color: var(--text-muted); }
+.send-btn {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--accent); color: #fff;
+  border: none; cursor: pointer; font-size: 18px; display: flex; align-items: center;
+  justify-content: center; transition: var(--transition); flex-shrink: 0;
+}
+.send-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
+.send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.input-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+/* -- Right Panel: Routing ---------------------------------------------- */
+.panel-section { padding: 16px; border-bottom: 1px solid var(--border); }
+.panel-section-title {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);
+  font-weight: 700; margin-bottom: 10px;
+}
+
+/* Routing scores */
+.routing-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; margin-bottom: 10px; transition: var(--transition);
+}
+.routing-card:hover { border-color: var(--border-light); }
+.routing-card.selected { border-color: var(--accent); background: rgba(59,130,246,0.05); }
+.routing-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.routing-agent-name { font-size: 13px; font-weight: 600; }
+.routing-score { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.routing-bar { height: 6px; background: var(--bg-deep); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+.routing-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.routing-reason { font-size: 11px; color: var(--text-muted); }
+
+/* History */
+.history-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim);
+  cursor: pointer; transition: var(--transition);
+}
+.history-item:hover { color: var(--text); }
+.history-item:last-child { border-bottom: none; }
+.history-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.history-dot.user { background: var(--cyan); }
+.history-dot.agent { background: var(--purple); }
+.history-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-time { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+
+/* -- Empty State ------------------------------------------------------- */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; padding: 40px 20px; color: var(--text-muted); text-align: center;
+}
+.empty-icon { font-size: 48px; opacity: 0.2; }
+.empty-title { font-size: 18px; font-weight: 600; color: var(--text-dim); }
+.empty-sub { font-size: 13px; max-width: 340px; }
+.empty-suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+.suggestion-chip {
+  padding: 6px 14px; background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 12px; color: var(--text-dim); cursor: pointer;
+  transition: var(--transition);
+}
+.suggestion-chip:hover { background: var(--bg-hover); color: var(--text); border-color: var(--accent); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>Chat</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html">Knowledge</a>
+    <a href="workflows.html">Workflows</a>
+    <a href="memory.html">Memory</a>
+    <a href="skills.html">Skills</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html">API Docs</a>
+    <a href="chat.html" class="active">Chat</a>
+    <a href="settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- Chat Area -->
+  <div class="chat-area">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-title">Chat with JARVIS</div>
+      <div class="agent-selector">
+        <label>Agent:</label>
+        <select id="agentSelect">
+          <option value="auto">Auto (Orchestrator)</option>
+          <option value="coding-agent">Coding Agent</option>
+          <option value="review-agent">Review Agent</option>
+          <option value="research-agent">Research Agent</option>
+          <option value="ops-agent">Ops Agent</option>
+          <option value="planner-agent">Planner Agent</option>
+        </select>
+      </div>
+      <button class="clear-btn" onclick="clearChat()">Clear Chat</button>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages-container" id="messagesContainer">
+      <div class="empty-state" id="chatEmpty">
+        <div class="empty-icon">&#128172;</div>
+        <div class="empty-title">Start a conversation</div>
+        <div class="empty-sub">Ask JARVIS anything. Choose a specific agent or let the orchestrator route your message automatically.</div>
+        <div class="empty-suggestions">
+          <div class="suggestion-chip" onclick="useSuggestion('Help me build a REST API')">Build a REST API</div>
+          <div class="suggestion-chip" onclick="useSuggestion('Review my code for security issues')">Review my code</div>
+          <div class="suggestion-chip" onclick="useSuggestion('What agents are available?')">List agents</div>
+          <div class="suggestion-chip" onclick="useSuggestion('Explain the streaming spec architecture')">Explain architecture</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div class="typing-indicator" id="typingIndicator">
+      <div class="typing-avatar">J</div>
+      <div class="typing-dots">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <div class="input-row">
+        <textarea
+          class="input-textarea"
+          id="chatInput"
+          placeholder="Type a message..."
+          rows="1"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">&#10148;</button>
+      </div>
+      <div class="input-hint">Press Enter to send, Shift+Enter for new line</div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <!-- Routing Scores -->
+    <div class="panel-section">
+      <div class="panel-section-title">Agent Routing</div>
+      <div id="routingScores">
+        <div style="font-size:12px; color:var(--text-muted); padding:10px 0;">Send a message to see routing scores</div>
+      </div>
+    </div>
+
+    <!-- Conversation History -->
+    <div class="panel-section" style="flex:1; display:flex; flex-direction:column;">
+      <div class="panel-section-title">History</div>
+      <div id="historyList" style="flex:1; overflow-y:auto;">
+        <div style="font-size:12px; color:var(--text-muted); padding:10px 0;">No messages yet</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====================================================================
+   JARVIS Chat Interface — JavaScript
+   ==================================================================== */
+(() => {
+'use strict';
+
+const API_BASE = location.origin;
+let messages = [];
+let isTyping = false;
+let sessionId = 'chat-' + Math.random().toString(36).slice(2, 10);
+
+/* ── Mock Agent Responses ─────────────────────────────────────────── */
+const MOCK_RESPONSES = {
+  default: [
+    { text: "I can help you with that. Let me analyze your request and determine the best approach.", agent: 'orchestrator', scores: { 'orchestrator': 0.95, 'coding-agent': 0.6, 'research-agent': 0.4 } },
+    { text: "Based on my analysis, here are the key points to consider:\n\n1. **Architecture**: Use a modular design pattern\n2. **Testing**: Write unit tests alongside your code\n3. **Documentation**: Keep docs in sync with changes\n\nWould you like me to elaborate on any of these?", agent: 'orchestrator', scores: { 'orchestrator': 0.88, 'coding-agent': 0.72, 'planner-agent': 0.65 } },
+  ],
+  code: [
+    { text: "Here's a solution:\n\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass User(BaseModel):\n    name: str\n    email: str\n\n@app.post(\"/users\")\nasync def create_user(user: User):\n    return {\"id\": 1, **user.dict()}\n\n@app.get(\"/users/{user_id}\")\nasync def get_user(user_id: int):\n    return {\"id\": user_id, \"name\": \"John\"}\n```\n\nThis sets up a basic REST API with FastAPI. Want me to add authentication?", agent: 'coding-agent', scores: { 'coding-agent': 0.95, 'orchestrator': 0.5, 'review-agent': 0.3 } },
+  ],
+  review: [
+    { text: "I've reviewed the code and found the following:\n\n**Issues:**\n- Missing input validation on the `email` field\n- No rate limiting on the API endpoints\n- SQL injection risk in the raw query on line 42\n\n**Suggestions:**\n- Add `@validator` for email format\n- Implement middleware for rate limiting\n- Use parameterized queries\n\nOverall quality: **7/10** - Good structure but needs security hardening.", agent: 'review-agent', scores: { 'review-agent': 0.92, 'coding-agent': 0.6, 'orchestrator': 0.4 } },
+  ],
+  agents: [
+    { text: "Here are the currently available agents:\n\n| Agent | Domain | Status |\n|-------|--------|--------|\n| Coding Agent | Software Development | Online |\n| Review Agent | Code Review & QA | Online |\n| Research Agent | Information Gathering | Online |\n| Ops Agent | DevOps & Deployment | Idle |\n| Planner Agent | Task Planning | Online |\n\nYou can direct your message to a specific agent using the dropdown, or let the orchestrator route it automatically.", agent: 'orchestrator', scores: { 'orchestrator': 0.98, 'research-agent': 0.3, 'coding-agent': 0.1 } },
+  ],
+  architecture: [
+    { text: "The **Streaming Spec** architecture is the core innovation of JARVIS:\n\n1. **Intent Decomposition**: Your natural language intent is broken into executable steps arranged as a DAG\n2. **Real-time Control**: You can modify the spec while it's executing - add constraints, skip steps, redirect\n3. **Agent Orchestration**: Each step is assigned to the most capable agent\n4. **Changelog Tracking**: Every mutation is recorded for auditability\n\n```\nUser Intent --> Planner --> DAG of Steps --> Executor --> Results\n     ^                                         |\n     |___ Constraints / Redirects _____________|\n```\n\nThe key insight is that AI task execution should be **observable and controllable**, not a black box.", agent: 'research-agent', scores: { 'research-agent': 0.88, 'orchestrator': 0.7, 'planner-agent': 0.65 } },
+  ],
+};
+
+/* ── Helper Functions ─────────────────────────────────────────────── */
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
+
+function formatTime(ts) {
+  return new Date(ts).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
+function classifyMessage(text) {
+  const lower = text.toLowerCase();
+  if (lower.includes('code') || lower.includes('api') || lower.includes('function') || lower.includes('build')) return 'code';
+  if (lower.includes('review') || lower.includes('security') || lower.includes('check')) return 'review';
+  if (lower.includes('agent') || lower.includes('available') || lower.includes('list')) return 'agents';
+  if (lower.includes('architecture') || lower.includes('streaming') || lower.includes('explain')) return 'architecture';
+  return 'default';
+}
+
+/* ── Render Messages ──────────────────────────────────────────────── */
+function renderMessages() {
+  const container = document.getElementById('messagesContainer');
+  const empty = document.getElementById('chatEmpty');
+
+  if (!messages.length) {
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+
+  container.innerHTML = messages.map(m => {
+    const isUser = m.role === 'user';
+    const content = formatMessageContent(m.content);
+    return `
+      <div class="message ${isUser ? 'user' : 'agent'}">
+        <div class="message-avatar ${isUser ? 'user-avatar' : 'agent-avatar'}">${isUser ? 'U' : 'J'}</div>
+        <div class="message-content">
+          <div class="message-name">${isUser ? 'You' : esc(m.agent || 'JARVIS')}</div>
+          <div class="message-bubble">${content}</div>
+          <div class="message-time">${formatTime(m.timestamp)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Scroll to bottom
+  container.scrollTop = container.scrollHeight;
+}
+
+function formatMessageContent(text) {
+  if (!text) return '';
+  // Escape HTML first
+  let html = esc(text);
+
+  // Code blocks: ```...```
+  html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    return `<pre><code>${code.trim()}</code></pre>`;
+  });
+
+  // Inline code: `...`
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Bold: **...**
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+  // Italic: *...*
+  html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+
+  // Line breaks
+  html = html.replace(/\n/g, '<br>');
+
+  // Wrap in paragraph tags for non-code content
+  html = '<p>' + html.replace(/<br><br>/g, '</p><p>') + '</p>';
+  html = html.replace(/<p><pre>/g, '<pre>').replace(/<\/pre><\/p>/g, '</pre>');
+
+  return html;
+}
+
+/* ── Render Routing Scores ────────────────────────────────────────── */
+function renderRoutingScores(scores, selectedAgent) {
+  if (!scores) return;
+  const el = document.getElementById('routingScores');
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+  el.innerHTML = sorted.map(([agent, score]) => {
+    const pct = (score * 100).toFixed(0);
+    const isSelected = agent === selectedAgent;
+    let color = 'var(--accent)';
+    if (score >= 0.8) color = 'var(--green)';
+    else if (score >= 0.5) color = 'var(--accent)';
+    else color = 'var(--text-muted)';
+
+    return `
+      <div class="routing-card ${isSelected ? 'selected' : ''}">
+        <div class="routing-header">
+          <span class="routing-agent-name">${esc(agent)}</span>
+          <span class="routing-score" style="color:${color};">${pct}%</span>
+        </div>
+        <div class="routing-bar">
+          <div class="routing-bar-fill" style="width:${pct}%; background:${color};"></div>
+        </div>
+        ${isSelected ? '<div class="routing-reason">Selected for this message</div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+/* ── Render History ───────────────────────────────────────────────── */
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!messages.length) {
+    el.innerHTML = '<div style="font-size:12px; color:var(--text-muted); padding:10px 0;">No messages yet</div>';
+    return;
+  }
+
+  el.innerHTML = messages.map(m => `
+    <div class="history-item">
+      <div class="history-dot ${m.role === 'user' ? 'user' : 'agent'}"></div>
+      <div class="history-text">${esc(m.content.slice(0, 60))}</div>
+      <div class="history-time">${formatTime(m.timestamp)}</div>
+    </div>
+  `).join('');
+}
+
+/* ── Send Message ─────────────────────────────────────────────────── */
+window.sendMessage = async function() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || isTyping) return;
+
+  const agent = document.getElementById('agentSelect').value;
+
+  // Add user message
+  messages.push({
+    role: 'user',
+    content: text,
+    timestamp: new Date().toISOString(),
+  });
+
+  input.value = '';
+  input.style.height = 'auto';
+  renderMessages();
+  renderHistory();
+  showTyping(true);
+
+  // Try API
+  try {
+    const result = await fetch(API_BASE + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        agent: agent,
+        session_id: sessionId,
+      }),
+    }).then(r => r.json());
+
+    showTyping(false);
+    messages.push({
+      role: 'agent',
+      content: result.response || result.message || 'No response',
+      agent: result.agent || agent,
+      timestamp: new Date().toISOString(),
+    });
+    renderMessages();
+    renderHistory();
+    if (result.routing_scores) {
+      renderRoutingScores(result.routing_scores, result.agent || agent);
+    }
+  } catch {
+    // Mock response
+    await new Promise(r => setTimeout(r, 800 + Math.random() * 1200));
+    showTyping(false);
+
+    const category = classifyMessage(text);
+    const mockList = MOCK_RESPONSES[category] || MOCK_RESPONSES.default;
+    const mock = mockList[Math.floor(Math.random() * mockList.length)];
+
+    messages.push({
+      role: 'agent',
+      content: mock.text,
+      agent: agent === 'auto' ? mock.agent : agent,
+      timestamp: new Date().toISOString(),
+    });
+    renderMessages();
+    renderHistory();
+    renderRoutingScores(mock.scores, agent === 'auto' ? mock.agent : agent);
+  }
+};
+
+function showTyping(show) {
+  isTyping = show;
+  const el = document.getElementById('typingIndicator');
+  el.classList.toggle('show', show);
+  document.getElementById('sendBtn').disabled = show;
+  if (show) {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
+/* ── Clear Chat ───────────────────────────────────────────────────── */
+window.clearChat = function() {
+  messages = [];
+  sessionId = 'chat-' + Math.random().toString(36).slice(2, 10);
+  renderMessages();
+  renderHistory();
+  document.getElementById('routingScores').innerHTML =
+    '<div style="font-size:12px; color:var(--text-muted); padding:10px 0;">Send a message to see routing scores</div>';
+  document.getElementById('chatEmpty').style.display = 'flex';
+};
+
+/* ── Suggestion Chips ─────────────────────────────────────────────── */
+window.useSuggestion = function(text) {
+  document.getElementById('chatInput').value = text;
+  sendMessage();
+};
+
+/* ── Keyboard Shortcuts ───────────────────────────────────────────── */
+document.getElementById('chatInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+/* ── Auto-resize textarea ─────────────────────────────────────────── */
+document.getElementById('chatInput').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 160) + 'px';
+});
+
+/* ── Load Agents for Selector ─────────────────────────────────────── */
+async function loadAgents() {
+  try {
+    const agents = await fetch(API_BASE + '/agents').then(r => r.json());
+    if (Array.isArray(agents) && agents.length) {
+      const select = document.getElementById('agentSelect');
+      select.innerHTML = '<option value="auto">Auto (Orchestrator)</option>';
+      agents.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.name;
+        opt.textContent = a.name + (a.domain ? ` (${a.domain})` : '');
+        select.appendChild(opt);
+      });
+    }
+  } catch {
+    // Keep default options
+  }
+}
+
+/* ── Init ─────────────────────────────────────────────────────────── */
+loadAgents();
+
+})();
+</script>
+</body>
+</html>

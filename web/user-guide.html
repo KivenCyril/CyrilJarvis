@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS - User Guide</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+      --border: #334155;
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    /* --- Sidebar --- */
+    .sidebar {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .nav-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      padding: 0 0.5rem;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 0.5rem 0.75rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      transition: var(--transition);
+      margin-bottom: 2px;
+    }
+
+    .nav-link:hover { color: var(--text-primary); background: var(--bg-card-hover); }
+    .nav-link.active { color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); }
+
+    /* --- Content --- */
+    .content {
+      padding: 2rem 3rem;
+      max-width: 900px;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .page-subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    ul, ol {
+      margin: 0.5rem 0 1rem 1.5rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    li { margin-bottom: 0.4rem; font-size: 0.95rem; }
+
+    code {
+      font-family: 'SF Mono', monospace;
+      background: var(--bg-primary);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+    }
+
+    .code-block {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'SF Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent-green);
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    .callout {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .callout.info {
+      background: rgba(59, 130, 246, 0.1);
+      border-left: 3px solid var(--accent-blue);
+      color: var(--text-secondary);
+    }
+
+    .callout.warning {
+      background: rgba(234, 179, 8, 0.1);
+      border-left: 3px solid var(--accent-yellow);
+      color: var(--text-secondary);
+    }
+
+    .callout.tip {
+      background: rgba(34, 197, 94, 0.1);
+      border-left: 3px solid var(--accent-green);
+      color: var(--text-secondary);
+    }
+
+    .callout .callout-title {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--text-primary);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      transition: var(--transition);
+    }
+
+    .feature-card:hover { border-color: var(--accent-blue); }
+
+    .feature-card .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .feature-card .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-card .card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .api-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    .api-table th, .api-table td {
+      padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .api-table th {
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .api-table td { color: var(--text-secondary); }
+    .api-table td code { font-size: 0.8rem; }
+
+    .method-badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-family: 'SF Mono', monospace;
+    }
+
+    .method-badge.get { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+    .method-badge.post { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .method-badge.put { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); }
+    .method-badge.delete { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+
+    .toc { list-style: none; margin: 0; padding: 0; }
+    .toc li { margin-bottom: 0.5rem; }
+    .toc a { color: var(--accent-blue); text-decoration: none; font-size: 0.9rem; }
+    .toc a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .content { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="layout">
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">JARVIS</div>
+      <div class="sidebar-subtitle">User Guide v0.2.0</div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Getting Started</div>
+        <a href="#overview" class="nav-link active">Overview</a>
+        <a href="#quickstart" class="nav-link">Quick Start</a>
+        <a href="#concepts" class="nav-link">Core Concepts</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Features</div>
+        <a href="#streaming-specs" class="nav-link">Streaming Specs</a>
+        <a href="#agents" class="nav-link">Agents</a>
+        <a href="#tools" class="nav-link">Tools</a>
+        <a href="#memory" class="nav-link">Memory</a>
+        <a href="#knowledge" class="nav-link">Knowledge Graph</a>
+        <a href="#workflows" class="nav-link">Workflows</a>
+        <a href="#events" class="nav-link">Events</a>
+        <a href="#templates" class="nav-link">Templates</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">API Reference</div>
+        <a href="#api-overview" class="nav-link">API Overview</a>
+        <a href="#api-endpoints" class="nav-link">Endpoints</a>
+        <a href="#api-websocket" class="nav-link">WebSocket</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">CLI</div>
+        <a href="#cli-usage" class="nav-link">CLI Usage</a>
+        <a href="#cli-commands" class="nav-link">Commands</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Advanced</div>
+        <a href="#custom-tools" class="nav-link">Custom Tools</a>
+        <a href="#custom-agents" class="nav-link">Custom Agents</a>
+        <a href="#migration" class="nav-link">Migration</a>
+        <a href="#deployment" class="nav-link">Deployment</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Links</div>
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="api-docs.html" class="nav-link">API Docs</a>
+        <a href="settings.html" class="nav-link">Settings</a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content">
+
+      <h1 class="page-title" id="overview">JARVIS User Guide</h1>
+      <p class="page-subtitle">
+        JARVIS is a Streaming Spec driven personal AI assistant that orchestrates
+        multiple specialist agents, tools, and knowledge sources to accomplish
+        complex tasks. This guide covers everything from getting started to
+        advanced customization.
+      </p>
+
+      <!-- Quick Start -->
+      <div class="section" id="quickstart">
+        <h2 class="section-title">Quick Start</h2>
+        <p>Get JARVIS running in under 5 minutes:</p>
+
+        <h3 class="section-subtitle">1. Installation</h3>
+        <div class="code-block">pip install jarvis-ai
+# or from source:
+git clone https://github.com/jarvis/jarvis.git
+cd jarvis
+pip install -e .</div>
+
+        <h3 class="section-subtitle">2. Start the Server</h3>
+        <div class="code-block">jarvis server start
+# Server starts at http://127.0.0.1:8000</div>
+
+        <h3 class="section-subtitle">3. Create Your First Spec</h3>
+        <div class="code-block">jarvis spec create "Review the auth module for security issues"
+# Or via API:
+curl -X POST http://127.0.0.1:8000/specs \
+  -H "Content-Type: application/json" \
+  -d '{"intent": "Review the auth module for security issues"}'</div>
+
+        <h3 class="section-subtitle">4. Chat with an Agent</h3>
+        <div class="code-block">jarvis agent chat "What are the main security risks in JWT auth?"</div>
+
+        <div class="callout tip">
+          <div class="callout-title">Tip</div>
+          Open the dashboard at <code>http://127.0.0.1:8000</code> to see the
+          web UI with real-time spec updates, agent activity, and system metrics.
+        </div>
+      </div>
+
+      <!-- Core Concepts -->
+      <div class="section" id="concepts">
+        <h2 class="section-title">Core Concepts</h2>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="card-icon">S</span>
+            <div class="card-title">Streaming Spec</div>
+            <div class="card-desc">A real-time editable task control panel that decomposes intents into steps with constraints and live progress.</div>
+          </div>
+          <div class="feature-card">
+            <span class="card-icon">A</span>
+            <div class="card-title">Agents</div>
+            <div class="card-desc">Specialist AI agents with defined domains and skills. The orchestrator routes tasks to the best agent.</div>
+          </div>
+          <div class="feature-card">
+            <span class="card-icon">T</span>
+            <div class="card-title">Tools</div>
+            <div class="card-desc">Executable capabilities (shell, file I/O, HTTP, etc.) that agents use to interact with the real world.</div>
+          </div>
+          <div class="feature-card">
+            <span class="card-icon">M</span>
+            <div class="card-title">Memory</div>
+            <div class="card-desc">Persistent memory store with keyword search. Remembers facts, preferences, and past interactions.</div>
+          </div>
+          <div class="feature-card">
+            <span class="card-icon">K</span>
+            <div class="card-title">Knowledge Graph</div>
+            <div class="card-desc">Entity and relationship graph extracted from conversations. Enables connected reasoning.</div>
+          </div>
+          <div class="feature-card">
+            <span class="card-icon">W</span>
+            <div class="card-title">Workflows</div>
+            <div class="card-desc">DAG-based workflow engine for orchestrating multi-step processes with dependencies and approvals.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streaming Specs -->
+      <div class="section" id="streaming-specs">
+        <h2 class="section-title">Streaming Specs</h2>
+        <p>
+          The Streaming Spec is JARVIS's core innovation: a real-time editable
+          task control panel. Unlike static prompts, a Streaming Spec is a living
+          document that you can modify while the AI is working.
+        </p>
+
+        <h3 class="section-subtitle">Lifecycle</h3>
+        <ol>
+          <li><strong>Create:</strong> Provide an intent (what you want done)</li>
+          <li><strong>Plan:</strong> JARVIS decomposes the intent into steps with constraints</li>
+          <li><strong>Edit:</strong> You can add/remove constraints, edit steps, or redirect</li>
+          <li><strong>Execute:</strong> Agents work through steps, updating progress in real-time</li>
+          <li><strong>Complete:</strong> All steps done, results available</li>
+        </ol>
+
+        <h3 class="section-subtitle">Key Operations</h3>
+        <ul>
+          <li><strong>Add Constraint:</strong> Add a rule the agents must follow</li>
+          <li><strong>Remove Constraint:</strong> Deactivate a constraint</li>
+          <li><strong>Edit Step:</strong> Rename or change step description</li>
+          <li><strong>Redirect:</strong> Change the spec's intent entirely</li>
+          <li><strong>Pause/Resume:</strong> Control execution flow</li>
+        </ul>
+
+        <div class="callout info">
+          <div class="callout-title">Real-time Updates</div>
+          Connect via WebSocket at <code>/ws/specs/{spec_id}</code> to receive
+          real-time updates as the spec executes. The dashboard uses this for
+          live progress display.
+        </div>
+      </div>
+
+      <!-- Agents -->
+      <div class="section" id="agents">
+        <h2 class="section-title">Agents</h2>
+        <p>
+          JARVIS ships with multiple specialist agents, each optimized for a
+          specific domain. The orchestrator automatically routes your requests
+          to the best-matching agent.
+        </p>
+
+        <table class="api-table">
+          <tr><th>Agent</th><th>Domain</th><th>Key Skills</th></tr>
+          <tr><td>code-agent</td><td>Software Engineering</td><td>Code review, debugging, refactoring</td></tr>
+          <tr><td>research-agent</td><td>Research & Analysis</td><td>Research, summarize, compare</td></tr>
+          <tr><td>knowledge-agent</td><td>Knowledge Management</td><td>Entity extraction, graph queries</td></tr>
+          <tr><td>writer-agent</td><td>Content Creation</td><td>Documentation, articles, editing</td></tr>
+          <tr><td>devops-agent</td><td>DevOps</td><td>Deployment, monitoring, CI/CD</td></tr>
+        </table>
+      </div>
+
+      <!-- Tools -->
+      <div class="section" id="tools">
+        <h2 class="section-title">Tools</h2>
+        <p>
+          JARVIS includes 58+ built-in tools organized by category. Agents
+          automatically select the right tools for each task.
+        </p>
+
+        <h3 class="section-subtitle">Tool Categories</h3>
+        <table class="api-table">
+          <tr><th>Category</th><th>Tools</th><th>Description</th></tr>
+          <tr><td>Core</td><td>shell, read_file, write_file, python_exec, web_search</td><td>Essential operations</td></tr>
+          <tr><td>Git</td><td>git_status, git_diff, git_log</td><td>Version control</td></tr>
+          <tr><td>HTTP</td><td>http_request, http_download</td><td>Network requests</td></tr>
+          <tr><td>Data</td><td>json_query, yaml_to_json, csv_read, csv_write, csv_stats</td><td>Data processing</td></tr>
+          <tr><td>XML</td><td>xml_to_json, xml_query</td><td>XML processing</td></tr>
+          <tr><td>Database</td><td>sqlite_query, sqlite_schemas, csv_to_sqlite</td><td>Database operations</td></tr>
+          <tr><td>Text</td><td>regex, text_summary, diff</td><td>Text analysis</td></tr>
+          <tr><td>Docker</td><td>docker_list, docker_logs, docker_exec, docker_images</td><td>Container management</td></tr>
+          <tr><td>Network</td><td>ping, dns_lookup, port_check</td><td>Network diagnostics</td></tr>
+          <tr><td>Encoding</td><td>base64, hash, url_encode</td><td>Data encoding</td></tr>
+          <tr><td>Color</td><td>color_convert, color_palette</td><td>Color manipulation</td></tr>
+          <tr><td>Random</td><td>random_string, random_number, random_choice</td><td>Random generation</td></tr>
+        </table>
+      </div>
+
+      <!-- API Overview -->
+      <div class="section" id="api-overview">
+        <h2 class="section-title">API Overview</h2>
+        <p>
+          JARVIS exposes a comprehensive REST API built with FastAPI. All
+          endpoints return JSON and accept JSON request bodies.
+        </p>
+
+        <h3 class="section-subtitle">Base URL</h3>
+        <div class="code-block">http://127.0.0.1:8000</div>
+
+        <h3 class="section-subtitle">Key Endpoint Groups</h3>
+        <table class="api-table">
+          <tr><th>Group</th><th>Base Path</th><th>Description</th></tr>
+          <tr><td>Health</td><td><code>/health</code>, <code>/system</code></td><td>System status and information</td></tr>
+          <tr><td>Specs</td><td><code>/specs</code></td><td>Streaming Spec CRUD and execution</td></tr>
+          <tr><td>Agents</td><td><code>/agents</code></td><td>Agent listing and details</td></tr>
+          <tr><td>Chat</td><td><code>/chat</code></td><td>Direct agent communication</td></tr>
+          <tr><td>Workflows</td><td><code>/workflows</code></td><td>Workflow management</td></tr>
+          <tr><td>Events</td><td><code>/events</code></td><td>Event bus</td></tr>
+          <tr><td>Notifications</td><td><code>/notifications</code></td><td>Notification management</td></tr>
+          <tr><td>Templates</td><td><code>/templates</code></td><td>Spec and prompt templates</td></tr>
+          <tr><td>Memory</td><td><code>/memory</code></td><td>Memory management</td></tr>
+          <tr><td>Knowledge</td><td><code>/knowledge</code></td><td>Knowledge graph</td></tr>
+          <tr><td>Tools</td><td><code>/tools</code></td><td>Tool listing</td></tr>
+          <tr><td>User</td><td><code>/user</code></td><td>Profile and preferences</td></tr>
+          <tr><td>Diagnostics</td><td><code>/diagnostics</code></td><td>System diagnostics and benchmarks</td></tr>
+        </table>
+      </div>
+
+      <!-- CLI Usage -->
+      <div class="section" id="cli-usage">
+        <h2 class="section-title">CLI Usage</h2>
+        <p>JARVIS provides a comprehensive command-line interface for all operations.</p>
+
+        <h3 class="section-subtitle">Command Groups</h3>
+        <div class="code-block">jarvis --help              # Show all commands
+jarvis spec --help         # Spec management
+jarvis agent --help        # Agent management
+jarvis tool --help         # Tool management
+jarvis memory --help       # Memory management
+jarvis knowledge --help    # Knowledge graph
+jarvis skill --help        # Skill management
+jarvis workflow --help     # Workflow management
+jarvis event --help        # Event management
+jarvis notification --help # Notification management
+jarvis migration --help    # Migration tools
+jarvis server --help       # API server
+jarvis info                # System information
+jarvis diagnose            # System diagnostics
+jarvis benchmark           # Performance benchmark</div>
+
+        <h3 class="section-subtitle">Common Workflows</h3>
+        <div class="code-block"># Create and run a spec
+jarvis spec create "Review PR #42 for security issues"
+jarvis spec run "Refactor the auth module"
+
+# Chat with agents
+jarvis agent chat "What's the best way to handle JWT rotation?"
+jarvis agent route "debug this python error"
+
+# Manage memory
+jarvis memory add "Project uses FastAPI for the backend"
+jarvis memory search "backend framework"
+jarvis memory list
+
+# Start the server
+jarvis server start --port 8000</div>
+      </div>
+
+      <!-- Migration -->
+      <div class="section" id="migration">
+        <h2 class="section-title">Migration</h2>
+        <p>
+          JARVIS supports migrating from Hermes and OpenClaw projects.
+          The migration wizard validates your source and transfers agents,
+          workflows, skills, and configuration.
+        </p>
+
+        <h3 class="section-subtitle">CLI Migration</h3>
+        <div class="code-block"># Validate before migrating
+jarvis migration validate hermes /path/to/project
+
+# Run migration
+jarvis migration run hermes /path/to/project
+
+# Dry run (preview changes)
+jarvis migration run openclaw /path/to/project --dry-run</div>
+
+        <h3 class="section-subtitle">Web Migration</h3>
+        <p>
+          Use the <a href="migration.html" style="color: var(--accent-blue);">Migration Wizard</a>
+          for a guided step-by-step migration experience.
+        </p>
+
+        <div class="callout warning">
+          <div class="callout-title">Important</div>
+          Always back up your source project before running a migration.
+          The migration process is non-destructive (it copies rather than moves),
+          but having a backup is always recommended.
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>

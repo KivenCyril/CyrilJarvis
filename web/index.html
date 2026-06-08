@@ -1,0 +1,4103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Streaming Spec Dashboard</title>
+<style>
+/* ====================================================================
+   JARVIS Streaming Spec Dashboard — Production CSS
+   ==================================================================== */
+
+/* ── Reset & Variables ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Dark Theme (default) */
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --bg-elevated:  #253348;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --text-faint:   #475569;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-dim:   rgba(59,130,246,0.15);
+  --accent-glow:  rgba(59,130,246,0.3);
+  --indigo:       #6366f1;
+  --indigo-hover: #818cf8;
+  --green:        #22c55e;
+  --green-dim:    #16a34a;
+  --green-bg:     rgba(34,197,94,0.12);
+  --blue:         #3b82f6;
+  --blue-dim:     rgba(59,130,246,0.15);
+  --orange:       #f59e0b;
+  --orange-bg:    rgba(245,158,11,0.12);
+  --red:          #ef4444;
+  --red-bg:       rgba(239,68,68,0.12);
+  --purple:       #a855f7;
+  --purple-bg:    rgba(168,85,247,0.12);
+  --cyan:         #06b6d4;
+  --cyan-bg:      rgba(6,182,212,0.12);
+  --gray:         #475569;
+  --radius:       8px;
+  --radius-sm:    6px;
+  --radius-lg:    12px;
+  --radius-xl:    16px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg:    0 10px 25px rgba(0,0,0,0.4);
+  --shadow-xl:    0 20px 50px rgba(0,0,0,0.5);
+  --transition:   180ms ease;
+  --transition-md: 300ms ease;
+  --transition-lg: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', monospace;
+  --sidebar-width: 260px;
+  --right-panel-width: 340px;
+  --topnav-height: 52px;
+  --statusbar-height: 32px;
+}
+
+/* ── Light Theme ──────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-deep:      #f1f5f9;
+  --bg-base:      #ffffff;
+  --bg-surface:   #f8fafc;
+  --bg-card:      #ffffff;
+  --bg-hover:     #f1f5f9;
+  --bg-input:     #f8fafc;
+  --bg-elevated:  #e2e8f0;
+  --border:       #e2e8f0;
+  --border-light: #cbd5e1;
+  --border-focus: #6366f1;
+  --text:         #1e293b;
+  --text-dim:     #475569;
+  --text-muted:   #94a3b8;
+  --text-faint:   #cbd5e1;
+  --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:    0 10px 25px rgba(0,0,0,0.1);
+  --shadow-xl:    0 20px 50px rgba(0,0,0,0.12);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────── */
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg-deep);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+input, textarea {
+  font-family: inherit;
+  outline: none;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+/* ── Keyframes ────────────────────────────────────────────────────── */
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(59,130,246,0.1); }
+  50% { box-shadow: 0 0 30px rgba(59,130,246,0.3); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes toastOut {
+  to { opacity: 0; transform: translateY(10px) scale(0.95); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+@keyframes progressPulse {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes dashOffset {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ====================================================================
+   TOP NAVIGATION BAR
+   ==================================================================== */
+.topnav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  height: var(--topnav-height);
+  min-height: var(--topnav-height);
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+  position: relative;
+}
+
+.topnav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  cursor: default;
+  user-select: none;
+}
+
+.topnav-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+}
+
+.topnav-logo-text {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #3b82f6, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.topnav-logo-version {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* System & WS Status */
+.topnav-status-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 24px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.status-dot.online {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+.status-dot.offline {
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+  animation: none;
+}
+
+.status-dot.connecting {
+  background: var(--orange);
+  box-shadow: 0 0 8px var(--orange);
+  animation: pulseDot 1s ease-in-out infinite;
+}
+
+/* Search */
+.topnav-search {
+  margin-left: auto;
+  position: relative;
+  width: 240px;
+}
+
+.topnav-search input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 12px 7px 32px;
+  color: var(--text);
+  font-size: 12px;
+  transition: all var(--transition);
+}
+
+.topnav-search input::placeholder { color: var(--text-muted); }
+.topnav-search input:focus {
+  border-color: var(--border-focus);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.topnav-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Nav buttons */
+.topnav-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topnav-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-dim);
+  transition: all var(--transition);
+  position: relative;
+}
+
+.topnav-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.topnav-btn.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* Theme toggle */
+.theme-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: all var(--transition-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+[data-theme="light"] .theme-toggle-thumb {
+  left: 22px;
+  background: var(--orange);
+}
+
+/* ====================================================================
+   LAYOUT
+   ==================================================================== */
+.app-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr var(--right-panel-width);
+  grid-template-rows: 1fr var(--statusbar-height);
+  flex: 1;
+  overflow: hidden;
+  transition: grid-template-columns var(--transition-lg);
+}
+
+.app-layout.sidebar-collapsed {
+  grid-template-columns: 0px 1fr var(--right-panel-width);
+}
+
+.app-layout.right-collapsed {
+  grid-template-columns: var(--sidebar-width) 1fr 0px;
+}
+
+.app-layout.sidebar-collapsed.right-collapsed {
+  grid-template-columns: 0px 1fr 0px;
+}
+
+/* ====================================================================
+   LEFT SIDEBAR
+   ==================================================================== */
+.sidebar {
+  grid-row: 1 / 3;
+  background: var(--bg-base);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all var(--transition-lg);
+  position: relative;
+  z-index: 20;
+}
+
+.sidebar-collapsed .sidebar {
+  margin-left: calc(-1 * var(--sidebar-width));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Sidebar toggle */
+.sidebar-toggle {
+  position: absolute;
+  top: 12px;
+  right: -14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  z-index: 30;
+  transition: all var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.sidebar-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  transform: scale(1.1);
+}
+
+/* Sidebar sections */
+.sidebar-section {
+  padding: 14px 16px;
+}
+
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sidebar-section-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.sidebar-section-badge {
+  font-size: 10px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Create Spec Form */
+.create-spec-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.create-spec-textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 12px;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 120px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  line-height: 1.5;
+}
+
+.create-spec-textarea::placeholder { color: var(--text-muted); }
+
+.create-spec-textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; pointer-events: none; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  padding: 9px 16px;
+  font-size: 12px;
+}
+
+.btn-primary:hover { background: var(--accent-hover); }
+
+.btn-secondary {
+  background: var(--bg-hover);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+.btn-secondary:hover { background: var(--border); }
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-dim);
+  padding: 5px 8px;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+}
+
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+
+.btn-danger {
+  background: var(--red-bg);
+  color: var(--red);
+  padding: 5px 10px;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+}
+
+.btn-danger:hover { background: rgba(239,68,68,0.25); }
+
+.btn-success {
+  background: var(--green);
+  color: #fff;
+  padding: 9px 16px;
+  font-size: 12px;
+}
+
+.btn-success:hover { background: var(--green-dim); }
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+}
+
+.btn-icon:hover { background: var(--bg-hover); color: var(--text); }
+
+/* Spec List */
+.spec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.spec-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+  position: relative;
+}
+
+.spec-list-item:hover { background: var(--bg-card); }
+
+.spec-list-item.active {
+  background: var(--bg-card);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+}
+
+.spec-list-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spec-list-item-icon {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.spec-list-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spec-list-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.spec-list-item-progress {
+  flex: 1;
+  height: 3px;
+  background: var(--bg-deep);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.spec-list-item-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width var(--transition-md);
+}
+
+/* Status pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-pill.planning    { background: rgba(99,102,241,0.15);  color: var(--indigo); }
+.status-pill.executing   { background: var(--blue-dim);         color: var(--blue); }
+.status-pill.paused      { background: var(--orange-bg);        color: var(--orange); }
+.status-pill.completed   { background: var(--green-bg);         color: var(--green); }
+.status-pill.redirected  { background: var(--purple-bg);        color: var(--purple); }
+.status-pill.failed      { background: var(--red-bg);           color: var(--red); }
+.status-pill.pending     { background: rgba(71,85,105,0.2);     color: var(--text-muted); }
+.status-pill.ready       { background: var(--cyan-bg);          color: var(--cyan); }
+.status-pill.blocked     { background: var(--orange-bg);        color: var(--orange); }
+.status-pill.skipped     { background: rgba(71,85,105,0.15);    color: var(--text-muted); }
+
+/* Agent Cards */
+.agent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agent-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.agent-card:hover {
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.agent-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.agent-avatar.gradient-1 { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+.agent-avatar.gradient-2 { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+.agent-avatar.gradient-3 { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
+.agent-avatar.gradient-4 { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+.agent-avatar.gradient-5 { background: linear-gradient(135deg, #22c55e, #06b6d4); }
+
+.agent-info { flex: 1; overflow: hidden; }
+
+.agent-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-domain-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  background: var(--accent-dim);
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+.agent-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.agent-status-dot.idle { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.agent-status-dot.busy { background: var(--orange); box-shadow: 0 0 4px var(--orange); }
+.agent-status-dot.offline { background: var(--text-muted); }
+
+.agent-skill-count {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-deep);
+  padding: 1px 5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Quick Chat in Sidebar */
+.sidebar-chat {
+  display: flex;
+  gap: 6px;
+}
+
+.sidebar-chat input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 12px;
+  transition: border-color var(--transition);
+}
+
+.sidebar-chat input:focus { border-color: var(--border-focus); }
+
+/* ====================================================================
+   MAIN CONTENT AREA
+   ==================================================================== */
+.main-content {
+  grid-row: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-deep);
+  position: relative;
+}
+
+/* Empty State */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-muted);
+  animation: fadeInUp 0.5s ease;
+}
+
+.empty-state-icon {
+  font-size: 56px;
+  opacity: 0.2;
+  line-height: 1;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.empty-state-subtitle {
+  font-size: 13px;
+  max-width: 360px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.empty-state-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  padding: 8px 16px;
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+/* Control Bar */
+.control-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border);
+  min-height: 50px;
+  flex-shrink: 0;
+}
+
+.control-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.spec-title-editable {
+  font-size: 15px;
+  font-weight: 600;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  color: var(--text);
+  transition: all var(--transition);
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spec-title-editable:hover {
+  border-color: var(--border);
+  background: var(--bg-surface);
+}
+
+.spec-title-editable:focus {
+  border-color: var(--border-focus);
+  background: var(--bg-input);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.control-bar-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-bar-wrapper {
+  width: 120px;
+  height: 6px;
+  background: var(--bg-deep);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  transition: width var(--transition-md);
+  position: relative;
+}
+
+.progress-bar-fill.executing {
+  background: linear-gradient(90deg, var(--accent), var(--blue));
+  background-size: 200% 200%;
+  animation: progressPulse 2s ease infinite;
+}
+
+.progress-text {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.control-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ====================================================================
+   DAG CANVAS
+   ==================================================================== */
+.dag-container {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  padding: 32px 24px 80px;
+}
+
+.dag-svg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dag-svg-layer path {
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.dag-svg-layer path:hover {
+  stroke-width: 3;
+}
+
+.dag-nodes-layer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-height: 100%;
+}
+
+/* DAG Level Row — for parallel steps */
+.dag-level-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.dag-level-connector {
+  width: 2px;
+  height: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dag-level-connector-line {
+  width: 2px;
+  height: 100%;
+  background: var(--border);
+  border-radius: 1px;
+}
+
+.dag-level-connector.completed .dag-level-connector-line { background: var(--green); }
+.dag-level-connector.executing .dag-level-connector-line { background: var(--blue); }
+
+/* Step Card */
+.step-card {
+  width: 420px;
+  max-width: 90vw;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  transition: all var(--transition-md);
+  cursor: pointer;
+  position: relative;
+  animation: fadeInUp 0.3s ease;
+}
+
+.step-card:hover {
+  border-color: var(--text-muted);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.step-card.pending {
+  opacity: 0.55;
+  border-color: var(--border);
+}
+
+.step-card.ready {
+  border-color: var(--blue);
+  border-width: 1.5px;
+}
+
+.step-card.blocked {
+  border-color: var(--orange);
+  background: linear-gradient(135deg, var(--bg-card), rgba(245,158,11,0.05));
+}
+
+.step-card.executing {
+  border-color: var(--blue);
+  box-shadow: 0 0 20px rgba(59,130,246,0.15);
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+.step-card.completed {
+  border-color: var(--green-dim);
+  background: linear-gradient(135deg, var(--bg-card), rgba(34,197,94,0.04));
+}
+
+.step-card.failed {
+  border-color: var(--red);
+  background: linear-gradient(135deg, var(--bg-card), rgba(239,68,68,0.05));
+}
+
+.step-card.skipped {
+  opacity: 0.35;
+}
+
+.step-card.selected {
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+}
+
+/* Step card header */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.step-status-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+  line-height: 1;
+}
+
+.step-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--blue-dim);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.step-name {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-card.skipped .step-name { text-decoration: line-through; }
+
+.step-index {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-deep);
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* Step card body */
+.step-description {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.step-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.step-agent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  background: var(--purple-bg);
+  color: var(--purple);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.step-duration {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.step-deps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.step-output {
+  font-size: 11px;
+  color: var(--green);
+  background: rgba(34,197,94,0.06);
+  border: 1px solid rgba(34,197,94,0.12);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  margin-top: 10px;
+  font-family: var(--mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 100px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+.step-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.step-rule-tag {
+  font-size: 10px;
+  background: rgba(99,102,241,0.1);
+  color: var(--indigo);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* ====================================================================
+   STEP DETAIL PANEL (slides in from right)
+   ==================================================================== */
+.step-detail-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 100%;
+  height: 100%;
+  background: var(--bg-base);
+  border-left: 1px solid var(--border);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--transition-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.step-detail-panel.open {
+  transform: translateX(0);
+}
+
+.step-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.step-detail-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.step-detail-close:hover { background: var(--bg-hover); color: var(--text); }
+
+.step-detail-title {
+  font-size: 15px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.step-detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.detail-editable-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 13px;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+
+.detail-editable-input:focus {
+  border-color: var(--border-focus);
+}
+
+.detail-editable-textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 12px;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color var(--transition);
+  width: 100%;
+  line-height: 1.5;
+}
+
+.detail-editable-textarea:focus { border-color: var(--border-focus); }
+
+.detail-status-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-timing {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-output-box {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.detail-deps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-dep-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 4px 8px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+/* ====================================================================
+   RIGHT SIDEBAR (tabbed)
+   ==================================================================== */
+.right-panel {
+  grid-row: 1 / 3;
+  background: var(--bg-base);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all var(--transition-lg);
+  position: relative;
+}
+
+.right-collapsed .right-panel {
+  margin-right: calc(-1 * var(--right-panel-width));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Tabs */
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.panel-tab {
+  flex: 1;
+  padding: 11px 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  background: transparent;
+  white-space: nowrap;
+  position: relative;
+}
+
+.panel-tab:hover { color: var(--text-dim); background: var(--bg-surface); }
+
+.panel-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.panel-tab-badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.panel-tab-view {
+  display: none;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+.panel-tab-view.active { display: block; }
+
+/* Constraints */
+.constraint-add-form {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.constraint-add-input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 12px;
+  transition: border-color var(--transition);
+}
+
+.constraint-add-input:focus { border-color: var(--border-focus); }
+
+.constraint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.constraint-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all var(--transition);
+  animation: fadeIn 0.3s ease;
+}
+
+.constraint-item:hover {
+  border-color: var(--border-light);
+}
+
+.constraint-content {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.constraint-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.source-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.source-badge.human { background: rgba(99,102,241,0.15); color: var(--indigo); }
+.source-badge.agent { background: var(--orange-bg); color: var(--orange); }
+.source-badge.system { background: var(--cyan-bg); color: var(--cyan); }
+
+/* Changelog */
+.changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.changelog-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+.changelog-item:last-child { border-bottom: none; }
+
+.changelog-dot-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.changelog-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.changelog-dot.add    { background: var(--green); }
+.changelog-dot.remove { background: var(--red); }
+.changelog-dot.change { background: var(--blue); }
+.changelog-dot.redirect { background: var(--orange); }
+.changelog-dot.status { background: var(--purple); }
+
+.changelog-line {
+  width: 2px;
+  flex: 1;
+  background: var(--border);
+  margin-top: 4px;
+}
+
+.changelog-body { flex: 1; min-width: 0; }
+
+.changelog-type {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.changelog-type.constraint_added,
+.changelog-type.step_added { color: var(--green); }
+.changelog-type.constraint_removed,
+.changelog-type.step_removed { color: var(--red); }
+.changelog-type.step_status_changed { color: var(--blue); }
+.changelog-type.intent_changed { color: var(--orange); }
+.changelog-type.step_modified,
+.changelog-type.constraint_modified,
+.changelog-type.status_changed { color: var(--purple); }
+
+.changelog-path {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  word-break: break-all;
+}
+
+.changelog-values {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.changelog-time {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Agent Detail Tab */
+.agent-detail-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all var(--transition);
+}
+
+.agent-detail-card:hover { border-color: var(--border-light); }
+
+.agent-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.agent-detail-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.agent-detail-name { font-size: 15px; font-weight: 600; }
+.agent-detail-desc { font-size: 12px; color: var(--text-dim); }
+
+.agent-detail-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 10px 0;
+}
+
+.agent-skill-tag {
+  font-size: 10px;
+  background: var(--bg-deep);
+  color: var(--text-dim);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.agent-detail-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* Chat Tab */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-message {
+  display: flex;
+  gap: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+.chat-message.user { flex-direction: row-reverse; }
+
+.chat-message-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.chat-message-avatar.agent-msg { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+.chat-message-avatar.user-msg { background: linear-gradient(135deg, #06b6d4, #22c55e); }
+
+.chat-message-bubble {
+  max-width: 260px;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.chat-message:not(.user) .chat-message-bubble {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-message.user .chat-message-bubble {
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message-name {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.chat-message-time {
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-align: right;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 6px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-base);
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 12px;
+  transition: border-color var(--transition);
+}
+
+.chat-input:focus { border-color: var(--border-focus); }
+
+/* ====================================================================
+   BOTTOM STATUS BAR
+   ==================================================================== */
+.status-bar {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 20px;
+  background: var(--bg-base);
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+  height: var(--statusbar-height);
+  min-height: var(--statusbar-height);
+}
+
+.status-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.status-bar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-bar-dot.green  { background: var(--green); }
+.status-bar-dot.orange { background: var(--orange); }
+.status-bar-dot.red    { background: var(--red); }
+.status-bar-dot.blue   { background: var(--blue); }
+
+.status-bar-spacer { flex: 1; }
+
+/* ====================================================================
+   MODALS
+   ==================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 460px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-xl);
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.show .modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.modal-close:hover { background: var(--bg-hover); color: var(--text); }
+
+.modal-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 12px;
+  transition: border-color var(--transition);
+}
+
+.modal-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+.modal-textarea {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  color: var(--text);
+  font-size: 13px;
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.modal-textarea:focus { border-color: var(--border-focus); }
+
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* ====================================================================
+   TOASTS
+   ==================================================================== */
+.toast-container {
+  position: fixed;
+  bottom: 48px;
+  right: 20px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 13px;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1), toastOut 0.3s ease 3s forwards;
+  max-width: 380px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: all;
+  cursor: default;
+}
+
+.toast-icon { font-size: 16px; flex-shrink: 0; }
+
+.toast.success { border-left: 3px solid var(--green); }
+.toast.success .toast-icon { color: var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+.toast.error .toast-icon { color: var(--red); }
+.toast.warning { border-left: 3px solid var(--orange); }
+.toast.warning .toast-icon { color: var(--orange); }
+.toast.info    { border-left: 3px solid var(--accent); }
+.toast.info .toast-icon { color: var(--accent); }
+
+/* ====================================================================
+   SKELETON / LOADING
+   ==================================================================== */
+.skeleton {
+  background: var(--bg-surface);
+  background-image: linear-gradient(
+    90deg,
+    var(--bg-surface) 0%,
+    var(--bg-hover) 50%,
+    var(--bg-surface) 100%
+  );
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-text {
+  height: 12px;
+  width: 80%;
+  margin-bottom: 8px;
+}
+
+.skeleton-card {
+  height: 80px;
+  margin-bottom: 8px;
+  border-radius: var(--radius);
+}
+
+/* ====================================================================
+   RESPONSIVE
+   ==================================================================== */
+@media (max-width: 1280px) {
+  :root {
+    --sidebar-width: 220px;
+    --right-panel-width: 300px;
+  }
+  .step-card { width: 360px; }
+}
+
+@media (max-width: 960px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar, .right-panel { display: none; }
+  .status-bar { grid-column: 1; }
+}
+
+/* ====================================================================
+   UTILITY
+   ==================================================================== */
+.hidden { display: none !important; }
+.flex-1 { flex: 1; }
+.gap-4 { gap: 4px; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: 12px; }
+.text-xs { font-size: 11px; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mono { font-family: var(--mono); }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.no-select { user-select: none; }
+
+/* Panel empty state */
+.panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.panel-empty-icon { font-size: 28px; opacity: 0.3; }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     TOP NAVIGATION BAR
+     ================================================================ -->
+<nav class="topnav">
+  <!-- Logo -->
+  <div class="topnav-logo">
+    <div class="topnav-logo-icon">J</div>
+    <span class="topnav-logo-text">JARVIS</span>
+    <span class="topnav-logo-version">v2.0</span>
+  </div>
+
+  <!-- Status indicators -->
+  <div class="topnav-status-group">
+    <div class="status-indicator" id="systemStatus">
+      <span class="status-dot offline" id="systemDot"></span>
+      <span id="systemLabel">System Offline</span>
+    </div>
+    <div class="status-indicator" id="wsStatus">
+      <span class="status-dot offline" id="wsDot"></span>
+      <span id="wsLabel">WS Disconnected</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="topnav-search">
+    <span class="topnav-search-icon">&#128269;</span>
+    <input type="text" id="globalSearch" placeholder="Search specs, agents..." autocomplete="off" />
+  </div>
+
+  <!-- Action buttons -->
+  <div class="topnav-actions">
+    <button class="topnav-btn" id="toggleSidebar" title="Toggle sidebar">&#9776;</button>
+    <button class="topnav-btn" id="settingsBtn" title="Settings">&#9881;</button>
+    <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+      <div class="theme-toggle-thumb" id="themeThumb">&#9790;</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ================================================================
+     APP LAYOUT
+     ================================================================ -->
+<div class="app-layout" id="appLayout">
+
+  <!-- ────────────────────────────────────────────────────────────
+       LEFT SIDEBAR
+       ──────────────────────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Create Spec -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-header">
+        <span class="sidebar-section-title">Create Spec</span>
+        <span style="font-size:14px; opacity:0.5;">&#9889;</span>
+      </div>
+      <form class="create-spec-form" id="createSpecForm">
+        <textarea
+          class="create-spec-textarea"
+          id="intentInput"
+          placeholder="Describe what JARVIS should do..."
+          rows="3"
+        ></textarea>
+        <button type="submit" class="btn btn-primary" id="createSpecBtn">
+          &#9889; Create Spec
+        </button>
+      </form>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Scrollable content -->
+    <div class="sidebar-scroll">
+      <!-- Active Specs -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">Active Specs</span>
+          <span class="sidebar-section-badge" id="specCount">0</span>
+        </div>
+        <div class="spec-list" id="specList">
+          <!-- Populated by JS -->
+        </div>
+        <div id="specListEmpty" class="panel-empty" style="padding: 20px 0;">
+          <span class="panel-empty-icon">&#128203;</span>
+          <span>No specs yet</span>
+        </div>
+        <div id="specListLoading" class="hidden">
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Agents -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">Agents</span>
+          <span class="sidebar-section-badge" id="agentCount">0</span>
+        </div>
+        <div class="agent-list" id="agentList">
+          <!-- Populated by JS -->
+        </div>
+        <div id="agentListEmpty" class="panel-empty" style="padding: 20px 0;">
+          <span class="panel-empty-icon">&#129302;</span>
+          <span>No agents connected</span>
+        </div>
+        <div id="agentListLoading" class="hidden">
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Quick Chat -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">Quick Chat</span>
+          <span style="font-size:12px; opacity:0.5;">&#128172;</span>
+        </div>
+        <div class="sidebar-chat">
+          <input type="text" id="quickChatInput" placeholder="Send a message..." />
+          <button class="btn btn-primary btn-sm" id="quickChatSend">&#10148;</button>
+        </div>
+        <div id="quickChatResponse" style="display:none; margin-top:8px; font-size:12px; color:var(--text-dim); background:var(--bg-card); padding:8px 10px; border-radius:var(--radius); border:1px solid var(--border); max-height:100px; overflow-y:auto; line-height:1.5;"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ────────────────────────────────────────────────────────────
+       MAIN CONTENT AREA
+       ──────────────────────────────────────────────────────────── -->
+  <main class="main-content" id="mainContent">
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-state-icon">&#128640;</div>
+      <div class="empty-state-title">Welcome to JARVIS</div>
+      <div class="empty-state-subtitle">
+        Create a new Streaming Spec or select an existing one from the sidebar.
+        JARVIS will decompose your intent into executable steps with real-time control.
+      </div>
+      <div class="empty-state-hint">
+        <span>&#128161;</span> Try: "Build a REST API for user management with auth"
+      </div>
+    </div>
+
+    <!-- Spec View (hidden initially) -->
+    <div id="specView" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+      <!-- Control Bar -->
+      <div class="control-bar">
+        <div class="control-bar-left">
+          <input
+            type="text"
+            class="spec-title-editable"
+            id="specTitleInput"
+            value=""
+            readonly
+            title="Click to edit spec title"
+          />
+          <div id="specStatusPill"></div>
+        </div>
+        <div class="control-bar-center">
+          <div class="progress-container">
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+            </div>
+            <span class="progress-text" id="progressText">0 / 0</span>
+          </div>
+        </div>
+        <div class="control-bar-right">
+          <button class="btn btn-secondary btn-sm" id="executeBtn" title="Execute spec">
+            &#9654; Execute
+          </button>
+          <button class="btn btn-secondary btn-sm" id="pauseBtn" title="Pause">
+            &#9208; Pause
+          </button>
+          <button class="btn btn-secondary btn-sm" id="resumeBtn" title="Resume" style="display:none;">
+            &#9654;&#65039; Resume
+          </button>
+          <button class="btn btn-secondary btn-sm" id="redirectBtn" title="Redirect intent">
+            &#8634; Redirect
+          </button>
+        </div>
+      </div>
+
+      <!-- DAG Canvas -->
+      <div class="dag-container" id="dagContainer">
+        <svg class="dag-svg-layer" id="dagSvg">
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#475569" />
+            </marker>
+            <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e" />
+            </marker>
+            <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+            </marker>
+            <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+            </marker>
+          </defs>
+        </svg>
+        <div class="dag-nodes-layer" id="dagNodesLayer">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Step Detail Panel (slides in) -->
+        <div class="step-detail-panel" id="stepDetailPanel">
+          <div class="step-detail-header">
+            <button class="step-detail-close" id="stepDetailClose">&#10005;</button>
+            <span class="step-detail-title" id="stepDetailTitle">Step Details</span>
+            <div id="stepDetailStatusPill"></div>
+          </div>
+          <div class="step-detail-body" id="stepDetailBody">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- DAG Empty -->
+      <div id="dagEmpty" class="hidden" style="flex:1;">
+        <div class="empty-state" style="padding:60px 0;">
+          <div class="empty-state-icon" style="font-size:36px;">&#128295;</div>
+          <div class="empty-state-subtitle">No steps yet. Execute this spec to generate a plan.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ────────────────────────────────────────────────────────────
+       RIGHT SIDEBAR (Tabbed)
+       ──────────────────────────────────────────────────────────── -->
+  <aside class="right-panel" id="rightPanel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" data-tab="constraints">Constraints</button>
+      <button class="panel-tab" data-tab="changelog">Changelog</button>
+      <button class="panel-tab" data-tab="agents">Agents</button>
+      <button class="panel-tab" data-tab="chat">Chat</button>
+    </div>
+    <div class="panel-content" id="panelContent">
+      <!-- Tab 1: Constraints -->
+      <div class="panel-tab-view active" id="constraintsTab">
+        <div class="constraint-add-form">
+          <input
+            type="text"
+            class="constraint-add-input"
+            id="constraintInput"
+            placeholder="Add a constraint..."
+          />
+          <button class="btn btn-primary btn-sm" id="addConstraintBtn">Add</button>
+        </div>
+        <div class="constraint-list" id="constraintList"></div>
+        <div id="constraintEmpty" class="panel-empty">
+          <span class="panel-empty-icon">&#128220;</span>
+          <span>No constraints yet</span>
+          <span style="font-size:11px;">Add rules and boundaries for spec execution</span>
+        </div>
+      </div>
+
+      <!-- Tab 2: Changelog -->
+      <div class="panel-tab-view" id="changelogTab">
+        <div class="changelog-list" id="changelogList"></div>
+        <div id="changelogEmpty" class="panel-empty">
+          <span class="panel-empty-icon">&#128197;</span>
+          <span>No changes yet</span>
+          <span style="font-size:11px;">Changes will appear here as the spec evolves</span>
+        </div>
+      </div>
+
+      <!-- Tab 3: Agents -->
+      <div class="panel-tab-view" id="agentsTab">
+        <div id="agentDetailList">
+          <!-- Populated by JS -->
+        </div>
+        <div id="agentDetailEmpty" class="panel-empty">
+          <span class="panel-empty-icon">&#129302;</span>
+          <span>No agents available</span>
+        </div>
+      </div>
+
+      <!-- Tab 4: Chat -->
+      <div class="panel-tab-view" id="chatTab" style="padding:0; display:none; height:100%;">
+        <div class="chat-container" style="height:100%;">
+          <div class="chat-messages" id="chatMessages">
+            <div class="panel-empty" id="chatEmpty" style="flex:1;">
+              <span class="panel-empty-icon">&#128172;</span>
+              <span>Start a conversation</span>
+              <span style="font-size:11px;">Chat with JARVIS agents in real-time</span>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." />
+            <button class="btn btn-primary btn-sm" id="chatSendBtn">&#10148;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ────────────────────────────────────────────────────────────
+       BOTTOM STATUS BAR
+       ──────────────────────────────────────────────────────────── -->
+  <footer class="status-bar" id="statusBar">
+    <div class="status-bar-item">
+      <span class="status-bar-dot green" id="statusBarSysDot"></span>
+      <span id="statusBarSysLabel">System</span>
+    </div>
+    <div class="status-bar-item">
+      <span>&#129302;</span>
+      <span id="statusBarAgentCount">0 agents</span>
+    </div>
+    <div class="status-bar-item">
+      <span>&#128203;</span>
+      <span id="statusBarSpecCount">0 specs</span>
+    </div>
+    <div class="status-bar-item">
+      <span class="status-bar-dot" id="statusBarWsDot"></span>
+      <span id="statusBarWsLabel">WS: disconnected</span>
+    </div>
+    <div class="status-bar-spacer"></div>
+    <div class="status-bar-item">
+      <span id="statusBarLastUpdate">Last update: --</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ================================================================
+     REDIRECT MODAL
+     ================================================================ -->
+<div class="modal-overlay" id="redirectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">&#8634; Redirect Spec</span>
+      <button class="modal-close" id="redirectModalClose">&#10005;</button>
+    </div>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px; line-height:1.5;">
+      Change the intent for this spec. JARVIS will re-plan steps accordingly while preserving completed work.
+    </p>
+    <input type="text" class="modal-input" id="redirectInput" placeholder="Enter new intent..." />
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="redirectCancel">Cancel</button>
+      <button class="btn btn-primary" id="redirectConfirm">&#8634; Redirect</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SETTINGS MODAL
+     ================================================================ -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">&#9881; Settings</span>
+      <button class="modal-close" id="settingsModalClose">&#10005;</button>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div>
+        <label style="font-size:12px; color:var(--text-dim); font-weight:600; display:block; margin-bottom:6px;">
+          API Base URL
+        </label>
+        <input type="text" class="modal-input" id="settingsApiUrl" style="margin-bottom:0;" />
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--text-dim); font-weight:600; display:block; margin-bottom:6px;">
+          WebSocket Reconnect Interval (ms)
+        </label>
+        <input type="number" class="modal-input" id="settingsReconnectMs" value="3000" style="margin-bottom:0;" />
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--text-dim); font-weight:600; display:block; margin-bottom:6px;">
+          Theme
+        </label>
+        <select class="modal-input" id="settingsTheme" style="margin-bottom:0;">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-dim); cursor:pointer;">
+          <input type="checkbox" id="settingsAnimations" checked />
+          Enable animations
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:20px;">
+      <button class="btn btn-secondary" id="settingsCancel">Close</button>
+      <button class="btn btn-primary" id="settingsSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     TOAST CONTAINER
+     ================================================================ -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<!-- ================================================================
+     JAVASCRIPT
+     ================================================================ -->
+<script>
+/* ====================================================================
+   JARVIS Streaming Spec Dashboard — Production JavaScript
+   ====================================================================
+   Self-contained. Vanilla JS. No dependencies.
+   ==================================================================== */
+(() => {
+'use strict';
+
+/* ── Configuration ──────────────────────────────────────────────────── */
+const DEFAULT_API = location.origin;
+const WS_BASE = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`;
+const CLIENT_ID = 'web-' + Math.random().toString(36).slice(2, 10);
+const RECONNECT_BASE_MS = 2000;
+const RECONNECT_MAX_MS = 30000;
+const TOAST_DURATION_MS = 3500;
+const DEBOUNCE_MS = 400;
+const HEALTH_POLL_MS = 15000;
+
+/* ── State ──────────────────────────────────────────────────────────── */
+let state = {
+  currentSpec: null,
+  currentSpecId: null,
+  specs: [],
+  agents: [],
+  ws: null,
+  wsReconnectTimer: null,
+  wsReconnectAttempt: 0,
+  healthTimer: null,
+  systemHealthy: false,
+  wsConnected: false,
+  selectedStepId: null,
+  editingStepId: null,
+  sidebarCollapsed: false,
+  rightCollapsed: false,
+  activeRightTab: 'constraints',
+  chatMessages: [],
+  searchQuery: '',
+  theme: localStorage.getItem('jarvis-theme') || 'dark',
+};
+
+/* ── DOM References ─────────────────────────────────────────────────── */
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+const dom = {
+  /* Top Nav */
+  systemDot:         $('#systemDot'),
+  systemLabel:       $('#systemLabel'),
+  wsDot:             $('#wsDot'),
+  wsLabel:           $('#wsLabel'),
+  globalSearch:      $('#globalSearch'),
+  toggleSidebar:     $('#toggleSidebar'),
+  settingsBtn:       $('#settingsBtn'),
+  themeToggle:       $('#themeToggle'),
+  themeThumb:        $('#themeThumb'),
+
+  /* Layout */
+  appLayout:         $('#appLayout'),
+  sidebar:           $('#sidebar'),
+  rightPanel:        $('#rightPanel'),
+
+  /* Left Sidebar */
+  createSpecForm:    $('#createSpecForm'),
+  intentInput:       $('#intentInput'),
+  createSpecBtn:     $('#createSpecBtn'),
+  specList:          $('#specList'),
+  specListEmpty:     $('#specListEmpty'),
+  specListLoading:   $('#specListLoading'),
+  specCount:         $('#specCount'),
+  agentList:         $('#agentList'),
+  agentListEmpty:    $('#agentListEmpty'),
+  agentListLoading:  $('#agentListLoading'),
+  agentCount:        $('#agentCount'),
+  quickChatInput:    $('#quickChatInput'),
+  quickChatSend:     $('#quickChatSend'),
+  quickChatResponse: $('#quickChatResponse'),
+
+  /* Main Content */
+  mainContent:       $('#mainContent'),
+  emptyState:        $('#emptyState'),
+  specView:          $('#specView'),
+  specTitleInput:    $('#specTitleInput'),
+  specStatusPill:    $('#specStatusPill'),
+  progressBarFill:   $('#progressBarFill'),
+  progressText:      $('#progressText'),
+  executeBtn:        $('#executeBtn'),
+  pauseBtn:          $('#pauseBtn'),
+  resumeBtn:         $('#resumeBtn'),
+  redirectBtn:       $('#redirectBtn'),
+  dagContainer:      $('#dagContainer'),
+  dagSvg:            $('#dagSvg'),
+  dagNodesLayer:     $('#dagNodesLayer'),
+  dagEmpty:          $('#dagEmpty'),
+
+  /* Step Detail Panel */
+  stepDetailPanel:   $('#stepDetailPanel'),
+  stepDetailClose:   $('#stepDetailClose'),
+  stepDetailTitle:   $('#stepDetailTitle'),
+  stepDetailStatusPill: $('#stepDetailStatusPill'),
+  stepDetailBody:    $('#stepDetailBody'),
+
+  /* Right Panel */
+  panelContent:      $('#panelContent'),
+  constraintInput:   $('#constraintInput'),
+  constraintList:    $('#constraintList'),
+  constraintEmpty:   $('#constraintEmpty'),
+  addConstraintBtn:  $('#addConstraintBtn'),
+  changelogList:     $('#changelogList'),
+  changelogEmpty:    $('#changelogEmpty'),
+  agentDetailList:   $('#agentDetailList'),
+  agentDetailEmpty:  $('#agentDetailEmpty'),
+  chatMessages:      $('#chatMessages'),
+  chatEmpty:         $('#chatEmpty'),
+  chatInput:         $('#chatInput'),
+  chatSendBtn:       $('#chatSendBtn'),
+
+  /* Status Bar */
+  statusBarSysDot:   $('#statusBarSysDot'),
+  statusBarSysLabel: $('#statusBarSysLabel'),
+  statusBarAgentCount: $('#statusBarAgentCount'),
+  statusBarSpecCount:  $('#statusBarSpecCount'),
+  statusBarWsDot:    $('#statusBarWsDot'),
+  statusBarWsLabel:  $('#statusBarWsLabel'),
+  statusBarLastUpdate: $('#statusBarLastUpdate'),
+
+  /* Modals */
+  redirectModal:     $('#redirectModal'),
+  redirectInput:     $('#redirectInput'),
+  redirectCancel:    $('#redirectCancel'),
+  redirectConfirm:   $('#redirectConfirm'),
+  redirectModalClose:$('#redirectModalClose'),
+  settingsModal:     $('#settingsModal'),
+  settingsModalClose:$('#settingsModalClose'),
+  settingsApiUrl:    $('#settingsApiUrl'),
+  settingsReconnectMs:$('#settingsReconnectMs'),
+  settingsTheme:     $('#settingsTheme'),
+  settingsAnimations:$('#settingsAnimations'),
+  settingsCancel:    $('#settingsCancel'),
+  settingsSave:      $('#settingsSave'),
+
+  /* Toast */
+  toastContainer:    $('#toastContainer'),
+};
+
+
+/* ====================================================================
+   UTILITIES
+   ==================================================================== */
+
+/** HTML-escape a string */
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
+
+/** Format a timestamp to a readable string */
+function formatTime(ts) {
+  if (!ts) return '--';
+  try {
+    const d = new Date(ts);
+    return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  } catch {
+    return '--';
+  }
+}
+
+/** Format a full datetime */
+function formatDateTime(ts) {
+  if (!ts) return '--';
+  try {
+    const d = new Date(ts);
+    return d.toLocaleString(undefined, {
+      month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+  } catch {
+    return '--';
+  }
+}
+
+/** Format duration (seconds) */
+function formatDuration(seconds) {
+  if (seconds == null || seconds < 0) return '--';
+  if (seconds < 60) return `${seconds.toFixed(1)}s`;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}m ${s}s`;
+}
+
+/** Debounce a function */
+function debounce(fn, ms) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+/** Generate a color gradient class index from a string */
+function gradientIndex(str) {
+  let hash = 0;
+  for (let i = 0; i < (str || '').length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return (Math.abs(hash) % 5) + 1;
+}
+
+/** Get the status icon for a step */
+function stepStatusIcon(status) {
+  const icons = {
+    pending:   '<span style="opacity:0.5;">&#9711;</span>',
+    ready:     '<span style="color:var(--blue);">&#9679;</span>',
+    blocked:   '<span style="color:var(--orange);">&#128274;</span>',
+    executing: '<div class="step-spinner"></div>',
+    completed: '<span style="color:var(--green);">&#10003;</span>',
+    failed:    '<span style="color:var(--red);">&#10007;</span>',
+    skipped:   '<span style="opacity:0.4;">&#9472;</span>',
+    planning:  '<span style="opacity:0.5;">&#9203;</span>',
+  };
+  return icons[status] || icons.pending;
+}
+
+/** Format a change type string for display */
+function formatChangeType(ct) {
+  return (ct || '').replace(/_/g, ' ');
+}
+
+/** Get a dot color class for changelog entries */
+function changelogDotClass(changeType) {
+  if (!changeType) return 'change';
+  if (changeType.includes('added')) return 'add';
+  if (changeType.includes('removed')) return 'remove';
+  if (changeType.includes('redirect') || changeType.includes('intent')) return 'redirect';
+  if (changeType.includes('status')) return 'status';
+  return 'change';
+}
+
+/** Update the "last update" display */
+function updateLastUpdateTime() {
+  dom.statusBarLastUpdate.textContent = 'Last update: ' + formatTime(new Date());
+}
+
+
+/* ====================================================================
+   TOAST NOTIFICATION SYSTEM
+   ==================================================================== */
+
+const toastIcons = {
+  success: '&#10003;',
+  error:   '&#10007;',
+  warning: '&#9888;',
+  info:    '&#8505;',
+};
+
+function toast(message, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `
+    <span class="toast-icon">${toastIcons[type] || toastIcons.info}</span>
+    <span>${esc(message)}</span>
+  `;
+  dom.toastContainer.appendChild(el);
+  setTimeout(() => {
+    if (el.parentNode) el.remove();
+  }, TOAST_DURATION_MS + 500);
+}
+
+
+/* ====================================================================
+   THEME MANAGEMENT
+   ==================================================================== */
+
+function applyTheme(theme) {
+  state.theme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('jarvis-theme', theme);
+  if (dom.themeThumb) {
+    dom.themeThumb.textContent = theme === 'dark' ? '☾' : '☀';
+  }
+  if (dom.settingsTheme) {
+    dom.settingsTheme.value = theme;
+  }
+}
+
+function toggleTheme() {
+  applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+}
+
+
+/* ====================================================================
+   API HELPERS
+   ==================================================================== */
+
+async function api(path, opts = {}) {
+  try {
+    const res = await fetch(`${DEFAULT_API}${path}`, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opts,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      toast(e.message, 'error');
+    }
+    throw e;
+  }
+}
+
+
+/* ====================================================================
+   HEALTH CHECK
+   ==================================================================== */
+
+async function checkHealth() {
+  try {
+    const data = await api('/health');
+    state.systemHealthy = true;
+    dom.systemDot.className = 'status-dot online';
+    dom.systemLabel.textContent = 'System Online';
+    dom.statusBarSysDot.className = 'status-bar-dot green';
+    dom.statusBarSysLabel.textContent = 'System Online';
+  } catch {
+    state.systemHealthy = false;
+    dom.systemDot.className = 'status-dot offline';
+    dom.systemLabel.textContent = 'System Offline';
+    dom.statusBarSysDot.className = 'status-bar-dot red';
+    dom.statusBarSysLabel.textContent = 'System Offline';
+  }
+}
+
+function startHealthPolling() {
+  checkHealth();
+  state.healthTimer = setInterval(checkHealth, HEALTH_POLL_MS);
+}
+
+
+/* ====================================================================
+   AGENTS
+   ==================================================================== */
+
+async function loadAgents() {
+  dom.agentListLoading.classList.remove('hidden');
+  dom.agentListEmpty.classList.add('hidden');
+  try {
+    state.agents = await api('/agents');
+    renderAgentsSidebar();
+    renderAgentsDetailTab();
+    updateStatusBarCounts();
+  } catch {
+    state.agents = [];
+    dom.agentList.innerHTML = '';
+    dom.agentListEmpty.classList.remove('hidden');
+    dom.agentListEmpty.querySelector('span:last-child').textContent = 'Could not load agents';
+  } finally {
+    dom.agentListLoading.classList.add('hidden');
+  }
+}
+
+function renderAgentsSidebar() {
+  const agents = state.agents;
+  dom.agentCount.textContent = agents.length;
+
+  if (!agents.length) {
+    dom.agentList.innerHTML = '';
+    dom.agentListEmpty.classList.remove('hidden');
+    return;
+  }
+
+  dom.agentListEmpty.classList.add('hidden');
+  dom.agentList.innerHTML = agents.map(a => {
+    const gIdx = gradientIndex(a.name);
+    const initial = (a.name || '?').charAt(0).toUpperCase();
+    const domain = a.domain || a.description || '';
+    const statusClass = a.status === 'idle' ? 'idle' : (a.status === 'busy' ? 'busy' : 'offline');
+    const skillCount = (a.skills || []).length;
+    return `
+      <div class="agent-card" data-agent-name="${esc(a.name)}" title="${esc(a.name)}">
+        <div class="agent-avatar gradient-${gIdx}">${initial}</div>
+        <div class="agent-info">
+          <div class="agent-name">${esc(a.name)}</div>
+          ${domain ? `<div class="agent-domain-badge">${esc(domain)}</div>` : ''}
+        </div>
+        ${skillCount ? `<span class="agent-skill-count">${skillCount} skills</span>` : ''}
+        <div class="agent-status-dot ${statusClass}"></div>
+      </div>`;
+  }).join('');
+}
+
+function renderAgentsDetailTab() {
+  const agents = state.agents;
+  if (!agents.length) {
+    dom.agentDetailList.innerHTML = '';
+    dom.agentDetailEmpty.classList.remove('hidden');
+    return;
+  }
+
+  dom.agentDetailEmpty.classList.add('hidden');
+  dom.agentDetailList.innerHTML = agents.map(a => {
+    const gIdx = gradientIndex(a.name);
+    const initial = (a.name || '?').charAt(0).toUpperCase();
+    const skills = a.skills || [];
+    const desc = a.description || a.domain || 'No description';
+    const statusClass = a.status === 'idle' ? 'idle' : (a.status === 'busy' ? 'busy' : 'offline');
+    return `
+      <div class="agent-detail-card" data-agent-name="${esc(a.name)}">
+        <div class="agent-detail-header">
+          <div class="agent-detail-avatar gradient-${gIdx}">${initial}</div>
+          <div>
+            <div class="agent-detail-name">${esc(a.name)}</div>
+            <div class="agent-detail-desc">${esc(desc)}</div>
+          </div>
+          <div class="agent-status-dot ${statusClass}" style="margin-left:auto;"></div>
+        </div>
+        ${a.domain ? `
+          <div style="margin-bottom:6px;">
+            <span class="agent-domain-badge">${esc(a.domain)}</span>
+          </div>` : ''}
+        ${skills.length ? `
+          <div class="agent-detail-skills">
+            ${skills.map(s => `<span class="agent-skill-tag">${esc(typeof s === 'string' ? s : s.name || '')}</span>`).join('')}
+          </div>` : ''}
+        <div class="agent-detail-actions">
+          <button class="btn btn-ghost btn-sm agent-task-btn" data-agent="${esc(a.name)}">
+            &#9889; Send Task
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+
+  /* Bind "Send Task" buttons */
+  dom.agentDetailList.querySelectorAll('.agent-task-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const agentName = btn.dataset.agent;
+      switchRightTab('chat');
+      if (dom.chatInput) {
+        dom.chatInput.value = `@${agentName} `;
+        dom.chatInput.focus();
+      }
+    });
+  });
+}
+
+
+/* ====================================================================
+   SPECS LIST
+   ==================================================================== */
+
+async function loadSpecs() {
+  dom.specListLoading.classList.remove('hidden');
+  dom.specListEmpty.classList.add('hidden');
+  try {
+    state.specs = await api('/specs');
+    renderSpecList();
+    updateStatusBarCounts();
+  } catch {
+    state.specs = [];
+    dom.specList.innerHTML = '';
+    dom.specListEmpty.classList.remove('hidden');
+    dom.specListEmpty.querySelector('span:last-child').textContent = 'Could not load specs';
+  } finally {
+    dom.specListLoading.classList.add('hidden');
+  }
+}
+
+function renderSpecList() {
+  const specs = filterSpecs(state.specs);
+  dom.specCount.textContent = state.specs.length;
+
+  if (!specs.length) {
+    dom.specList.innerHTML = '';
+    dom.specListEmpty.classList.remove('hidden');
+    if (state.searchQuery && state.specs.length) {
+      dom.specListEmpty.querySelector('span:last-child').textContent = 'No matching specs';
+    } else {
+      dom.specListEmpty.querySelector('span:last-child').textContent = 'No specs yet';
+    }
+    return;
+  }
+
+  dom.specListEmpty.classList.add('hidden');
+
+  dom.specList.innerHTML = specs.map(s => {
+    const isActive = state.currentSpecId === s.id;
+    const steps = s.steps || [];
+    const completed = steps.filter(st => st.status === 'completed').length;
+    const total = steps.length;
+    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const statusIcon = getSpecStatusIcon(s.status);
+
+    let progressColor = 'var(--accent)';
+    if (pct === 100) progressColor = 'var(--green)';
+    else if (s.status === 'executing') progressColor = 'var(--blue)';
+    else if (s.status === 'paused') progressColor = 'var(--orange)';
+    else if (s.status === 'failed') progressColor = 'var(--red)';
+
+    return `
+      <div class="spec-list-item ${isActive ? 'active' : ''}" data-id="${s.id}">
+        <div class="spec-list-item-header">
+          <span class="spec-list-item-icon">${statusIcon}</span>
+          <span class="spec-list-item-name">${esc(s.name || s.intent || 'Untitled')}</span>
+        </div>
+        <div class="spec-list-item-meta">
+          <span class="status-pill ${s.status || 'pending'}">${s.status || 'pending'}</span>
+          <span>${completed}/${total} steps</span>
+          <div class="spec-list-item-progress">
+            <div class="spec-list-item-progress-bar" style="width:${pct}%; background:${progressColor};"></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  /* Bind click events */
+  dom.specList.querySelectorAll('.spec-list-item').forEach(item => {
+    item.addEventListener('click', () => selectSpec(item.dataset.id));
+  });
+}
+
+function getSpecStatusIcon(status) {
+  const icons = {
+    planning:   '&#9203;',
+    executing:  '&#9654;',
+    paused:     '&#9208;',
+    completed:  '&#9989;',
+    redirected: '&#8634;',
+    failed:     '&#10060;',
+  };
+  return icons[status] || '&#9711;';
+}
+
+function filterSpecs(specs) {
+  if (!state.searchQuery) return specs;
+  const q = state.searchQuery.toLowerCase();
+  return specs.filter(s => {
+    const name = (s.name || s.intent || '').toLowerCase();
+    return name.includes(q);
+  });
+}
+
+
+/* ====================================================================
+   CREATE SPEC
+   ==================================================================== */
+
+async function createSpec() {
+  const intent = dom.intentInput.value.trim();
+  if (!intent) return;
+
+  dom.createSpecBtn.disabled = true;
+  dom.createSpecBtn.textContent = 'Creating...';
+
+  try {
+    const spec = await api('/specs', {
+      method: 'POST',
+      body: JSON.stringify({ intent }),
+    });
+    dom.intentInput.value = '';
+    toast('Spec created successfully', 'success');
+    await loadSpecs();
+    selectSpec(spec.id);
+  } catch (e) {
+    /* toast already shown by api() */
+  } finally {
+    dom.createSpecBtn.disabled = false;
+    dom.createSpecBtn.innerHTML = '&#9889; Create Spec';
+  }
+}
+
+
+/* ====================================================================
+   SELECT SPEC
+   ==================================================================== */
+
+async function selectSpec(specId) {
+  if (!specId) return;
+  state.currentSpecId = specId;
+  state.selectedStepId = null;
+  closeStepDetail();
+
+  try {
+    state.currentSpec = await api(`/specs/${specId}`);
+    renderSpecList();
+    showSpecView();
+    connectWebSocket(specId);
+    loadChangelog(specId);
+    updateLastUpdateTime();
+  } catch (e) {
+    /* toast already shown */
+  }
+}
+
+function showSpecView() {
+  dom.emptyState.classList.add('hidden');
+  dom.specView.classList.remove('hidden');
+  dom.specView.style.display = 'flex';
+  renderSpecFull();
+}
+
+function hideSpecView() {
+  dom.emptyState.classList.remove('hidden');
+  dom.specView.classList.add('hidden');
+  dom.specView.style.display = 'none';
+  state.currentSpec = null;
+  state.currentSpecId = null;
+}
+
+
+/* ====================================================================
+   RENDER SPEC (FULL)
+   ==================================================================== */
+
+function renderSpecFull() {
+  const spec = state.currentSpec;
+  if (!spec) return;
+
+  /* Title */
+  dom.specTitleInput.value = spec.name || spec.intent || 'Untitled Spec';
+
+  /* Status pill */
+  dom.specStatusPill.innerHTML = `<span class="status-pill ${spec.status || 'pending'}">${spec.status || 'pending'}</span>`;
+
+  /* Progress */
+  const steps = spec.steps || [];
+  const completed = steps.filter(st => st.status === 'completed').length;
+  const total = steps.length;
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  dom.progressBarFill.style.width = `${pct}%`;
+  dom.progressBarFill.className = `progress-bar-fill${spec.status === 'executing' ? ' executing' : ''}`;
+  dom.progressText.textContent = `${completed} / ${total}`;
+
+  /* Pause/Resume buttons */
+  if (spec.status === 'paused') {
+    dom.pauseBtn.style.display = 'none';
+    dom.resumeBtn.style.display = '';
+  } else {
+    dom.pauseBtn.style.display = '';
+    dom.resumeBtn.style.display = 'none';
+  }
+
+  /* Render DAG */
+  renderDAG(steps);
+
+  /* Render constraints */
+  renderConstraints(spec.constraints || []);
+
+  /* Render changelog if available */
+  if (spec.changelog) {
+    renderChangelog(spec.changelog);
+  }
+}
+
+
+/* ====================================================================
+   DAG RENDERING — THE CORE FEATURE
+   ==================================================================== */
+
+/**
+ * Organize steps into levels based on dependency topology.
+ * Steps at the same dependency depth appear side-by-side.
+ */
+function computeStepLevels(steps) {
+  if (!steps || !steps.length) return [];
+
+  /* Build id->step and dependency maps */
+  const stepMap = new Map();
+  steps.forEach(s => stepMap.set(s.id, s));
+
+  /* Compute the depth of each step via topological ordering */
+  const depthMap = new Map();
+
+  function getDepth(stepId) {
+    if (depthMap.has(stepId)) return depthMap.get(stepId);
+    const step = stepMap.get(stepId);
+    if (!step) return 0;
+    const deps = step.depends_on || [];
+    if (!deps.length) {
+      depthMap.set(stepId, 0);
+      return 0;
+    }
+    let maxParentDepth = 0;
+    for (const depId of deps) {
+      maxParentDepth = Math.max(maxParentDepth, getDepth(depId) + 1);
+    }
+    depthMap.set(stepId, maxParentDepth);
+    return maxParentDepth;
+  }
+
+  steps.forEach(s => getDepth(s.id));
+
+  /* Group steps by depth level */
+  const levels = [];
+  steps.forEach(s => {
+    const depth = depthMap.get(s.id) || 0;
+    if (!levels[depth]) levels[depth] = [];
+    levels[depth].push(s);
+  });
+
+  return levels.filter(Boolean);
+}
+
+function renderDAG(steps) {
+  if (!steps || !steps.length) {
+    dom.dagNodesLayer.innerHTML = '';
+    dom.dagSvg.innerHTML = dom.dagSvg.querySelector('defs').outerHTML;
+    dom.dagContainer.classList.add('hidden');
+    dom.dagEmpty.classList.remove('hidden');
+    return;
+  }
+
+  dom.dagContainer.classList.remove('hidden');
+  dom.dagEmpty.classList.add('hidden');
+
+  /* Compute levels for layout */
+  const levels = computeStepLevels(steps);
+  let hasDependencies = false;
+  steps.forEach(s => { if (s.depends_on && s.depends_on.length) hasDependencies = true; });
+
+  /* Build HTML */
+  let html = '';
+  levels.forEach((levelSteps, levelIdx) => {
+    if (levelIdx > 0) {
+      html += `<div class="dag-level-connector"><div class="dag-level-connector-line"></div></div>`;
+    }
+    html += `<div class="dag-level-row">`;
+    levelSteps.forEach((step, stepIdx) => {
+      const isSelected = state.selectedStepId === step.id;
+      const deps = step.depends_on || [];
+      const depsLabel = deps.length ? `&#8592; ${deps.length} dep${deps.length > 1 ? 's' : ''}` : '';
+      html += `
+        <div class="step-card ${step.status || 'pending'} ${isSelected ? 'selected' : ''}"
+             id="step-${step.id}" data-step-id="${step.id}">
+          <div class="step-header">
+            <span class="step-status-icon">${stepStatusIcon(step.status)}</span>
+            <span class="step-name">${esc(step.name)}</span>
+            <span class="step-index">#${getStepGlobalIndex(steps, step.id)}</span>
+          </div>
+          ${step.description ? `<div class="step-description">${esc(step.description)}</div>` : ''}
+          ${step.output ? `<div class="step-output">${esc(step.output)}</div>` : ''}
+          ${(step.rules && step.rules.length) ? `
+            <div class="step-rules">
+              ${step.rules.map(r => `<span class="step-rule-tag">${esc(r)}</span>`).join('')}
+            </div>` : ''}
+          <div class="step-meta">
+            ${step.agent ? `<span class="step-agent-badge">&#129302; ${esc(step.agent)}</span>` : ''}
+            ${step.duration != null ? `<span class="step-duration">&#9201; ${formatDuration(step.duration)}</span>` : ''}
+            ${depsLabel ? `<span class="step-deps">${depsLabel}</span>` : ''}
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+
+  dom.dagNodesLayer.innerHTML = html;
+
+  /* Bind click events on step cards */
+  dom.dagNodesLayer.querySelectorAll('.step-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      const stepId = card.dataset.stepId;
+      if (state.selectedStepId === stepId) {
+        state.selectedStepId = null;
+        closeStepDetail();
+      } else {
+        state.selectedStepId = stepId;
+        openStepDetail(stepId);
+      }
+      /* Highlight selected */
+      dom.dagNodesLayer.querySelectorAll('.step-card').forEach(c => c.classList.remove('selected'));
+      if (state.selectedStepId) card.classList.add('selected');
+    });
+  });
+
+  /* Draw SVG arrows after layout is settled */
+  if (hasDependencies) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        drawDagArrows(steps);
+      });
+    });
+  } else {
+    /* Clear old arrows */
+    const defsEl = dom.dagSvg.querySelector('defs');
+    dom.dagSvg.innerHTML = '';
+    if (defsEl) dom.dagSvg.appendChild(defsEl);
+  }
+}
+
+function getStepGlobalIndex(steps, stepId) {
+  const idx = steps.findIndex(s => s.id === stepId);
+  return idx >= 0 ? idx + 1 : '?';
+}
+
+
+/* ====================================================================
+   DAG ARROW DRAWING (SVG Bezier Curves)
+   ==================================================================== */
+
+function drawDagArrows(steps) {
+  const svg = dom.dagSvg;
+  const defsEl = svg.querySelector('defs');
+
+  /* Clear existing paths */
+  svg.innerHTML = '';
+  if (defsEl) svg.appendChild(defsEl);
+
+  /* Ensure SVG covers the entire scrollable area */
+  const container = dom.dagContainer;
+  const nodesLayer = dom.dagNodesLayer;
+  const scrollLeft = container.scrollLeft;
+  const scrollTop = container.scrollTop;
+
+  /* Set SVG size to match the full content area */
+  const contentWidth = Math.max(container.scrollWidth, container.clientWidth);
+  const contentHeight = Math.max(container.scrollHeight, container.clientHeight);
+  svg.setAttribute('width', contentWidth);
+  svg.setAttribute('height', contentHeight);
+  svg.style.width = contentWidth + 'px';
+  svg.style.height = contentHeight + 'px';
+
+  const containerRect = container.getBoundingClientRect();
+
+  steps.forEach(step => {
+    const deps = step.depends_on || [];
+    deps.forEach(depId => {
+      const fromEl = document.getElementById(`step-${depId}`);
+      const toEl = document.getElementById(`step-${step.id}`);
+      if (!fromEl || !toEl) return;
+
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
+
+      /* Compute positions relative to the container's scroll position */
+      const x1 = fromRect.left + fromRect.width / 2 - containerRect.left + scrollLeft;
+      const y1 = fromRect.bottom - containerRect.top + scrollTop;
+      const x2 = toRect.left + toRect.width / 2 - containerRect.left + scrollLeft;
+      const y2 = toRect.top - containerRect.top + scrollTop;
+
+      /* Control point offset for smooth bezier */
+      const dy = Math.abs(y2 - y1);
+      const cpOffset = Math.max(dy * 0.4, 30);
+
+      /* Create the bezier path */
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = `M${x1},${y1} C${x1},${y1 + cpOffset} ${x2},${y2 - cpOffset} ${x2},${y2}`;
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-width', '2');
+      path.setAttribute('stroke-linecap', 'round');
+
+      /* Color based on source step status */
+      const fromStep = steps.find(s => s.id === depId);
+      const fromStatus = fromStep ? fromStep.status : 'pending';
+      let strokeColor = '#475569';
+      let markerEnd = 'url(#arrowhead)';
+
+      if (fromStatus === 'completed') {
+        strokeColor = '#22c55e';
+        markerEnd = 'url(#arrowhead-green)';
+      } else if (fromStatus === 'executing') {
+        strokeColor = '#3b82f6';
+        markerEnd = 'url(#arrowhead-blue)';
+      } else if (step.status === 'failed') {
+        strokeColor = '#ef4444';
+        markerEnd = 'url(#arrowhead-red)';
+      }
+
+      path.setAttribute('stroke', strokeColor);
+      path.setAttribute('marker-end', markerEnd);
+
+      /* Add dash animation for executing edges */
+      if (fromStatus === 'executing') {
+        path.setAttribute('stroke-dasharray', '8,4');
+        path.style.animation = 'dashOffset 0.8s linear infinite';
+      }
+
+      svg.appendChild(path);
+    });
+  });
+}
+
+/* Re-draw arrows on scroll and resize */
+function onDagScrollOrResize() {
+  if (state.currentSpec && state.currentSpec.steps && state.currentSpec.steps.length) {
+    drawDagArrows(state.currentSpec.steps);
+  }
+}
+
+dom.dagContainer.addEventListener('scroll', debounce(onDagScrollOrResize, 50));
+window.addEventListener('resize', debounce(onDagScrollOrResize, 150));
+
+
+/* ====================================================================
+   STEP DETAIL PANEL
+   ==================================================================== */
+
+function openStepDetail(stepId) {
+  const spec = state.currentSpec;
+  if (!spec || !spec.steps) return;
+
+  const step = spec.steps.find(s => s.id === stepId);
+  if (!step) return;
+
+  state.selectedStepId = stepId;
+  dom.stepDetailTitle.textContent = step.name || 'Untitled Step';
+  dom.stepDetailStatusPill.innerHTML = `<span class="status-pill ${step.status || 'pending'}">${step.status || 'pending'}</span>`;
+
+  /* Build body content */
+  const deps = step.depends_on || [];
+  const depsHtml = deps.length ? deps.map(depId => {
+    const depStep = spec.steps.find(s => s.id === depId);
+    return `<div class="detail-dep-item">
+      <span>${stepStatusIcon(depStep ? depStep.status : 'pending')}</span>
+      <span>${esc(depStep ? depStep.name : depId)}</span>
+    </div>`;
+  }).join('') : '<span style="font-size:12px; color:var(--text-muted);">No dependencies</span>';
+
+  dom.stepDetailBody.innerHTML = `
+    <!-- Step Name (editable) -->
+    <div class="detail-section">
+      <label class="detail-section-label">Step Name</label>
+      <input type="text" class="detail-editable-input" id="detailStepName" value="${esc(step.name || '')}" />
+    </div>
+
+    <!-- Description (editable) -->
+    <div class="detail-section">
+      <label class="detail-section-label">Description</label>
+      <textarea class="detail-editable-textarea" id="detailStepDesc">${esc(step.description || '')}</textarea>
+    </div>
+
+    <!-- Status & Timing -->
+    <div class="detail-section">
+      <label class="detail-section-label">Status & Timing</label>
+      <div class="detail-status-row">
+        <span class="status-pill ${step.status || 'pending'}">${step.status || 'pending'}</span>
+        ${step.duration != null ? `<span class="detail-timing">&#9201; ${formatDuration(step.duration)}</span>` : ''}
+        ${step.started_at ? `<span class="detail-timing">Started: ${formatTime(step.started_at)}</span>` : ''}
+        ${step.completed_at ? `<span class="detail-timing">Done: ${formatTime(step.completed_at)}</span>` : ''}
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="detail-section">
+      <label class="detail-section-label">Output</label>
+      <div class="detail-output-box">${step.output ? esc(step.output) : 'No output yet'}</div>
+    </div>
+
+    <!-- Dependencies -->
+    <div class="detail-section">
+      <label class="detail-section-label">Dependencies</label>
+      <div class="detail-deps-list">${depsHtml}</div>
+    </div>
+
+    <!-- Assigned Agent -->
+    ${step.agent ? `
+    <div class="detail-section">
+      <label class="detail-section-label">Assigned Agent</label>
+      <span class="step-agent-badge" style="font-size:12px;">&#129302; ${esc(step.agent)}</span>
+    </div>` : ''}
+
+    <!-- Rules -->
+    ${(step.rules && step.rules.length) ? `
+    <div class="detail-section">
+      <label class="detail-section-label">Rules</label>
+      <div class="step-rules">
+        ${step.rules.map(r => `<span class="step-rule-tag">${esc(r)}</span>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Actions -->
+    <div class="detail-actions">
+      <button class="btn btn-ghost btn-sm" id="detailCancelBtn">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="detailSaveBtn">&#128190; Save Changes</button>
+    </div>
+  `;
+
+  /* Show panel */
+  dom.stepDetailPanel.classList.add('open');
+
+  /* Bind buttons */
+  const saveBtn = $('#detailSaveBtn');
+  const cancelBtn = $('#detailCancelBtn');
+
+  if (saveBtn) {
+    saveBtn.addEventListener('click', async () => {
+      const nameVal = $('#detailStepName').value.trim();
+      const descVal = $('#detailStepDesc').value.trim();
+      try {
+        await api(`/specs/${state.currentSpecId}/steps/${stepId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            name: nameVal || undefined,
+            description: descVal || undefined,
+          }),
+        });
+        toast('Step updated', 'success');
+        await refreshSpec();
+      } catch { /* toast shown */ }
+    });
+  }
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      closeStepDetail();
+    });
+  }
+}
+
+function closeStepDetail() {
+  dom.stepDetailPanel.classList.remove('open');
+  state.selectedStepId = null;
+  dom.dagNodesLayer.querySelectorAll('.step-card').forEach(c => c.classList.remove('selected'));
+}
+
+
+/* ====================================================================
+   CONSTRAINTS
+   ==================================================================== */
+
+function renderConstraints(constraints) {
+  if (!constraints || !constraints.length) {
+    dom.constraintList.innerHTML = '';
+    dom.constraintEmpty.classList.remove('hidden');
+    return;
+  }
+
+  dom.constraintEmpty.classList.add('hidden');
+  dom.constraintList.innerHTML = constraints.map(c => `
+    <div class="constraint-item" data-id="${c.id}">
+      <div class="constraint-content">${esc(c.content)}</div>
+      <div class="constraint-footer">
+        <span class="source-badge ${c.added_by || 'human'}">${esc(c.added_by || 'human')}</span>
+        ${c.created_at ? `<span style="font-size:10px; color:var(--text-muted);">${formatTime(c.created_at)}</span>` : ''}
+        <span style="flex:1;"></span>
+        <button class="btn btn-danger btn-sm remove-constraint-btn" data-id="${c.id}" title="Remove constraint">
+          &#10005; Remove
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  /* Bind remove buttons */
+  dom.constraintList.querySelectorAll('.remove-constraint-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const cid = btn.dataset.id;
+      try {
+        if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+          state.ws.send(JSON.stringify({ type: 'remove_constraint', constraint_id: cid }));
+        } else {
+          await api(`/specs/${state.currentSpecId}/constraints/${cid}`, { method: 'DELETE' });
+          await refreshSpec();
+        }
+        toast('Constraint removed', 'success');
+      } catch { /* toast shown */ }
+    });
+  });
+}
+
+async function addConstraint() {
+  const content = dom.constraintInput.value.trim();
+  if (!content || !state.currentSpecId) return;
+
+  try {
+    if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+      state.ws.send(JSON.stringify({ type: 'add_constraint', content }));
+    } else {
+      await api(`/specs/${state.currentSpecId}/constraints`, {
+        method: 'POST',
+        body: JSON.stringify({ content }),
+      });
+      await refreshSpec();
+    }
+    dom.constraintInput.value = '';
+    toast('Constraint added', 'success');
+  } catch { /* toast shown */ }
+}
+
+
+/* ====================================================================
+   CHANGELOG
+   ==================================================================== */
+
+async function loadChangelog(specId) {
+  try {
+    const changelog = await api(`/specs/${specId}/changelog`);
+    renderChangelog(changelog);
+  } catch {
+    /* Ignore - changelog may be embedded in spec already */
+  }
+}
+
+function renderChangelog(changelog) {
+  if (!changelog || !changelog.length) {
+    dom.changelogList.innerHTML = '';
+    dom.changelogEmpty.classList.remove('hidden');
+    return;
+  }
+
+  dom.changelogEmpty.classList.add('hidden');
+
+  /* Newest first */
+  const sorted = [...changelog].reverse();
+
+  dom.changelogList.innerHTML = sorted.map((c, idx) => {
+    const time = formatDateTime(c.timestamp);
+    const dotClass = changelogDotClass(c.change_type);
+    let valuesHtml = '';
+
+    if (c.old_value != null && c.new_value != null) {
+      valuesHtml = `<div class="changelog-values">
+        <span style="color:var(--red); text-decoration:line-through;">${esc(String(c.old_value))}</span>
+        &rarr;
+        <span style="color:var(--green);">${esc(String(c.new_value))}</span>
+      </div>`;
+    } else if (c.new_value != null) {
+      valuesHtml = `<div class="changelog-values"><span style="color:var(--green);">+ ${esc(String(c.new_value))}</span></div>`;
+    } else if (c.old_value != null) {
+      valuesHtml = `<div class="changelog-values"><span style="color:var(--red);">- ${esc(String(c.old_value))}</span></div>`;
+    }
+
+    const showLine = idx < sorted.length - 1;
+
+    return `
+      <div class="changelog-item">
+        <div class="changelog-dot-col">
+          <div class="changelog-dot ${dotClass}"></div>
+          ${showLine ? '<div class="changelog-line"></div>' : ''}
+        </div>
+        <div class="changelog-body">
+          <div class="changelog-type ${c.change_type || ''}">${formatChangeType(c.change_type)}</div>
+          ${c.path ? `<div class="changelog-path">${esc(c.path)}</div>` : ''}
+          ${valuesHtml}
+          <div class="changelog-time">${time}${c.source ? ` &middot; ${esc(c.source)}` : ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+
+/* ====================================================================
+   CHAT
+   ==================================================================== */
+
+async function sendChatMessage(message) {
+  if (!message.trim()) return;
+
+  /* Add user message to UI */
+  addChatMessageToUI('You', message, 'user');
+
+  try {
+    const response = await api('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    });
+    const agentName = response.agent || 'JARVIS';
+    const reply = response.response || response.message || JSON.stringify(response);
+    addChatMessageToUI(agentName, reply, 'agent');
+  } catch {
+    addChatMessageToUI('System', 'Failed to get response', 'agent');
+  }
+}
+
+function addChatMessageToUI(name, text, type) {
+  dom.chatEmpty.classList.add('hidden');
+
+  const msgEl = document.createElement('div');
+  msgEl.className = `chat-message ${type === 'user' ? 'user' : ''}`;
+
+  const avatarClass = type === 'user' ? 'user-msg' : 'agent-msg';
+  const initial = (name || '?').charAt(0).toUpperCase();
+
+  msgEl.innerHTML = `
+    <div class="chat-message-avatar ${avatarClass}">${initial}</div>
+    <div>
+      <div class="chat-message-name">${esc(name)}</div>
+      <div class="chat-message-bubble">${esc(text)}</div>
+      <div class="chat-message-time">${formatTime(new Date())}</div>
+    </div>
+  `;
+
+  dom.chatMessages.appendChild(msgEl);
+  dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
+
+  state.chatMessages.push({ name, text, type, time: new Date() });
+}
+
+
+/* ====================================================================
+   QUICK CHAT (Sidebar)
+   ==================================================================== */
+
+async function sendQuickChat() {
+  const msg = dom.quickChatInput.value.trim();
+  if (!msg) return;
+
+  dom.quickChatSend.disabled = true;
+  dom.quickChatResponse.style.display = 'block';
+  dom.quickChatResponse.textContent = 'Thinking...';
+
+  try {
+    const response = await api('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message: msg }),
+    });
+    const reply = response.response || response.message || JSON.stringify(response);
+    dom.quickChatResponse.textContent = reply;
+    dom.quickChatInput.value = '';
+  } catch {
+    dom.quickChatResponse.textContent = 'Error getting response.';
+  } finally {
+    dom.quickChatSend.disabled = false;
+  }
+}
+
+
+/* ====================================================================
+   WEBSOCKET
+   ==================================================================== */
+
+function connectWebSocket(specId) {
+  disconnectWebSocket();
+  state.wsReconnectAttempt = 0;
+
+  const url = `${WS_BASE}/ws/specs/${specId}?client_id=${CLIENT_ID}`;
+
+  try {
+    state.ws = new WebSocket(url);
+  } catch (e) {
+    setWsStatus(false);
+    return;
+  }
+
+  state.ws.addEventListener('open', () => {
+    setWsStatus(true);
+    state.wsReconnectAttempt = 0;
+    clearTimeout(state.wsReconnectTimer);
+  });
+
+  state.ws.addEventListener('message', (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      handleWsMessage(msg);
+      updateLastUpdateTime();
+    } catch (e) {
+      console.error('WS parse error:', e);
+    }
+  });
+
+  state.ws.addEventListener('close', () => {
+    setWsStatus(false);
+    /* Auto-reconnect with exponential backoff */
+    if (state.currentSpecId === specId) {
+      const delay = Math.min(
+        RECONNECT_BASE_MS * Math.pow(2, state.wsReconnectAttempt),
+        RECONNECT_MAX_MS
+      );
+      state.wsReconnectAttempt++;
+      state.wsReconnectTimer = setTimeout(() => connectWebSocket(specId), delay);
+    }
+  });
+
+  state.ws.addEventListener('error', () => {
+    setWsStatus(false);
+  });
+}
+
+function disconnectWebSocket() {
+  clearTimeout(state.wsReconnectTimer);
+  if (state.ws) {
+    state.ws.close();
+    state.ws = null;
+  }
+}
+
+function setWsStatus(connected) {
+  state.wsConnected = connected;
+  dom.wsDot.className = connected ? 'status-dot online' : 'status-dot offline';
+  dom.wsLabel.textContent = connected ? 'WS Live' : 'WS Disconnected';
+  dom.statusBarWsDot.className = connected ? 'status-bar-dot green' : 'status-bar-dot red';
+  dom.statusBarWsLabel.textContent = connected ? 'WS: connected' : 'WS: disconnected';
+}
+
+function handleWsMessage(msg) {
+  const { type, data } = msg;
+
+  switch (type) {
+    case 'spec_snapshot':
+      state.currentSpec = data;
+      renderSpecFull();
+      syncSpecInList();
+      break;
+
+    case 'ack':
+      if (msg.data && msg.data.spec) {
+        state.currentSpec = msg.data.spec;
+        renderSpecFull();
+        syncSpecInList();
+      }
+      break;
+
+    case 'step_updated':
+    case 'step_edited':
+    case 'constraint_added':
+    case 'constraint_removed':
+    case 'spec_redirected':
+    case 'spec_paused':
+    case 'spec_resumed':
+    case 'spec_completed':
+    case 'spec_failed':
+    case 'step_started':
+    case 'step_completed':
+    case 'step_failed':
+      if (data && data.steps) {
+        state.currentSpec = data;
+        renderSpecFull();
+        syncSpecInList();
+      } else {
+        refreshSpec();
+      }
+      /* Show a toast for significant events */
+      if (type === 'spec_completed') toast('Spec completed!', 'success');
+      if (type === 'spec_failed') toast('Spec failed', 'error');
+      if (type === 'spec_redirected') toast('Spec redirected', 'info');
+      if (type === 'step_completed') toast('Step completed', 'success');
+      if (type === 'step_failed') toast('Step failed', 'warning');
+      break;
+
+    case 'error':
+      toast(data?.message || 'WebSocket error', 'error');
+      break;
+
+    default:
+      console.log('Unknown WS message type:', type, msg);
+  }
+}
+
+function syncSpecInList() {
+  if (!state.currentSpec || !state.currentSpecId) return;
+  const idx = state.specs.findIndex(s => s.id === state.currentSpecId);
+  if (idx >= 0) {
+    state.specs[idx] = state.currentSpec;
+  }
+  renderSpecList();
+}
+
+
+/* ====================================================================
+   REFRESH SPEC (from REST)
+   ==================================================================== */
+
+async function refreshSpec() {
+  if (!state.currentSpecId) return;
+  try {
+    state.currentSpec = await api(`/specs/${state.currentSpecId}`);
+    renderSpecFull();
+    syncSpecInList();
+  } catch { /* toast shown */ }
+}
+
+
+/* ====================================================================
+   CONTROL BAR ACTIONS
+   ==================================================================== */
+
+/* Execute */
+async function executeSpec() {
+  if (!state.currentSpecId) return;
+  dom.executeBtn.disabled = true;
+  dom.executeBtn.innerHTML = '&#9203; Running...';
+  try {
+    await api(`/specs/${state.currentSpecId}/execute`, { method: 'POST' });
+    toast('Execution started', 'success');
+    await refreshSpec();
+  } catch { /* toast shown */ }
+  finally {
+    dom.executeBtn.disabled = false;
+    dom.executeBtn.innerHTML = '&#9654; Execute';
+  }
+}
+
+/* Pause */
+function pauseSpec() {
+  if (!state.ws || state.ws.readyState !== WebSocket.OPEN) return;
+  state.ws.send(JSON.stringify({ type: 'pause' }));
+  toast('Spec paused', 'info');
+}
+
+/* Resume */
+function resumeSpec() {
+  if (!state.ws || state.ws.readyState !== WebSocket.OPEN) return;
+  state.ws.send(JSON.stringify({ type: 'resume' }));
+  toast('Spec resumed', 'info');
+}
+
+/* Redirect */
+function openRedirectModal() {
+  dom.redirectModal.classList.add('show');
+  dom.redirectInput.value = '';
+  setTimeout(() => dom.redirectInput.focus(), 200);
+}
+
+function closeRedirectModal() {
+  dom.redirectModal.classList.remove('show');
+}
+
+async function confirmRedirect() {
+  const newIntent = dom.redirectInput.value.trim();
+  if (!newIntent || !state.currentSpecId) return;
+
+  try {
+    if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+      state.ws.send(JSON.stringify({ type: 'redirect', new_intent: newIntent }));
+    } else {
+      await api(`/specs/${state.currentSpecId}/redirect`, {
+        method: 'POST',
+        body: JSON.stringify({ new_intent: newIntent }),
+      });
+      await refreshSpec();
+    }
+    toast('Spec redirected', 'success');
+    closeRedirectModal();
+  } catch { /* toast shown */ }
+}
+
+
+/* ====================================================================
+   SETTINGS MODAL
+   ==================================================================== */
+
+function openSettingsModal() {
+  dom.settingsApiUrl.value = DEFAULT_API;
+  dom.settingsTheme.value = state.theme;
+  dom.settingsModal.classList.add('show');
+}
+
+function closeSettingsModal() {
+  dom.settingsModal.classList.remove('show');
+}
+
+function saveSettings() {
+  const theme = dom.settingsTheme.value;
+  applyTheme(theme);
+  toast('Settings saved', 'success');
+  closeSettingsModal();
+}
+
+
+/* ====================================================================
+   SIDEBAR TOGGLE
+   ==================================================================== */
+
+function toggleSidebar() {
+  state.sidebarCollapsed = !state.sidebarCollapsed;
+  dom.appLayout.classList.toggle('sidebar-collapsed', state.sidebarCollapsed);
+  /* Redraw arrows after layout shift */
+  setTimeout(onDagScrollOrResize, 400);
+}
+
+function toggleRightPanel() {
+  state.rightCollapsed = !state.rightCollapsed;
+  dom.appLayout.classList.toggle('right-collapsed', state.rightCollapsed);
+  setTimeout(onDagScrollOrResize, 400);
+}
+
+
+/* ====================================================================
+   RIGHT PANEL TABS
+   ==================================================================== */
+
+function switchRightTab(tabName) {
+  state.activeRightTab = tabName;
+
+  $$('.panel-tab').forEach(t => t.classList.remove('active'));
+  $$('.panel-tab-view').forEach(v => {
+    v.classList.remove('active');
+    v.style.display = 'none';
+  });
+
+  const tabBtn = document.querySelector(`.panel-tab[data-tab="${tabName}"]`);
+  if (tabBtn) tabBtn.classList.add('active');
+
+  const tabView = document.getElementById(`${tabName}Tab`);
+  if (tabView) {
+    tabView.classList.add('active');
+    tabView.style.display = tabName === 'chat' ? 'flex' : 'block';
+  }
+}
+
+
+/* ====================================================================
+   SEARCH
+   ==================================================================== */
+
+const onSearch = debounce((query) => {
+  state.searchQuery = query;
+  renderSpecList();
+}, DEBOUNCE_MS);
+
+
+/* ====================================================================
+   STATUS BAR UPDATES
+   ==================================================================== */
+
+function updateStatusBarCounts() {
+  const agentCount = state.agents.length;
+  const specCount = state.specs.length;
+  dom.statusBarAgentCount.textContent = `${agentCount} agent${agentCount !== 1 ? 's' : ''}`;
+  dom.statusBarSpecCount.textContent = `${specCount} spec${specCount !== 1 ? 's' : ''}`;
+}
+
+
+/* ====================================================================
+   EVENT BINDINGS
+   ==================================================================== */
+
+/* Create Spec */
+dom.createSpecForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  createSpec();
+});
+
+/* Execute, Pause, Resume, Redirect */
+dom.executeBtn.addEventListener('click', executeSpec);
+dom.pauseBtn.addEventListener('click', pauseSpec);
+dom.resumeBtn.addEventListener('click', resumeSpec);
+dom.redirectBtn.addEventListener('click', openRedirectModal);
+
+/* Redirect Modal */
+dom.redirectCancel.addEventListener('click', closeRedirectModal);
+dom.redirectModalClose.addEventListener('click', closeRedirectModal);
+dom.redirectConfirm.addEventListener('click', confirmRedirect);
+dom.redirectInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') confirmRedirect();
+  if (e.key === 'Escape') closeRedirectModal();
+});
+dom.redirectModal.addEventListener('click', (e) => {
+  if (e.target === dom.redirectModal) closeRedirectModal();
+});
+
+/* Settings Modal */
+dom.settingsBtn.addEventListener('click', openSettingsModal);
+dom.settingsModalClose.addEventListener('click', closeSettingsModal);
+dom.settingsCancel.addEventListener('click', closeSettingsModal);
+dom.settingsSave.addEventListener('click', saveSettings);
+dom.settingsModal.addEventListener('click', (e) => {
+  if (e.target === dom.settingsModal) closeSettingsModal();
+});
+
+/* Sidebar toggle */
+dom.toggleSidebar.addEventListener('click', toggleSidebar);
+
+/* Theme toggle */
+dom.themeToggle.addEventListener('click', toggleTheme);
+
+/* Right Panel Tabs */
+$$('.panel-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    switchRightTab(tab.dataset.tab);
+  });
+});
+
+/* Constraints */
+dom.addConstraintBtn.addEventListener('click', addConstraint);
+dom.constraintInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addConstraint();
+});
+
+/* Chat */
+dom.chatSendBtn.addEventListener('click', () => {
+  sendChatMessage(dom.chatInput.value);
+  dom.chatInput.value = '';
+});
+dom.chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    sendChatMessage(dom.chatInput.value);
+    dom.chatInput.value = '';
+  }
+});
+
+/* Quick Chat */
+dom.quickChatSend.addEventListener('click', sendQuickChat);
+dom.quickChatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendQuickChat();
+});
+
+/* Search */
+dom.globalSearch.addEventListener('input', (e) => {
+  onSearch(e.target.value.trim());
+});
+
+/* Step Detail Close */
+dom.stepDetailClose.addEventListener('click', closeStepDetail);
+
+/* Keyboard shortcuts */
+document.addEventListener('keydown', (e) => {
+  /* Escape closes modals and panels */
+  if (e.key === 'Escape') {
+    if (dom.redirectModal.classList.contains('show')) {
+      closeRedirectModal();
+    } else if (dom.settingsModal.classList.contains('show')) {
+      closeSettingsModal();
+    } else if (dom.stepDetailPanel.classList.contains('open')) {
+      closeStepDetail();
+    }
+  }
+  /* Ctrl/Cmd + K focuses search */
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    dom.globalSearch.focus();
+  }
+  /* Ctrl/Cmd + B toggles sidebar */
+  if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+    e.preventDefault();
+    toggleSidebar();
+  }
+});
+
+
+/* ====================================================================
+   INITIALIZATION
+   ==================================================================== */
+
+async function init() {
+  /* Apply saved theme */
+  applyTheme(state.theme);
+
+  /* Initialize the first right panel tab */
+  switchRightTab('constraints');
+
+  /* Start health polling */
+  startHealthPolling();
+
+  /* Load data in parallel */
+  await Promise.all([loadAgents(), loadSpecs()]);
+
+  updateStatusBarCounts();
+  updateLastUpdateTime();
+}
+
+init();
+
+})();
+</script>
+</body>
+</html>

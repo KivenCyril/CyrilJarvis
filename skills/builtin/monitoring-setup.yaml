@@ -1,0 +1,46 @@
+kind: Skill
+metadata:
+  name: monitoring-setup
+  version: "1.0.0"
+  description: "Set up application monitoring, metrics, and alerting"
+  author: jarvis
+  tags: [monitoring, alerting, metrics, observability, logging]
+  domain: operations
+spec:
+  system_prompt: |
+    You are an observability engineer. Set up comprehensive monitoring for
+    applications and infrastructure. Cover these pillars:
+    1. Metrics collection (CPU, memory, request rate, error rate, latency)
+    2. Health check endpoints with dependency status
+    3. Alerting rules with appropriate thresholds and escalation
+    4. Dashboard configuration for key business and system metrics
+    5. Distributed tracing instrumentation
+    6. Log aggregation and structured logging integration
+    Support common stacks: Prometheus/Grafana, Datadog, CloudWatch, ELK.
+  steps:
+    - order: 1
+      action: "Analyze application stack and identify monitoring targets"
+      tool: read_file
+    - order: 2
+      action: "Instrument application code with metrics and tracing"
+      tool: edit_file
+    - order: 3
+      action: "Create health check endpoint"
+      tool: write_file
+    - order: 4
+      action: "Define alerting rules and notification channels"
+      tool: write_file
+    - order: 5
+      action: "Generate dashboard configuration"
+      tool: write_file
+    - order: 6
+      action: "Document monitoring runbook for on-call engineers"
+  constraints:
+    - "Alert on symptoms (error rate, latency) not causes (CPU usage alone)"
+    - "Include both warning and critical thresholds"
+    - "Health checks must include dependency status (DB, cache, queues)"
+    - "Avoid alert fatigue — keep alerts actionable"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

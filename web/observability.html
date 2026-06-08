@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Observability</title>
+<style>
+/* ====================================================================
+   JARVIS Observability Dashboard — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --orange:       #f59e0b;
+  --red:          #ef4444;
+  --purple:       #a855f7;
+  --cyan:         #06b6d4;
+  --pink:         #ec4899;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Nav ----------------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Layout ------------------------------------------------------------ */
+.main-layout { flex: 1; display: grid; grid-template-columns: 380px 1fr; overflow: hidden; }
+.trace-list-panel {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+.content-area { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+/* -- Toolbar ----------------------------------------------------------- */
+.toolbar {
+  display: flex; gap: 12px; align-items: center; padding: 14px 16px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.toolbar input {
+  flex: 1; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-size: 12px;
+}
+.toolbar input:focus { border-color: var(--border-focus); outline: none; }
+.toolbar select {
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-size: 12px;
+}
+
+.btn {
+  padding: 8px 16px; border-radius: var(--radius); font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none; transition: var(--transition);
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+
+/* -- Trace List -------------------------------------------------------- */
+.trace-item {
+  padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: var(--transition);
+}
+.trace-item:hover { background: var(--bg-hover); }
+.trace-item.selected { background: rgba(59,130,246,0.1); border-left: 3px solid var(--accent); }
+.trace-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.trace-id { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 600; }
+.trace-time { font-size: 11px; color: var(--text-muted); }
+.trace-operation { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.trace-meta { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); }
+.trace-meta-item { display: flex; align-items: center; gap: 4px; }
+
+/* Status badges */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+  border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase;
+}
+.status-ok { background: rgba(34,197,94,0.15); color: var(--green); }
+.status-error { background: rgba(239,68,68,0.15); color: var(--red); }
+.status-pending { background: rgba(245,158,11,0.15); color: var(--orange); }
+
+/* -- Waterfall Chart --------------------------------------------------- */
+.waterfall-container {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px; overflow-x: auto;
+}
+.waterfall-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.waterfall-title { font-size: 16px; font-weight: 700; }
+.waterfall-subtitle { font-size: 12px; color: var(--text-muted); }
+.waterfall-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; min-height: 28px; }
+.waterfall-label {
+  width: 160px; flex-shrink: 0; font-size: 12px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.waterfall-bar-container { flex: 1; position: relative; height: 20px; }
+.waterfall-bar {
+  position: absolute; height: 100%; border-radius: 3px; min-width: 4px;
+  transition: opacity var(--transition);
+}
+.waterfall-bar:hover { opacity: 0.8; }
+.waterfall-bar-tooltip {
+  display: none; position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
+  background: var(--bg-card); border: 1px solid var(--border); padding: 4px 8px;
+  border-radius: 4px; font-size: 10px; white-space: nowrap; z-index: 10;
+}
+.waterfall-bar:hover .waterfall-bar-tooltip { display: block; }
+.waterfall-time-axis {
+  display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted);
+  padding-left: 172px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;
+}
+.waterfall-duration { font-size: 11px; color: var(--text-dim); font-family: var(--mono); width: 70px; text-align: right; flex-shrink: 0; }
+
+/* -- Metrics Panel ----------------------------------------------------- */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.metric-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 18px; transition: var(--transition);
+}
+.metric-card:hover { border-color: var(--border-light); }
+.metric-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.metric-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.metric-value.green { color: var(--green); }
+.metric-value.blue { color: var(--accent); }
+.metric-value.orange { color: var(--orange); }
+.metric-value.red { color: var(--red); }
+.metric-unit { font-size: 14px; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
+.metric-sparkline { margin-top: 10px; height: 40px; }
+.metric-change { font-size: 11px; margin-top: 6px; }
+.metric-change.up { color: var(--green); }
+.metric-change.down { color: var(--red); }
+
+/* -- Histogram --------------------------------------------------------- */
+.histogram-container {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.histogram-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.histogram-bars { display: flex; align-items: flex-end; gap: 3px; height: 100px; }
+.histogram-bar {
+  flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; min-width: 8px;
+  transition: var(--transition); position: relative;
+}
+.histogram-bar:hover { background: var(--accent-hover); }
+.histogram-bar-label {
+  display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--bg-card); border: 1px solid var(--border); padding: 2px 6px;
+  border-radius: 3px; font-size: 9px; white-space: nowrap; margin-bottom: 4px;
+}
+.histogram-bar:hover .histogram-bar-label { display: block; }
+.histogram-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; color: var(--text-muted); }
+
+/* -- Section Header ---------------------------------------------------- */
+.section-header { display: flex; justify-content: space-between; align-items: center; }
+.section-title { font-size: 16px; font-weight: 700; }
+.section-subtitle { font-size: 12px; color: var(--text-muted); }
+.auto-refresh-badge {
+  display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--green);
+  padding: 4px 10px; background: rgba(34,197,94,0.1); border-radius: 10px;
+}
+.auto-refresh-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+
+/* -- Span Detail Overlay ---------------------------------------------- */
+.span-detail-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  z-index: 100; display: flex; justify-content: flex-end; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.span-detail-overlay.show { opacity: 1; pointer-events: all; }
+.span-detail-panel {
+  width: 480px; max-width: 90vw; background: var(--bg-base); border-left: 1px solid var(--border);
+  overflow-y: auto; padding: 24px; transform: translateX(100%); transition: transform 0.3s ease;
+}
+.span-detail-overlay.show .span-detail-panel { transform: translateX(0); }
+.span-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.span-detail-title { font-size: 17px; font-weight: 700; }
+.span-detail-close { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; }
+.span-detail-close:hover { color: var(--text); }
+.span-detail-section { margin-bottom: 18px; }
+.span-detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
+.span-detail-value { font-size: 13px; color: var(--text); word-break: break-all; }
+.span-detail-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.span-detail-tag { padding: 3px 8px; background: var(--bg-surface); border-radius: 4px; font-size: 11px; color: var(--text-dim); }
+.span-detail-json {
+  background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px; font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+  white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto;
+}
+
+/* -- Empty State ------------------------------------------------------- */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 60px 20px; color: var(--text-muted); text-align: center;
+}
+.empty-icon { font-size: 40px; opacity: 0.3; }
+.empty-title { font-size: 15px; font-weight: 600; color: var(--text-dim); }
+.empty-sub { font-size: 12px; max-width: 280px; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>Observability</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html">Knowledge</a>
+    <a href="workflows.html">Workflows</a>
+    <a href="memory.html">Memory</a>
+    <a href="skills.html">Skills</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html" class="active">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html">API Docs</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- Trace List Panel -->
+  <div class="trace-list-panel">
+    <div class="toolbar">
+      <input type="text" id="traceSearch" placeholder="Search traces..." />
+      <select id="traceFilter">
+        <option value="all">All</option>
+        <option value="ok">OK</option>
+        <option value="error">Error</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="loadTraces()">Refresh</button>
+    </div>
+    <div id="traceList">
+      <!-- Populated by JS -->
+    </div>
+    <div class="empty-state" id="traceListEmpty">
+      <span class="empty-icon">&#128269;</span>
+      <span class="empty-title">No traces found</span>
+      <span class="empty-sub">Traces will appear here as your system processes requests</span>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content-area" id="contentArea">
+    <!-- Metrics Section -->
+    <div>
+      <div class="section-header">
+        <div>
+          <div class="section-title">Live Metrics</div>
+          <div class="section-subtitle">Auto-refreshing every 5 seconds</div>
+        </div>
+        <div class="auto-refresh-badge" id="autoRefreshBadge">
+          <span class="auto-refresh-dot"></span>
+          <span>Live</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Counter metrics -->
+    <div class="metrics-grid" id="metricsGrid">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Histogram -->
+    <div class="histogram-container" id="histogramContainer" style="display:none;">
+      <div class="histogram-title" id="histogramTitle">Request Latency Distribution</div>
+      <div class="histogram-bars" id="histogramBars"></div>
+      <div class="histogram-axis" id="histogramAxis"></div>
+    </div>
+
+    <!-- Trace Detail / Waterfall -->
+    <div id="traceDetail" style="display:none;">
+      <div class="section-header" style="margin-bottom:16px;">
+        <div>
+          <div class="section-title">Trace Detail</div>
+          <div class="section-subtitle" id="traceDetailSubtitle"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeTraceDetail()">Close</button>
+      </div>
+
+      <!-- Trace info row -->
+      <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+        <div class="metric-card" style="flex:1; min-width:140px;">
+          <div class="metric-label">Trace ID</div>
+          <div style="font-family:var(--mono); font-size:13px; word-break:break-all;" id="detailTraceId"></div>
+        </div>
+        <div class="metric-card" style="flex:1; min-width:140px;">
+          <div class="metric-label">Root Operation</div>
+          <div style="font-size:14px; font-weight:600;" id="detailRootOp"></div>
+        </div>
+        <div class="metric-card" style="flex:1; min-width:100px;">
+          <div class="metric-label">Total Duration</div>
+          <div class="metric-value blue" style="font-size:22px;" id="detailDuration"></div>
+        </div>
+        <div class="metric-card" style="flex:1; min-width:100px;">
+          <div class="metric-label">Span Count</div>
+          <div class="metric-value" style="font-size:22px;" id="detailSpanCount"></div>
+        </div>
+        <div class="metric-card" style="flex:1; min-width:100px;">
+          <div class="metric-label">Status</div>
+          <div id="detailStatus"></div>
+        </div>
+      </div>
+
+      <!-- Waterfall chart -->
+      <div class="waterfall-container">
+        <div class="waterfall-header">
+          <div class="waterfall-title">Span Waterfall</div>
+          <div class="waterfall-subtitle" id="waterfallSubtitle"></div>
+        </div>
+        <div id="waterfallRows"></div>
+        <div class="waterfall-time-axis" id="waterfallAxis"></div>
+      </div>
+    </div>
+
+    <!-- Initial empty state for content area -->
+    <div class="empty-state" id="contentEmpty">
+      <span class="empty-icon">&#128200;</span>
+      <span class="empty-title">Select a trace to view details</span>
+      <span class="empty-sub">Or wait for live metrics to appear above</span>
+    </div>
+  </div>
+</div>
+
+<!-- Span Detail Overlay -->
+<div class="span-detail-overlay" id="spanDetailOverlay">
+  <div class="span-detail-panel">
+    <div class="span-detail-header">
+      <div class="span-detail-title" id="spanDetailTitle">Span Detail</div>
+      <button class="span-detail-close" onclick="closeSpanDetail()">&times;</button>
+    </div>
+    <div id="spanDetailContent">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====================================================================
+   JARVIS Observability Dashboard — JavaScript
+   ==================================================================== */
+(() => {
+'use strict';
+
+const API_BASE = location.origin;
+let traces = [];
+let selectedTraceId = null;
+let selectedTrace = null;
+let metrics = {};
+let refreshTimer = null;
+
+/* ── Mock Data ────────────────────────────────────────────────────── */
+const MOCK_TRACES = [
+  {
+    trace_id: 'tr-a1b2c3d4e5f6',
+    root_operation: 'POST /specs',
+    span_count: 8,
+    duration_ms: 1243,
+    status: 'ok',
+    timestamp: new Date(Date.now() - 120000).toISOString(),
+    spans: [
+      { span_id: 'sp-001', operation: 'POST /specs', start_ms: 0, duration_ms: 1243, status: 'ok', service: 'gateway', tags: { 'http.method': 'POST', 'http.url': '/specs' } },
+      { span_id: 'sp-002', operation: 'validate_intent', start_ms: 12, duration_ms: 85, status: 'ok', service: 'orchestrator', tags: {} },
+      { span_id: 'sp-003', operation: 'llm_decompose', start_ms: 100, duration_ms: 890, status: 'ok', service: 'planner', tags: { model: 'gpt-4' } },
+      { span_id: 'sp-004', operation: 'store_spec', start_ms: 1000, duration_ms: 45, status: 'ok', service: 'storage', tags: {} },
+      { span_id: 'sp-005', operation: 'notify_agents', start_ms: 1050, duration_ms: 120, status: 'ok', service: 'orchestrator', tags: {} },
+      { span_id: 'sp-006', operation: 'agent_route', start_ms: 1060, duration_ms: 35, status: 'ok', service: 'router', tags: {} },
+      { span_id: 'sp-007', operation: 'ws_broadcast', start_ms: 1180, duration_ms: 18, status: 'ok', service: 'websocket', tags: {} },
+      { span_id: 'sp-008', operation: 'log_audit', start_ms: 1200, duration_ms: 30, status: 'ok', service: 'audit', tags: {} },
+    ]
+  },
+  {
+    trace_id: 'tr-f7e8d9c0b1a2',
+    root_operation: 'execute_step',
+    span_count: 5,
+    duration_ms: 3450,
+    status: 'ok',
+    timestamp: new Date(Date.now() - 300000).toISOString(),
+    spans: [
+      { span_id: 'sp-101', operation: 'execute_step', start_ms: 0, duration_ms: 3450, status: 'ok', service: 'executor', tags: { step_id: 'step-3' } },
+      { span_id: 'sp-102', operation: 'tool_invoke', start_ms: 50, duration_ms: 2800, status: 'ok', service: 'tool-runner', tags: { tool: 'code_gen' } },
+      { span_id: 'sp-103', operation: 'llm_call', start_ms: 80, duration_ms: 2600, status: 'ok', service: 'llm-proxy', tags: { model: 'claude-3.5-sonnet' } },
+      { span_id: 'sp-104', operation: 'sandbox_exec', start_ms: 2900, duration_ms: 400, status: 'ok', service: 'sandbox', tags: {} },
+      { span_id: 'sp-105', operation: 'result_store', start_ms: 3350, duration_ms: 80, status: 'ok', service: 'storage', tags: {} },
+    ]
+  },
+  {
+    trace_id: 'tr-1234abcd5678',
+    root_operation: 'agent_chat',
+    span_count: 4,
+    duration_ms: 780,
+    status: 'error',
+    timestamp: new Date(Date.now() - 600000).toISOString(),
+    spans: [
+      { span_id: 'sp-201', operation: 'agent_chat', start_ms: 0, duration_ms: 780, status: 'error', service: 'chat', tags: { error: 'timeout' } },
+      { span_id: 'sp-202', operation: 'route_message', start_ms: 10, duration_ms: 25, status: 'ok', service: 'router', tags: {} },
+      { span_id: 'sp-203', operation: 'llm_call', start_ms: 40, duration_ms: 700, status: 'error', service: 'llm-proxy', tags: { error: 'context_length_exceeded' } },
+      { span_id: 'sp-204', operation: 'error_handler', start_ms: 750, duration_ms: 25, status: 'ok', service: 'gateway', tags: {} },
+    ]
+  },
+  {
+    trace_id: 'tr-9876fedc5432',
+    root_operation: 'GET /agents',
+    span_count: 3,
+    duration_ms: 45,
+    status: 'ok',
+    timestamp: new Date(Date.now() - 60000).toISOString(),
+    spans: [
+      { span_id: 'sp-301', operation: 'GET /agents', start_ms: 0, duration_ms: 45, status: 'ok', service: 'gateway', tags: { 'http.status_code': '200' } },
+      { span_id: 'sp-302', operation: 'db_query', start_ms: 5, duration_ms: 28, status: 'ok', service: 'storage', tags: { query: 'SELECT * FROM agents' } },
+      { span_id: 'sp-303', operation: 'serialize', start_ms: 35, duration_ms: 8, status: 'ok', service: 'gateway', tags: {} },
+    ]
+  },
+  {
+    trace_id: 'tr-abab1212cdcd',
+    root_operation: 'POST /curator/review',
+    span_count: 6,
+    duration_ms: 2100,
+    status: 'ok',
+    timestamp: new Date(Date.now() - 900000).toISOString(),
+    spans: [
+      { span_id: 'sp-401', operation: 'POST /curator/review', start_ms: 0, duration_ms: 2100, status: 'ok', service: 'gateway', tags: {} },
+      { span_id: 'sp-402', operation: 'parse_request', start_ms: 5, duration_ms: 10, status: 'ok', service: 'curator', tags: {} },
+      { span_id: 'sp-403', operation: 'llm_judge', start_ms: 20, duration_ms: 1800, status: 'ok', service: 'curator', tags: { model: 'gpt-4o' } },
+      { span_id: 'sp-404', operation: 'compute_score', start_ms: 1830, duration_ms: 15, status: 'ok', service: 'curator', tags: {} },
+      { span_id: 'sp-405', operation: 'store_review', start_ms: 1850, duration_ms: 40, status: 'ok', service: 'storage', tags: {} },
+      { span_id: 'sp-406', operation: 'check_flags', start_ms: 1900, duration_ms: 180, status: 'ok', service: 'curator', tags: {} },
+    ]
+  },
+];
+
+const MOCK_METRICS = {
+  counters: [
+    { name: 'requests_total', value: 12847, change: '+3.2%', changeDir: 'up' },
+    { name: 'errors_total', value: 23, change: '+1', changeDir: 'up' },
+    { name: 'specs_created', value: 342, change: '+12', changeDir: 'up' },
+    { name: 'steps_completed', value: 1876, change: '+45', changeDir: 'up' },
+    { name: 'agent_invocations', value: 4521, change: '+8.1%', changeDir: 'up' },
+    { name: 'ws_connections', value: 8, change: '0', changeDir: 'up' },
+  ],
+  gauges: [
+    { name: 'active_specs', value: 5, color: 'blue' },
+    { name: 'busy_agents', value: 3, color: 'orange' },
+    { name: 'memory_mb', value: 412, unit: 'MB', color: 'green' },
+    { name: 'uptime_hours', value: 72.4, unit: 'h', color: 'green' },
+  ],
+  histogram: {
+    title: 'Request Latency (ms)',
+    buckets: [
+      { label: '0-50', count: 4520 },
+      { label: '50-100', count: 3210 },
+      { label: '100-250', count: 2180 },
+      { label: '250-500', count: 1450 },
+      { label: '500-1k', count: 890 },
+      { label: '1k-2k', count: 320 },
+      { label: '2k-5k', count: 145 },
+      { label: '5k+', count: 32 },
+    ]
+  }
+};
+
+/* ── Helper Functions ─────────────────────────────────────────────── */
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
+
+function formatDuration(ms) {
+  if (ms < 1) return '<1ms';
+  if (ms < 1000) return ms.toFixed(0) + 'ms';
+  return (ms / 1000).toFixed(2) + 's';
+}
+
+function formatTime(ts) {
+  try { return new Date(ts).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+  catch { return '--'; }
+}
+
+function serviceColor(svc) {
+  const map = {
+    gateway: 'var(--accent)', orchestrator: 'var(--purple)', planner: 'var(--cyan)',
+    storage: 'var(--green)', router: 'var(--orange)', executor: 'var(--pink)',
+    'tool-runner': '#f97316', 'llm-proxy': '#a855f7', sandbox: '#14b8a6',
+    audit: 'var(--text-muted)', websocket: '#06b6d4', chat: '#ec4899',
+    curator: '#8b5cf6',
+  };
+  return map[svc] || 'var(--accent)';
+}
+
+/* ── Load & Render Traces ─────────────────────────────────────────── */
+async function loadTraces() {
+  try {
+    traces = await fetch(API_BASE + '/traces').then(r => r.json());
+  } catch {
+    traces = MOCK_TRACES;
+  }
+  renderTraceList();
+}
+
+function renderTraceList() {
+  const search = document.getElementById('traceSearch').value.toLowerCase();
+  const filter = document.getElementById('traceFilter').value;
+  let filtered = traces;
+  if (search) filtered = filtered.filter(t => t.trace_id.includes(search) || t.root_operation.toLowerCase().includes(search));
+  if (filter !== 'all') filtered = filtered.filter(t => t.status === filter);
+
+  const el = document.getElementById('traceList');
+  const empty = document.getElementById('traceListEmpty');
+
+  if (!filtered.length) {
+    el.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+
+  el.innerHTML = filtered.map(t => `
+    <div class="trace-item ${t.trace_id === selectedTraceId ? 'selected' : ''}"
+         onclick="selectTrace('${esc(t.trace_id)}')"
+         style="animation: fadeInUp 0.3s ease both;">
+      <div class="trace-item-header">
+        <span class="trace-id">${esc(t.trace_id.slice(0, 16))}</span>
+        <span class="trace-time">${formatTime(t.timestamp)}</span>
+      </div>
+      <div class="trace-operation">${esc(t.root_operation)}</div>
+      <div class="trace-meta">
+        <span class="trace-meta-item"><span class="status-badge ${t.status === 'ok' ? 'status-ok' : 'status-error'}">${t.status.toUpperCase()}</span></span>
+        <span class="trace-meta-item">${t.span_count} spans</span>
+        <span class="trace-meta-item">${formatDuration(t.duration_ms)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Select Trace ─────────────────────────────────────────────────── */
+window.selectTrace = async function(traceId) {
+  selectedTraceId = traceId;
+
+  try {
+    selectedTrace = await fetch(API_BASE + '/traces/' + traceId).then(r => r.json());
+  } catch {
+    selectedTrace = traces.find(t => t.trace_id === traceId) || null;
+  }
+
+  if (!selectedTrace) return;
+
+  renderTraceList();
+  renderTraceDetail();
+};
+
+function renderTraceDetail() {
+  const t = selectedTrace;
+  if (!t) return;
+
+  document.getElementById('traceDetail').style.display = 'block';
+  document.getElementById('contentEmpty').style.display = 'none';
+
+  document.getElementById('traceDetailSubtitle').textContent = `Trace from ${formatTime(t.timestamp)}`;
+  document.getElementById('detailTraceId').textContent = t.trace_id;
+  document.getElementById('detailRootOp').textContent = t.root_operation;
+  document.getElementById('detailDuration').textContent = formatDuration(t.duration_ms);
+  document.getElementById('detailSpanCount').textContent = t.span_count;
+  document.getElementById('detailStatus').innerHTML =
+    `<span class="status-badge ${t.status === 'ok' ? 'status-ok' : 'status-error'}" style="font-size:13px;">${t.status.toUpperCase()}</span>`;
+
+  renderWaterfall(t.spans || [], t.duration_ms);
+}
+
+window.closeTraceDetail = function() {
+  document.getElementById('traceDetail').style.display = 'none';
+  document.getElementById('contentEmpty').style.display = 'flex';
+  selectedTraceId = null;
+  selectedTrace = null;
+  renderTraceList();
+};
+
+/* ── Waterfall Rendering ──────────────────────────────────────────── */
+function renderWaterfall(spans, totalMs) {
+  const container = document.getElementById('waterfallRows');
+  const axis = document.getElementById('waterfallAxis');
+  document.getElementById('waterfallSubtitle').textContent = `${spans.length} spans, total ${formatDuration(totalMs)}`;
+
+  if (!spans.length || !totalMs) {
+    container.innerHTML = '<div style="padding:20px; color:var(--text-muted); text-align:center;">No spans</div>';
+    axis.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = spans.map((s, i) => {
+    const leftPct = (s.start_ms / totalMs) * 100;
+    const widthPct = Math.max((s.duration_ms / totalMs) * 100, 0.5);
+    const color = serviceColor(s.service);
+    return `
+      <div class="waterfall-row" style="animation: fadeInUp ${0.1 + i * 0.05}s ease both;">
+        <div class="waterfall-label" title="${esc(s.operation)}">${esc(s.operation)}</div>
+        <div class="waterfall-bar-container">
+          <div class="waterfall-bar" style="left:${leftPct}%; width:${widthPct}%; background:${color};"
+               onclick="showSpanDetail('${esc(s.span_id)}')">
+            <div class="waterfall-bar-tooltip">${esc(s.service)} | ${formatDuration(s.duration_ms)}</div>
+          </div>
+        </div>
+        <div class="waterfall-duration">${formatDuration(s.duration_ms)}</div>
+      </div>
+    `;
+  }).join('');
+
+  const ticks = 5;
+  let axisHtml = '';
+  for (let i = 0; i <= ticks; i++) {
+    axisHtml += `<span>${formatDuration((totalMs / ticks) * i)}</span>`;
+  }
+  axis.innerHTML = axisHtml;
+}
+
+/* ── Span Detail ──────────────────────────────────────────────────── */
+window.showSpanDetail = function(spanId) {
+  if (!selectedTrace) return;
+  const span = selectedTrace.spans.find(s => s.span_id === spanId);
+  if (!span) return;
+
+  document.getElementById('spanDetailTitle').textContent = span.operation;
+  const content = document.getElementById('spanDetailContent');
+  content.innerHTML = `
+    <div class="span-detail-section">
+      <div class="span-detail-label">Span ID</div>
+      <div class="span-detail-value" style="font-family:var(--mono);">${esc(span.span_id)}</div>
+    </div>
+    <div class="span-detail-section">
+      <div class="span-detail-label">Service</div>
+      <div class="span-detail-value">${esc(span.service)}</div>
+    </div>
+    <div class="span-detail-section">
+      <div class="span-detail-label">Status</div>
+      <div><span class="status-badge ${span.status === 'ok' ? 'status-ok' : 'status-error'}">${span.status.toUpperCase()}</span></div>
+    </div>
+    <div class="span-detail-section">
+      <div class="span-detail-label">Timing</div>
+      <div class="span-detail-value">Start: ${formatDuration(span.start_ms)} | Duration: ${formatDuration(span.duration_ms)}</div>
+    </div>
+    ${Object.keys(span.tags || {}).length ? `
+    <div class="span-detail-section">
+      <div class="span-detail-label">Tags</div>
+      <div class="span-detail-tags">
+        ${Object.entries(span.tags).map(([k,v]) => `<span class="span-detail-tag">${esc(k)}: ${esc(v)}</span>`).join('')}
+      </div>
+    </div>` : ''}
+    <div class="span-detail-section">
+      <div class="span-detail-label">Raw JSON</div>
+      <div class="span-detail-json">${esc(JSON.stringify(span, null, 2))}</div>
+    </div>
+  `;
+
+  document.getElementById('spanDetailOverlay').classList.add('show');
+};
+
+window.closeSpanDetail = function() {
+  document.getElementById('spanDetailOverlay').classList.remove('show');
+};
+
+document.getElementById('spanDetailOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeSpanDetail();
+});
+
+/* ── Metrics ──────────────────────────────────────────────────────── */
+async function loadMetrics() {
+  try {
+    metrics = await fetch(API_BASE + '/metrics').then(r => r.json());
+  } catch {
+    metrics = MOCK_METRICS;
+  }
+  renderMetrics();
+}
+
+function renderMetrics() {
+  const grid = document.getElementById('metricsGrid');
+
+  const counterCards = (metrics.counters || []).map(c => `
+    <div class="metric-card">
+      <div class="metric-label">${esc(c.name.replace(/_/g, ' '))}</div>
+      <div class="metric-value">${typeof c.value === 'number' ? c.value.toLocaleString() : c.value}</div>
+      ${c.change ? `<div class="metric-change ${c.changeDir === 'up' && c.name.includes('error') ? 'down' : c.changeDir}">${esc(c.change)}</div>` : ''}
+    </div>
+  `).join('');
+
+  const gaugeCards = (metrics.gauges || []).map(g => `
+    <div class="metric-card">
+      <div class="metric-label">${esc(g.name.replace(/_/g, ' '))}</div>
+      <div class="metric-value ${g.color || ''}">${g.value}<span class="metric-unit">${g.unit || ''}</span></div>
+    </div>
+  `).join('');
+
+  grid.innerHTML = counterCards + gaugeCards;
+
+  // Histogram
+  const hist = metrics.histogram;
+  if (hist && hist.buckets && hist.buckets.length) {
+    document.getElementById('histogramContainer').style.display = 'block';
+    document.getElementById('histogramTitle').textContent = hist.title || 'Histogram';
+    const maxCount = Math.max(...hist.buckets.map(b => b.count));
+    const bars = document.getElementById('histogramBars');
+    bars.innerHTML = hist.buckets.map(b => {
+      const heightPct = maxCount > 0 ? (b.count / maxCount) * 100 : 0;
+      return `
+        <div class="histogram-bar" style="height:${heightPct}%;">
+          <div class="histogram-bar-label">${b.label}: ${b.count.toLocaleString()}</div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('histogramAxis').innerHTML = hist.buckets.map(b => `<span>${b.label}</span>`).join('');
+  }
+}
+
+/* ── Auto Refresh ─────────────────────────────────────────────────── */
+function startAutoRefresh() {
+  refreshTimer = setInterval(() => {
+    loadMetrics();
+  }, 5000);
+}
+
+/* ── Search & Filter ──────────────────────────────────────────────── */
+document.getElementById('traceSearch').addEventListener('input', renderTraceList);
+document.getElementById('traceFilter').addEventListener('change', renderTraceList);
+
+/* ── Init ─────────────────────────────────────────────────────────── */
+window.loadTraces = loadTraces;
+loadTraces();
+loadMetrics();
+startAutoRefresh();
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+kind: AgentSpec
+metadata:
+  name: calendar-agent
+  version: v1.0
+  domain: personal-productivity
+
+triggers:
+  - event: calendar.event_approaching
+    filter: "minutes_until <= 15"
+  - event: email.received
+    filter: "contains_meeting_request == true"
+  - event: manual.command
+    filter: "intent == 'schedule'"
+
+capabilities:
+  skills:
+    - schedule-management
+    - conflict-detection
+    - meeting-preparation
+  input_modes:
+    - text
+    - structured-data
+  output_modes:
+    - text
+    - calendar-event
+    - notification
+
+rules:
+  - name: conflict-check
+    severity: P0
+    description: "创建日程前必须检查时间冲突"
+  - name: focus-time-guard
+    severity: P1
+    description: "工作日 9-11 点为专注时间，非紧急会议自动建议改期"
+  - name: prep-reminder
+    severity: P2
+    description: "重要会议提前准备相关文档和上下文摘要"
+
+context:
+  knowledge_base: personal-preferences
+  memory_scope: per-user
+
+collaboration:
+  can_delegate_to:
+    - email-agent
+    - knowledge-agent
+  escalate_to:
+    - owner
+  escalate_condition: "conflict == true AND auto_resolve_failed"

@@ -1,0 +1,44 @@
+kind: Skill
+metadata:
+  name: database-migration
+  version: "1.0.0"
+  description: "Plan and execute database schema migrations safely"
+  author: jarvis
+  tags: [database, migration, schema, sql]
+  domain: development
+spec:
+  system_prompt: |
+    You are a database migration specialist. Plan and generate safe schema
+    migrations for relational and document databases. Follow these principles:
+    1. Always make migrations reversible (up + down)
+    2. Avoid locking tables for extended periods
+    3. Handle data transformations incrementally
+    4. Validate foreign key and constraint integrity
+    5. Prefer additive changes over destructive ones
+    6. Generate migration files compatible with the project's ORM or tool
+  steps:
+    - order: 1
+      action: "Analyze current schema and identify required changes"
+      tool: read_file
+    - order: 2
+      action: "Check for existing migration history and naming conventions"
+      tool: shell_execute
+    - order: 3
+      action: "Generate forward (up) migration with DDL statements"
+      tool: write_file
+    - order: 4
+      action: "Generate rollback (down) migration"
+      tool: write_file
+    - order: 5
+      action: "Validate migration against data integrity constraints"
+    - order: 6
+      action: "Produce migration plan summary with risk assessment"
+  constraints:
+    - "Never drop columns or tables without explicit user confirmation"
+    - "Large table migrations must use batched or online DDL techniques"
+    - "Always generate a rollback migration alongside the forward migration"
+    - "Flag any migration that could cause downtime"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

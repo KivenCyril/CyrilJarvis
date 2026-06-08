@@ -1,0 +1,59 @@
+name: documentation-sprint
+description: "Documentation sprint: audit existing docs -> gap analysis -> write -> review"
+category: documentation
+parameters:
+  - name: project_name
+    required: true
+    description: "Project to document"
+  - name: doc_scope
+    required: false
+    default: "full"
+    description: "Scope: full, api-only, user-guide, developer-guide"
+  - name: output_format
+    required: false
+    default: "markdown"
+    description: "Output format: markdown, rst, asciidoc"
+steps:
+  - name: "Documentation Audit"
+    agent: research-agent
+    description: "Inventory existing docs and assess coverage and accuracy"
+  - name: "Gap Analysis"
+    agent: research-agent
+    depends_on: ["Documentation Audit"]
+    description: "Identify undocumented features, outdated content, and missing guides"
+  - name: "Documentation Plan"
+    agent: writing-agent
+    depends_on: ["Gap Analysis"]
+    description: "Prioritize documentation tasks and create writing schedule"
+  - name: "API Documentation"
+    agent: code-agent
+    depends_on: ["Documentation Plan"]
+    description: "Generate API reference from code with examples"
+    skills: [code-documentation]
+  - name: "Architecture Documentation"
+    agent: writing-agent
+    depends_on: ["Documentation Plan"]
+    description: "Write architecture overview with component diagrams"
+    skills: [architecture-review]
+  - name: "Developer Guide"
+    agent: writing-agent
+    depends_on: ["Documentation Plan"]
+    description: "Write setup, development workflow, and contribution guides"
+    skills: [onboarding-guide]
+  - name: "User Guide"
+    agent: writing-agent
+    depends_on: ["Documentation Plan"]
+    description: "Write end-user documentation with tutorials and examples"
+  - name: "Documentation Review"
+    agent: research-agent
+    depends_on:
+      - "API Documentation"
+      - "Architecture Documentation"
+      - "Developer Guide"
+      - "User Guide"
+    description: "Review all documentation for accuracy, completeness, and clarity"
+  - name: "Release Notes Update"
+    agent: writing-agent
+    depends_on: ["Documentation Review"]
+    description: "Update changelog and release notes"
+    skills: [release-notes]

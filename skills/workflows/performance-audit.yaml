@@ -1,0 +1,51 @@
+name: performance-audit
+description: "Performance audit: profiling -> bottleneck analysis -> optimization -> validation"
+category: development
+parameters:
+  - name: target_service
+    required: true
+    description: "Service or application to audit"
+  - name: performance_goal
+    required: false
+    default: "p99 < 200ms"
+    description: "Target performance SLA"
+  - name: traffic_pattern
+    required: false
+    default: "web-api"
+    description: "Traffic pattern: web-api, batch-processing, real-time, mixed"
+steps:
+  - name: "Baseline Measurement"
+    agent: devops-agent
+    description: "Establish current performance baseline: latency, throughput, resources"
+    skills: [load-testing]
+  - name: "Application Profiling"
+    agent: code-agent
+    depends_on: ["Baseline Measurement"]
+    description: "Profile CPU, memory, I/O, and database query patterns"
+  - name: "Database Query Analysis"
+    agent: code-agent
+    depends_on: ["Application Profiling"]
+    description: "Identify slow queries, missing indexes, and N+1 patterns"
+  - name: "Bottleneck Identification"
+    agent: research-agent
+    depends_on: ["Application Profiling", "Database Query Analysis"]
+    description: "Rank bottlenecks by impact and identify root causes"
+  - name: "Caching Opportunities"
+    agent: code-agent
+    depends_on: ["Bottleneck Identification"]
+    description: "Identify data suitable for caching and design cache strategy"
+    skills: [caching-strategy]
+  - name: "Code Optimizations"
+    agent: code-agent
+    depends_on: ["Bottleneck Identification"]
+    description: "Implement algorithm and code-level optimizations"
+    skills: [performance-optimization]
+  - name: "Validation Load Test"
+    agent: devops-agent
+    depends_on: ["Caching Opportunities", "Code Optimizations"]
+    description: "Re-run load tests to validate improvements against baseline"
+    skills: [load-testing]
+  - name: "Performance Report"
+    agent: writing-agent
+    depends_on: ["Validation Load Test"]
+    description: "Generate before/after performance report with recommendations"

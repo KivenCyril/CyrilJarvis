@@ -1,0 +1,67 @@
+name: new-service
+description: "Microservice creation: scaffold -> implement -> containerize -> deploy -> monitor"
+category: development
+parameters:
+  - name: service_name
+    required: true
+    description: "Name of the new microservice"
+  - name: language
+    required: false
+    default: "Python"
+    description: "Programming language: Python, Go, Java, Node.js, Rust"
+  - name: api_style
+    required: false
+    default: "REST"
+    description: "API style: REST, gRPC, GraphQL"
+  - name: database
+    required: false
+    default: "PostgreSQL"
+    description: "Primary data store"
+steps:
+  - name: "Service Design"
+    agent: research-agent
+    description: "Define service boundaries, API contracts, and data ownership"
+    skills: [api-design, architecture-review]
+  - name: "Project Scaffolding"
+    agent: code-agent
+    depends_on: ["Service Design"]
+    description: "Generate project structure with build, test, and lint configuration"
+    skills: [project-setup]
+  - name: "Database Schema"
+    agent: code-agent
+    depends_on: ["Service Design"]
+    description: "Design and create initial database schema and migrations"
+    skills: [database-migration]
+  - name: "Core Implementation"
+    agent: code-agent
+    depends_on: ["Project Scaffolding", "Database Schema"]
+    description: "Implement business logic, API endpoints, and data access"
+  - name: "Test Suite"
+    agent: code-agent
+    depends_on: ["Core Implementation"]
+    description: "Write unit, integration, and API tests"
+    skills: [test-generation, api-testing]
+  - name: "Error Handling and Logging"
+    agent: code-agent
+    depends_on: ["Core Implementation"]
+    description: "Add structured logging and comprehensive error handling"
+    skills: [error-handling, logging-setup]
+  - name: "Containerization"
+    agent: devops-agent
+    depends_on: ["Core Implementation"]
+    description: "Create Dockerfile and Docker Compose for local development"
+    skills: [docker-compose-setup]
+  - name: "CI/CD Pipeline"
+    agent: devops-agent
+    depends_on: ["Test Suite", "Containerization"]
+    description: "Configure build, test, and deployment pipeline"
+  - name: "Monitoring and Alerting"
+    agent: devops-agent
+    depends_on: ["Containerization"]
+    description: "Set up health checks, metrics, dashboards, and alerts"
+    skills: [monitoring-setup]
+  - name: "Service Documentation"
+    agent: writing-agent
+    depends_on: ["Core Implementation", "Monitoring and Alerting"]
+    description: "Generate API docs, architecture decision records, and runbook"
+    skills: [code-documentation, onboarding-guide]

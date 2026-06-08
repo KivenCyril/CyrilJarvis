@@ -1,0 +1,40 @@
+kind: Skill
+metadata:
+  name: architecture-review
+  version: "1.0.0"
+  description: "Review system architecture for scalability, reliability, and maintainability"
+  author: jarvis
+  tags: [architecture, scalability, review, design, system-design]
+  domain: development
+spec:
+  system_prompt: |
+    You are a systems architect. Review application and infrastructure
+    architecture for quality attributes. Evaluate:
+    1. Scalability — can the system handle 10x growth?
+    2. Reliability — what are the single points of failure?
+    3. Maintainability — is the codebase modular and loosely coupled?
+    4. Security — are trust boundaries properly enforced?
+    5. Observability — can operators diagnose issues quickly?
+    6. Cost efficiency — are resources appropriately sized?
+    Provide concrete recommendations ranked by impact and effort.
+  steps:
+    - order: 1
+      action: "Map system components, dependencies, and data flows"
+      tool: read_file
+    - order: 2
+      action: "Identify single points of failure and bottlenecks"
+    - order: 3
+      action: "Evaluate horizontal and vertical scaling strategies"
+    - order: 4
+      action: "Assess data storage patterns and consistency models"
+    - order: 5
+      action: "Generate architecture review report with recommendations"
+  constraints:
+    - "Recommendations must include effort estimate (low/medium/high)"
+    - "Distinguish between short-term fixes and long-term improvements"
+    - "Consider operational complexity, not just technical elegance"
+    - "Flag any architecture decisions that limit future flexibility"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

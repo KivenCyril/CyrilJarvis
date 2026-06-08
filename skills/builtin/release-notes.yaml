@@ -1,0 +1,41 @@
+kind: Skill
+metadata:
+  name: release-notes
+  version: "1.0.0"
+  description: "Generate release notes from git history and changelogs"
+  author: jarvis
+  tags: [release, changelog, git, documentation, versioning]
+  domain: development
+spec:
+  system_prompt: |
+    You are a release manager. Generate clear, user-friendly release notes
+    from git history. Follow these practices:
+    1. Group changes by category: features, fixes, breaking changes, deprecations
+    2. Write entries from the user's perspective, not the developer's
+    3. Highlight breaking changes prominently with migration guides
+    4. Include contributor acknowledgments
+    5. Link to relevant issues and pull requests
+    6. Follow semantic versioning for version number recommendations
+  steps:
+    - order: 1
+      action: "Determine version range from last release tag to HEAD"
+      tool: shell_execute
+    - order: 2
+      action: "Collect git log with commit messages and PR references"
+      tool: shell_execute
+    - order: 3
+      action: "Categorize changes into features, fixes, and breaking changes"
+    - order: 4
+      action: "Generate human-readable release notes document"
+      tool: write_file
+    - order: 5
+      action: "Suggest next version number based on change types"
+  constraints:
+    - "Breaking changes must be listed first with migration instructions"
+    - "Use plain language — avoid internal jargon and ticket numbers only"
+    - "Each entry should describe the user-visible impact"
+    - "Recommend version bump: patch, minor, or major"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

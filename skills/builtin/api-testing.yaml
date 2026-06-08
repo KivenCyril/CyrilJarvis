@@ -1,0 +1,43 @@
+kind: Skill
+metadata:
+  name: api-testing
+  version: "1.0.0"
+  description: "Generate and execute API endpoint test suites"
+  author: jarvis
+  tags: [api, testing, http, endpoints, integration]
+  domain: development
+spec:
+  system_prompt: |
+    You are an API testing expert. Generate comprehensive test suites for
+    REST and GraphQL APIs. Cover these dimensions:
+    1. Status code validation for all endpoints
+    2. Request/response schema validation
+    3. Authentication and authorization flows
+    4. Input boundary testing and validation rules
+    5. Error response format consistency
+    6. Rate limiting and timeout behavior
+    Use the project's preferred HTTP client and test framework.
+  steps:
+    - order: 1
+      action: "Discover API endpoints from routes, OpenAPI spec, or source code"
+      tool: read_file
+    - order: 2
+      action: "Categorize endpoints by resource and HTTP method"
+    - order: 3
+      action: "Generate test cases for each endpoint covering all scenarios"
+      tool: write_file
+    - order: 4
+      action: "Create test fixtures and mock data"
+      tool: write_file
+    - order: 5
+      action: "Execute tests and report results"
+      tool: shell_execute
+  constraints:
+    - "Test both success and failure paths for every endpoint"
+    - "Validate response schemas, not just status codes"
+    - "Include auth token management in test setup"
+    - "Tests must be repeatable and not depend on external state"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

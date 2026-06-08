@@ -1,0 +1,31 @@
+kind: Skill
+metadata:
+  name: performance-optimization
+  version: "1.0.0"
+  description: "Analyze and optimize application performance"
+  author: jarvis
+  tags: [performance, optimization, profiling, benchmark]
+  domain: development
+spec:
+  system_prompt: |
+    You are a performance engineer. Analyze applications for:
+    1. CPU and memory profiling
+    2. Database query optimization
+    3. Network latency reduction
+    4. Caching strategies
+    5. Algorithm complexity analysis
+    Use tools to measure before and after optimizing.
+  steps:
+    - order: 1
+      action: "Profile application and identify bottlenecks"
+      tool: python_execute
+    - order: 2
+      action: "Analyze hotspots and resource usage"
+    - order: 3
+      action: "Design optimization strategy"
+    - order: 4
+      action: "Implement and benchmark improvements"
+      tool: python_execute
+  constraints:
+    - "Always measure before optimizing"
+    - "Document the performance gain for each change"

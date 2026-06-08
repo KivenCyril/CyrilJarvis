@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Memory Browser</title>
+<style>
+/* ====================================================================
+   JARVIS Memory Browser — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --orange:       #f59e0b;
+  --red:          #ef4444;
+  --purple:       #a855f7;
+  --cyan:         #06b6d4;
+  --pink:         #ec4899;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Navigation ---------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Layout ------------------------------------------------------------ */
+.main-layout { flex: 1; display: grid; grid-template-columns: 1fr 300px; overflow: hidden; }
+.content-area { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.stats-sidebar { background: var(--bg-base); border-left: 1px solid var(--border); overflow-y: auto; padding: 20px; }
+
+/* -- Search Bar -------------------------------------------------------- */
+.search-bar {
+  display: flex; gap: 12px; align-items: center;
+  background: var(--bg-surface); padding: 16px 20px; border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+.search-bar input {
+  flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 14px; color: var(--text); font-size: 14px;
+}
+.search-bar input:focus { border-color: var(--border-focus); }
+.search-bar select {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 14px; color: var(--text); font-size: 13px; cursor: pointer;
+}
+.search-bar select option { background: var(--bg-base); }
+.btn {
+  padding: 10px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: var(--transition);
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { opacity: 0.85; }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+
+/* -- Memory Cards ------------------------------------------------------ */
+.memory-list { display: flex; flex-direction: column; gap: 12px; }
+.memory-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 18px 20px; cursor: pointer; transition: var(--transition);
+  animation: fadeInUp 0.3s ease both;
+}
+.memory-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.memory-card.expanded { border-color: var(--accent); }
+.memory-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.memory-type-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-conversation { background: rgba(59,130,246,0.15); color: var(--accent); }
+.badge-fact { background: rgba(34,197,94,0.15); color: var(--green); }
+.badge-preference { background: rgba(168,85,247,0.15); color: var(--purple); }
+.badge-skill_learned { background: rgba(245,158,11,0.15); color: var(--orange); }
+.badge-spec_history { background: rgba(6,182,212,0.15); color: var(--cyan); }
+.memory-content { font-size: 14px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.6; }
+.memory-meta { display: flex; gap: 16px; align-items: center; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+.importance-bar {
+  width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+}
+.importance-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.importance-low { background: var(--green); }
+.importance-med { background: var(--orange); }
+.importance-high { background: var(--red); }
+.keyword-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.keyword-tag {
+  padding: 2px 8px; border-radius: 4px; font-size: 11px;
+  background: rgba(99,102,241,0.15); color: #818cf8;
+}
+
+/* -- Detail Panel (expanded) ------------------------------------------ */
+.memory-detail {
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+  display: none; animation: fadeIn 0.2s ease;
+}
+.memory-detail.show { display: block; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.detail-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.detail-value { font-size: 13px; color: var(--text-dim); }
+.detail-full-content {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; font-size: 13px; color: var(--text); line-height: 1.7; margin: 12px 0;
+  max-height: 200px; overflow-y: auto; white-space: pre-wrap;
+}
+.importance-slider { width: 120px; accent-color: var(--accent); }
+.detail-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+/* -- Add Memory Form --------------------------------------------------- */
+.add-form {
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px; display: none;
+}
+.add-form.show { display: block; animation: fadeIn 0.25s ease; }
+.add-form textarea {
+  width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px; color: var(--text); font-size: 14px; min-height: 100px; resize: vertical;
+  font-family: var(--font); margin-bottom: 12px;
+}
+.add-form textarea:focus { border-color: var(--border-focus); }
+.add-form-row { display: flex; gap: 12px; align-items: center; }
+.add-form-row select {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 8px 14px; color: var(--text); font-size: 13px;
+}
+
+/* -- Stats Sidebar ----------------------------------------------------- */
+.stat-card {
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; margin-bottom: 14px;
+}
+.stat-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); margin-bottom: 10px;
+}
+.stat-number { font-size: 28px; font-weight: 700; color: var(--text); }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; }
+.stat-row-label { color: var(--text-dim); }
+.stat-row-value { font-weight: 600; color: var(--text); }
+.timeline-chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; margin-top: 10px; }
+.timeline-bar {
+  flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 4px;
+  transition: height 0.4s ease; position: relative;
+}
+.timeline-bar:hover { background: var(--accent-hover); }
+.timeline-bar:hover::after {
+  content: attr(data-count); position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; color: var(--text); background: var(--bg-base); padding: 2px 6px;
+  border-radius: 4px; white-space: nowrap;
+}
+
+/* -- Section Title ----------------------------------------------------- */
+.section-header { display: flex; justify-content: space-between; align-items: center; }
+.section-title { font-size: 16px; font-weight: 700; color: var(--text); }
+
+/* -- Empty State ------------------------------------------------------- */
+.empty-state {
+  text-align: center; padding: 60px 20px; color: var(--text-muted);
+}
+.empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+.empty-state-text { font-size: 14px; }
+
+/* -- Toast ------------------------------------------------------------- */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
+  background: var(--green); color: #fff; border-radius: var(--radius);
+  font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(10px);
+  transition: all 0.3s ease; z-index: 1000; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* -- Responsive -------------------------------------------------------- */
+@media (max-width: 900px) {
+  .main-layout { grid-template-columns: 1fr; }
+  .stats-sidebar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>Memory Browser</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html">Knowledge</a>
+    <a href="workflows.html">Workflows</a>
+    <a href="memory.html" class="active">Memory</a>
+    <a href="skills.html">Skills</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html">API Docs</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- Content Area -->
+  <div class="content-area">
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search memories by content, keywords..." />
+      <select id="typeFilter">
+        <option value="all">All Types</option>
+        <option value="conversation">Conversation</option>
+        <option value="fact">Fact</option>
+        <option value="preference">Preference</option>
+        <option value="skill_learned">Skill Learned</option>
+        <option value="spec_history">Spec History</option>
+      </select>
+      <button class="btn btn-primary" onclick="searchMemories()">Search</button>
+      <button class="btn btn-ghost" id="toggleAddBtn" onclick="toggleAddForm()">+ Add Memory</button>
+    </div>
+
+    <!-- Add Memory Form -->
+    <div class="add-form" id="addForm">
+      <textarea id="newContent" placeholder="Enter memory content..."></textarea>
+      <div class="add-form-row">
+        <select id="newType">
+          <option value="fact">Fact</option>
+          <option value="conversation">Conversation</option>
+          <option value="preference">Preference</option>
+          <option value="skill_learned">Skill Learned</option>
+          <option value="spec_history">Spec History</option>
+        </select>
+        <input type="range" id="newImportance" min="0" max="1" step="0.1" value="0.5"
+               style="accent-color: var(--accent); width: 140px;"
+               oninput="document.getElementById('impLabel').textContent = this.value">
+        <span id="impLabel" style="font-size: 13px; color: var(--text-dim); min-width: 30px;">0.5</span>
+        <button class="btn btn-primary" onclick="addMemory()">Save Memory</button>
+        <button class="btn btn-ghost" onclick="toggleAddForm()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Memory List -->
+    <div class="section-header">
+      <div class="section-title" id="listTitle">All Memories</div>
+      <span style="font-size: 13px; color: var(--text-muted);" id="countLabel">0 memories</span>
+    </div>
+    <div class="memory-list" id="memoryList">
+      <div class="empty-state">
+        <div class="empty-state-icon">&#129504;</div>
+        <div class="empty-state-text">Loading memories...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Sidebar -->
+  <aside class="stats-sidebar">
+    <div class="stat-card">
+      <div class="stat-title">Total Memories</div>
+      <div class="stat-number" id="totalCount">0</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-title">By Type</div>
+      <div id="typeStats">
+        <div class="stat-row"><span class="stat-row-label">Conversation</span><span class="stat-row-value" id="convCount">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">Fact</span><span class="stat-row-value" id="factCount">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">Preference</span><span class="stat-row-value" id="prefCount">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">Skill Learned</span><span class="stat-row-value" id="skillCount">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">Spec History</span><span class="stat-row-value" id="specCount">0</span></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-title">Average Importance</div>
+      <div class="stat-number" id="avgImportance">0.0</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-title">Timeline (Last 14 Days)</div>
+      <div class="timeline-chart" id="timelineChart"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================================================================
+   JARVIS Memory Browser — JavaScript
+   ==================================================================== */
+
+const API_BASE = window.location.origin;
+let allMemories = [];
+
+// ── Demo Data ──────────────────────────────────────────────────────────
+function generateDemoMemories() {
+  const types = ['conversation', 'fact', 'preference', 'skill_learned', 'spec_history'];
+  const contents = [
+    'User prefers dark mode interfaces with blue accents for all JARVIS components.',
+    'The Streaming Spec architecture uses SSE for real-time updates between orchestrator and agents.',
+    'Learned: Git branching strategy follows trunk-based development with short-lived feature branches.',
+    'Conversation about implementing the knowledge graph visualization using D3.js force layout.',
+    'Spec v2.3 changed the agent routing algorithm from round-robin to capability-based scoring.',
+    'User wants all API responses to follow the envelope pattern: {data, error, meta}.',
+    'Discovered that WebSocket reconnection needs exponential backoff with max 30s delay.',
+    'The orchestrator dispatches tasks using a priority queue sorted by urgency and agent availability.',
+    'User prefers TypeScript over JavaScript for all new modules in the JARVIS codebase.',
+    'Spec history: Added delegation chain tracking to prevent circular agent delegation loops.',
+    'Fact: The system supports up to 50 concurrent agent sessions before requiring horizontal scaling.',
+    'Learned how to parse and validate YAML skill definitions using the pyyaml safe_load method.',
+    'Conversation about integrating LLM-based intent classification for natural language commands.',
+    'Preference: Log level should default to INFO in production, DEBUG in development environments.',
+    'Spec v3.0 introduced the concept of "memory decay" where old unused memories lose importance.',
+  ];
+  const keywords = [
+    ['dark-mode', 'ui', 'theme'], ['streaming', 'sse', 'architecture'], ['git', 'branching', 'dev'],
+    ['d3', 'visualization', 'graph'], ['routing', 'algorithm', 'agents'], ['api', 'response', 'pattern'],
+    ['websocket', 'reconnect', 'network'], ['orchestrator', 'queue', 'priority'], ['typescript', 'coding', 'preference'],
+    ['delegation', 'chain', 'tracking'], ['scaling', 'performance', 'limits'], ['yaml', 'parsing', 'skills'],
+    ['llm', 'intent', 'nlp'], ['logging', 'config', 'ops'], ['memory', 'decay', 'spec'],
+  ];
+  const sources = ['chat', 'system', 'user_explicit', 'auto_extract', 'spec_change'];
+  return contents.map((c, i) => ({
+    id: `mem_${String(i+1).padStart(3,'0')}`,
+    content: c,
+    type: types[i % types.length],
+    importance: Math.round((0.3 + Math.random() * 0.7) * 100) / 100,
+    keywords: keywords[i],
+    created_at: new Date(Date.now() - Math.random() * 14 * 86400000).toISOString(),
+    source: sources[i % sources.length],
+  }));
+}
+
+// ── Fetch Memories ─────────────────────────────────────────────────────
+async function fetchMemories() {
+  try {
+    const res = await fetch(`${API_BASE}/memory`);
+    if (!res.ok) throw new Error('API unavailable');
+    allMemories = await res.json();
+    if (Array.isArray(allMemories.data)) allMemories = allMemories.data;
+  } catch {
+    allMemories = generateDemoMemories();
+  }
+  renderMemories(allMemories);
+  updateStats();
+}
+
+// ── Render ─────────────────────────────────────────────────────────────
+function renderMemories(memories) {
+  const list = document.getElementById('memoryList');
+  document.getElementById('countLabel').textContent = `${memories.length} memories`;
+
+  if (memories.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128203;</div><div class="empty-state-text">No memories found</div></div>';
+    return;
+  }
+
+  list.innerHTML = memories.map((m, idx) => {
+    const impClass = m.importance >= 0.7 ? 'importance-high' : m.importance >= 0.4 ? 'importance-med' : 'importance-low';
+    const preview = m.content.length > 160 ? m.content.slice(0, 160) + '...' : m.content;
+    const date = new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const kw = (m.keywords || []).map(k => `<span class="keyword-tag">${k}</span>`).join('');
+    return `
+      <div class="memory-card" onclick="toggleDetail(${idx})" style="animation-delay: ${idx * 0.05}s">
+        <div class="memory-card-header">
+          <span class="memory-type-badge badge-${m.type}">${m.type.replace('_',' ')}</span>
+          <span style="font-size:12px; color:var(--text-muted)">${date}</span>
+        </div>
+        <div class="memory-content">${preview}</div>
+        <div class="memory-meta">
+          <span>Importance:</span>
+          <div class="importance-bar"><div class="importance-fill ${impClass}" style="width:${m.importance*100}%"></div></div>
+          <span>${m.importance.toFixed(2)}</span>
+          <span style="margin-left:8px">Source: ${m.source || 'unknown'}</span>
+        </div>
+        <div class="keyword-tags">${kw}</div>
+        <div class="memory-detail" id="detail-${idx}">
+          <div class="detail-full-content">${m.content}</div>
+          <div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">${m.id}</span></div>
+          <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${m.type}</span></div>
+          <div class="detail-row"><span class="detail-label">Source</span><span class="detail-value">${m.source || 'N/A'}</span></div>
+          <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">${m.created_at}</span></div>
+          <div class="detail-row">
+            <span class="detail-label">Importance</span>
+            <span class="detail-value">
+              <input type="range" class="importance-slider" min="0" max="1" step="0.05" value="${m.importance}"
+                     onclick="event.stopPropagation()"
+                     onchange="updateImportance('${m.id}', this.value)">
+            </span>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-primary" onclick="event.stopPropagation(); editMemory('${m.id}')">Edit</button>
+            <button class="btn btn-danger" onclick="event.stopPropagation(); deleteMemory('${m.id}')">Delete</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleDetail(idx) {
+  const el = document.getElementById(`detail-${idx}`);
+  el.classList.toggle('show');
+}
+
+// ── Stats ──────────────────────────────────────────────────────────────
+function updateStats() {
+  const types = { conversation: 0, fact: 0, preference: 0, skill_learned: 0, spec_history: 0 };
+  let totalImp = 0;
+  const dateBuckets = {};
+
+  allMemories.forEach(m => {
+    if (types[m.type] !== undefined) types[m.type]++;
+    totalImp += m.importance || 0;
+    const d = new Date(m.created_at).toISOString().slice(0, 10);
+    dateBuckets[d] = (dateBuckets[d] || 0) + 1;
+  });
+
+  document.getElementById('totalCount').textContent = allMemories.length;
+  document.getElementById('convCount').textContent = types.conversation;
+  document.getElementById('factCount').textContent = types.fact;
+  document.getElementById('prefCount').textContent = types.preference;
+  document.getElementById('skillCount').textContent = types.skill_learned;
+  document.getElementById('specCount').textContent = types.spec_history;
+  document.getElementById('avgImportance').textContent = allMemories.length ? (totalImp / allMemories.length).toFixed(2) : '0.00';
+
+  // Timeline chart — last 14 days
+  const chart = document.getElementById('timelineChart');
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    days.push({ date: d, count: dateBuckets[d] || 0 });
+  }
+  const maxCount = Math.max(...days.map(d => d.count), 1);
+  chart.innerHTML = days.map(d =>
+    `<div class="timeline-bar" data-count="${d.count} on ${d.date.slice(5)}" style="height:${Math.max((d.count/maxCount)*100,5)}%"></div>`
+  ).join('');
+}
+
+// ── Search ─────────────────────────────────────────────────────────────
+async function searchMemories() {
+  const query = document.getElementById('searchInput').value.trim();
+  const type = document.getElementById('typeFilter').value;
+
+  let filtered = allMemories;
+  if (type !== 'all') {
+    filtered = filtered.filter(m => m.type === type);
+  }
+  if (query) {
+    const q = query.toLowerCase();
+    filtered = filtered.filter(m =>
+      m.content.toLowerCase().includes(q) ||
+      (m.keywords || []).some(k => k.toLowerCase().includes(q))
+    );
+    // Also try API search
+    try {
+      const res = await fetch(`${API_BASE}/memory/search`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, type: type !== 'all' ? type : undefined })
+      });
+      if (res.ok) {
+        let data = await res.json();
+        if (Array.isArray(data.data)) data = data.data;
+        if (Array.isArray(data) && data.length) filtered = data;
+      }
+    } catch {}
+  }
+  document.getElementById('listTitle').textContent = query || type !== 'all' ? 'Search Results' : 'All Memories';
+  renderMemories(filtered);
+}
+
+// ── Add Memory ─────────────────────────────────────────────────────────
+function toggleAddForm() {
+  document.getElementById('addForm').classList.toggle('show');
+}
+
+async function addMemory() {
+  const content = document.getElementById('newContent').value.trim();
+  const type = document.getElementById('newType').value;
+  const importance = parseFloat(document.getElementById('newImportance').value);
+
+  if (!content) { showToast('Please enter content', true); return; }
+
+  const memory = { content, type, importance, keywords: [], source: 'user_explicit' };
+
+  try {
+    const res = await fetch(`${API_BASE}/memory`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(memory)
+    });
+    if (res.ok) {
+      showToast('Memory saved successfully');
+    }
+  } catch {}
+
+  // Add locally regardless
+  memory.id = 'mem_' + Date.now();
+  memory.created_at = new Date().toISOString();
+  allMemories.unshift(memory);
+  renderMemories(allMemories);
+  updateStats();
+  document.getElementById('newContent').value = '';
+  toggleAddForm();
+  showToast('Memory added');
+}
+
+// ── Update / Delete ────────────────────────────────────────────────────
+async function updateImportance(id, val) {
+  const mem = allMemories.find(m => m.id === id);
+  if (mem) mem.importance = parseFloat(val);
+  updateStats();
+  try {
+    await fetch(`${API_BASE}/memory/${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ importance: parseFloat(val) })
+    });
+  } catch {}
+}
+
+async function deleteMemory(id) {
+  if (!confirm('Delete this memory?')) return;
+  allMemories = allMemories.filter(m => m.id !== id);
+  renderMemories(allMemories);
+  updateStats();
+  showToast('Memory deleted');
+  try { await fetch(`${API_BASE}/memory/${id}`, { method: 'DELETE' }); } catch {}
+}
+
+function editMemory(id) {
+  const mem = allMemories.find(m => m.id === id);
+  if (!mem) return;
+  const newContent = prompt('Edit memory content:', mem.content);
+  if (newContent !== null && newContent.trim()) {
+    mem.content = newContent.trim();
+    renderMemories(allMemories);
+    showToast('Memory updated');
+  }
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? 'var(--red)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Keyboard shortcut ──────────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchMemories();
+});
+
+// ── Init ───────────────────────────────────────────────────────────────
+fetchMemories();
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+kind: Skill
+metadata:
+  name: test-generation
+  version: "1.0.0"
+  description: "Generate comprehensive test suites for existing code"
+  author: jarvis
+  tags: [testing, unit-test, integration-test, coverage]
+  domain: development
+spec:
+  system_prompt: |
+    You are a test engineering specialist. Generate thorough test suites that
+    maximize coverage and catch real bugs. Follow these principles:
+    1. Cover happy paths, edge cases, and error conditions
+    2. Use arrange-act-assert (AAA) pattern for clarity
+    3. Mock external dependencies at boundaries
+    4. Name tests descriptively: test_<unit>_<scenario>_<expected>
+    5. Target branch coverage, not just line coverage
+    6. Include parametrized tests for input variations
+    Match the project's existing test framework and conventions.
+  steps:
+    - order: 1
+      action: "Read target source files and understand public interfaces"
+      tool: read_file
+    - order: 2
+      action: "Identify existing test patterns and framework conventions"
+      tool: shell_execute
+    - order: 3
+      action: "Enumerate test cases: happy path, edge cases, error paths"
+    - order: 4
+      action: "Generate test file with all test cases"
+      tool: write_file
+    - order: 5
+      action: "Run tests and report coverage results"
+      tool: shell_execute
+  constraints:
+    - "Match the project's existing test framework (pytest, jest, JUnit, etc.)"
+    - "Do not test private internals — test through public interfaces"
+    - "Mock I/O and network calls — tests must run offline"
+    - "Each test must be independent and idempotent"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

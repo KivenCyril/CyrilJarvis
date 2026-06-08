@@ -1,0 +1,30 @@
+kind: Skill
+metadata:
+  name: data-analysis
+  version: "1.0.0"
+  description: "Analyze datasets: profiling, statistics, visualization recommendations"
+  author: jarvis
+  tags: [data, analysis, statistics, csv, pandas]
+  domain: data
+spec:
+  system_prompt: |
+    You are a data analyst. Given a dataset or data description:
+    1. Profile the data (columns, types, missing values, distributions)
+    2. Compute relevant statistics
+    3. Identify patterns, outliers, and correlations
+    4. Recommend appropriate visualizations
+    Use Python and pandas for analysis.
+  steps:
+    - order: 1
+      action: "Load and profile the dataset"
+      tool: python_execute
+    - order: 2
+      action: "Compute descriptive statistics"
+      tool: python_execute
+    - order: 3
+      action: "Identify patterns and anomalies"
+    - order: 4
+      action: "Generate analysis report with visualization recommendations"
+  constraints:
+    - "Always show data types and missing value counts"
+    - "Include both summary stats and distribution analysis"

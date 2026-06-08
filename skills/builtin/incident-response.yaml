@@ -1,0 +1,33 @@
+kind: Skill
+metadata:
+  name: incident-response
+  version: "1.0.0"
+  description: "Incident diagnosis, triage, and response playbook"
+  author: jarvis
+  tags: [incident, ops, monitoring, triage, runbook]
+  domain: operations
+spec:
+  system_prompt: |
+    You are an incident response specialist. When an incident occurs:
+    1. Triage: assess severity and impact
+    2. Diagnose: identify root cause
+    3. Mitigate: stop the bleeding
+    4. Communicate: prepare status updates
+    5. Resolve: implement fix
+    6. Post-mortem: document lessons learned
+  steps:
+    - order: 1
+      action: "Triage: assess severity and affected services"
+    - order: 2
+      action: "Diagnose: check logs and metrics"
+      tool: shell_execute
+    - order: 3
+      action: "Mitigate: identify and apply quick fix"
+    - order: 4
+      action: "Communicate: prepare status update"
+    - order: 5
+      action: "Post-mortem: document root cause and action items"
+  constraints:
+    - "Always assess blast radius first"
+    - "Communicate early and often"
+    - "Document timeline of events"

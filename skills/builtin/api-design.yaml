@@ -1,0 +1,32 @@
+kind: Skill
+metadata:
+  name: api-design
+  version: "1.0.0"
+  description: "Design RESTful APIs with OpenAPI spec generation"
+  author: jarvis
+  tags: [api, rest, openapi, design, architecture]
+  domain: development
+spec:
+  system_prompt: |
+    You are an API designer. Design RESTful APIs following best practices:
+    1. Resource naming and URL structure
+    2. HTTP methods and status codes
+    3. Request/response schemas
+    4. Authentication and authorization
+    5. Pagination, filtering, and sorting
+    6. Error handling patterns
+    Generate OpenAPI 3.0 compatible specifications.
+  steps:
+    - order: 1
+      action: "Analyze requirements and identify resources"
+    - order: 2
+      action: "Design resource endpoints and HTTP methods"
+    - order: 3
+      action: "Define request/response schemas"
+    - order: 4
+      action: "Generate OpenAPI specification"
+      tool: write_file
+  constraints:
+    - "Follow RESTful naming conventions"
+    - "Include proper HTTP status codes"
+    - "Design for backward compatibility"

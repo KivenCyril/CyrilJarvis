@@ -1,0 +1,58 @@
+name: migration-plan
+description: "System migration planning: assessment -> strategy -> execution -> validation"
+category: operations
+parameters:
+  - name: migration_name
+    required: true
+    description: "Name of the migration project"
+  - name: source_system
+    required: true
+    description: "Current system being migrated from"
+  - name: target_system
+    required: true
+    description: "Target system being migrated to"
+  - name: downtime_budget
+    required: false
+    default: "4 hours"
+    description: "Maximum acceptable downtime window"
+steps:
+  - name: "Current State Assessment"
+    agent: research-agent
+    description: "Document current system: components, integrations, data volumes"
+    skills: [architecture-review]
+  - name: "Risk Assessment"
+    agent: research-agent
+    depends_on: ["Current State Assessment"]
+    description: "Identify migration risks and mitigation strategies"
+  - name: "Migration Strategy"
+    agent: research-agent
+    depends_on: ["Current State Assessment", "Risk Assessment"]
+    description: "Choose strategy: big-bang, phased, parallel-run, or strangler-fig"
+  - name: "Data Migration Plan"
+    agent: data-agent
+    depends_on: ["Migration Strategy"]
+    description: "Plan data migration: schema mapping, ETL, validation"
+    skills: [database-migration]
+  - name: "Code Migration"
+    agent: code-agent
+    depends_on: ["Migration Strategy"]
+    description: "Adapt application code for the target system"
+    skills: [code-migration]
+  - name: "Testing Strategy"
+    agent: code-agent
+    depends_on: ["Data Migration Plan", "Code Migration"]
+    description: "Define migration test plan: functional, performance, rollback"
+    skills: [test-generation, load-testing]
+  - name: "Rollback Plan"
+    agent: devops-agent
+    depends_on: ["Migration Strategy"]
+    description: "Design verified rollback procedure for each migration phase"
+  - name: "Cutover Runbook"
+    agent: devops-agent
+    depends_on: ["Testing Strategy", "Rollback Plan"]
+    description: "Create step-by-step cutover runbook with decision gates"
+  - name: "Post-Migration Validation"
+    agent: code-agent
+    depends_on: ["Cutover Runbook"]
+    description: "Define post-migration checks: data integrity, performance, alerts"
+    skills: [monitoring-setup]

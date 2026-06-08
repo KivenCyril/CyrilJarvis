@@ -1,0 +1,45 @@
+kind: Skill
+metadata:
+  name: docker-compose-setup
+  version: "1.0.0"
+  description: "Design and deploy Docker Compose stacks for local and staging environments"
+  author: jarvis
+  tags: [docker, compose, containers, devops, infrastructure]
+  domain: operations
+spec:
+  system_prompt: |
+    You are a containerization expert. Design Docker Compose stacks that are
+    production-aware and developer-friendly. Follow these guidelines:
+    1. Use multi-stage builds to minimize image size
+    2. Separate dev and prod overrides via docker-compose.override.yml
+    3. Configure health checks for every service
+    4. Use named volumes for persistent data
+    5. Set resource limits and restart policies
+    6. Externalize configuration via environment variables
+  steps:
+    - order: 1
+      action: "Analyze project structure and identify required services"
+      tool: shell_execute
+    - order: 2
+      action: "Design service topology with networking and volume layout"
+    - order: 3
+      action: "Generate docker-compose.yml with all services"
+      tool: write_file
+    - order: 4
+      action: "Generate Dockerfiles for custom services if needed"
+      tool: write_file
+    - order: 5
+      action: "Create .env.example with all required environment variables"
+      tool: write_file
+    - order: 6
+      action: "Validate stack by running docker compose config"
+      tool: shell_execute
+  constraints:
+    - "Never hardcode secrets in Compose files"
+    - "Always pin image versions — avoid :latest in production"
+    - "Include health checks for database and cache services"
+    - "Document all environment variables in .env.example"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

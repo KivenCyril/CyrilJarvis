@@ -1,0 +1,52 @@
+name: sprint-planning
+description: "Sprint planning: backlog grooming -> estimation -> task breakdown -> assignment"
+category: project-management
+parameters:
+  - name: sprint_name
+    required: true
+    description: "Sprint identifier (e.g., Sprint-42)"
+  - name: sprint_duration
+    required: false
+    default: "2 weeks"
+    description: "Sprint duration"
+  - name: team_size
+    required: false
+    default: 5
+    description: "Number of developers on the team"
+  - name: velocity
+    required: false
+    default: 40
+    description: "Team velocity in story points"
+steps:
+  - name: "Backlog Review"
+    agent: research-agent
+    description: "Review and prioritize backlog items by business value and urgency"
+  - name: "Requirements Clarification"
+    agent: research-agent
+    depends_on: ["Backlog Review"]
+    description: "Clarify ambiguous requirements and define acceptance criteria"
+  - name: "Technical Assessment"
+    agent: code-agent
+    depends_on: ["Requirements Clarification"]
+    description: "Assess technical complexity and identify dependencies"
+    skills: [architecture-review]
+  - name: "Story Point Estimation"
+    agent: research-agent
+    depends_on: ["Technical Assessment"]
+    description: "Estimate effort using relative sizing against reference stories"
+  - name: "Sprint Scope Selection"
+    agent: research-agent
+    depends_on: ["Story Point Estimation"]
+    description: "Select stories that fit within team velocity capacity"
+  - name: "Task Breakdown"
+    agent: code-agent
+    depends_on: ["Sprint Scope Selection"]
+    description: "Break stories into implementable tasks with clear done criteria"
+  - name: "Dependency Mapping"
+    agent: research-agent
+    depends_on: ["Task Breakdown"]
+    description: "Identify cross-team dependencies and blockers"
+  - name: "Sprint Plan Document"
+    agent: writing-agent
+    depends_on: ["Task Breakdown", "Dependency Mapping"]
+    description: "Produce sprint plan with goals, scope, risks, and assignments"

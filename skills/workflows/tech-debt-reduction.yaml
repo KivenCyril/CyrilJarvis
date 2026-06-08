@@ -1,0 +1,58 @@
+name: tech-debt-reduction
+description: "Technical debt reduction: inventory -> prioritize -> refactor -> validate -> document"
+category: development
+parameters:
+  - name: project_name
+    required: true
+    description: "Project to reduce tech debt in"
+  - name: time_budget
+    required: false
+    default: "1 sprint"
+    description: "Time allocated for debt reduction"
+  - name: focus_area
+    required: false
+    default: "auto"
+    description: "Focus area: auto (highest impact), testing, architecture, dependencies, code-quality"
+steps:
+  - name: "Debt Inventory"
+    agent: research-agent
+    description: "Catalog tech debt: code smells, outdated deps, missing tests, TODOs"
+  - name: "Static Analysis"
+    agent: code-agent
+    description: "Run linters, complexity analyzers, and code quality tools"
+    skills: [code-review]
+  - name: "Dependency Audit"
+    agent: security-agent
+    description: "Check for vulnerable, outdated, and unused dependencies"
+    skills: [dependency-audit]
+  - name: "Test Coverage Analysis"
+    agent: code-agent
+    description: "Measure test coverage and identify critical untested paths"
+    skills: [test-generation]
+  - name: "Prioritization"
+    agent: research-agent
+    depends_on: ["Debt Inventory", "Static Analysis", "Dependency Audit", "Test Coverage Analysis"]
+    description: "Rank debt items by risk, effort, and business impact"
+  - name: "Refactoring"
+    agent: code-agent
+    depends_on: ["Prioritization"]
+    description: "Refactor highest-priority debt items"
+    skills: [error-handling]
+  - name: "Test Backfill"
+    agent: code-agent
+    depends_on: ["Prioritization"]
+    description: "Add tests for critical untested code paths"
+    skills: [test-generation]
+  - name: "Dependency Updates"
+    agent: code-agent
+    depends_on: ["Prioritization"]
+    description: "Update outdated and vulnerable dependencies"
+    skills: [dependency-audit]
+  - name: "Validation"
+    agent: code-agent
+    depends_on: ["Refactoring", "Test Backfill", "Dependency Updates"]
+    description: "Run full test suite and verify no regressions"
+  - name: "Debt Report"
+    agent: writing-agent
+    depends_on: ["Validation"]
+    description: "Document resolved debt, remaining items, and improvement metrics"

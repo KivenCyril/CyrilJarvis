@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Settings</title>
+<style>
+/* ====================================================================
+   JARVIS Settings — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --green-bg:     rgba(34,197,94,0.12);
+  --orange:       #f59e0b;
+  --orange-bg:    rgba(245,158,11,0.12);
+  --red:          #ef4444;
+  --red-bg:       rgba(239,68,68,0.12);
+  --purple:       #a855f7;
+  --cyan:         #06b6d4;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Navigation ---------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Main Container ---------------------------------------------------- */
+.settings-main {
+  flex: 1; overflow-y: auto; padding: 24px 32px; max-width: 900px; margin: 0 auto; width: 100%;
+}
+.settings-header { margin-bottom: 24px; }
+.settings-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.settings-header p { font-size: 14px; color: var(--text-dim); }
+
+/* -- Action Bar -------------------------------------------------------- */
+.action-bar {
+  display: flex; gap: 8px; margin-bottom: 20px; position: sticky; top: 0;
+  background: var(--bg-deep); padding: 10px 0; z-index: 10;
+}
+.action-bar button {
+  padding: 8px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  border: none; cursor: pointer;
+}
+.btn-save { background: var(--accent); color: #fff; }
+.btn-save:hover { background: var(--accent-hover); }
+.btn-reset { background: var(--bg-surface); color: var(--text-dim); border: 1px solid var(--border); }
+.btn-reset:hover { color: var(--text); }
+.btn-export { background: var(--bg-surface); color: var(--text-dim); border: 1px solid var(--border); }
+.btn-import { background: var(--bg-surface); color: var(--text-dim); border: 1px solid var(--border); }
+
+/* -- Collapsible Panel ------------------------------------------------- */
+.config-panel {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  margin-bottom: 12px; overflow: hidden;
+}
+.panel-header {
+  padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: var(--transition);
+}
+.panel-header:hover { background: var(--bg-hover); }
+.panel-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.panel-icon {
+  width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center;
+  justify-content: center; font-size: 14px;
+}
+.panel-chevron {
+  transition: transform 200ms; font-size: 12px; color: var(--text-muted);
+}
+.panel-header.open .panel-chevron { transform: rotate(90deg); }
+.panel-body {
+  display: none; padding: 0 18px 18px; border-top: 1px solid var(--border);
+}
+.panel-body.open { display: block; padding-top: 16px; }
+
+/* -- Form Elements ----------------------------------------------------- */
+.form-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid rgba(51,65,85,0.5);
+}
+.form-row:last-child { border-bottom: none; }
+.form-label { font-size: 13px; color: var(--text); max-width: 50%; }
+.form-label small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.form-control {
+  display: flex; align-items: center; gap: 8px;
+}
+
+input[type="text"], input[type="password"], input[type="number"], select {
+  padding: 7px 10px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-size: 13px; min-width: 200px;
+}
+input:focus, select:focus { border-color: var(--border-focus); outline: none; }
+
+/* Toggle Switch */
+.toggle {
+  position: relative; width: 40px; height: 22px; cursor: pointer;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: 11px; transition: var(--transition);
+}
+.toggle-slider::before {
+  content: ''; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px;
+  background: var(--text-muted); border-radius: 50%; transition: var(--transition);
+}
+.toggle input:checked + .toggle-slider { background: var(--accent); border-color: var(--accent); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: #fff; }
+
+/* -- Tag List (for channels, servers) ---------------------------------- */
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tag {
+  display: flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px;
+  background: var(--bg-surface); border: 1px solid var(--border); font-size: 12px; color: var(--text-dim);
+}
+.tag-remove {
+  background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px;
+  padding: 0 2px;
+}
+.tag-remove:hover { color: var(--red); }
+
+/* -- API Key Field ----------------------------------------------------- */
+.api-key-field { display: flex; gap: 6px; }
+.api-key-field input { flex: 1; font-family: var(--mono); font-size: 12px; }
+.btn-reveal {
+  padding: 6px 10px; background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text-dim); cursor: pointer; font-size: 11px;
+}
+.btn-reveal:hover { color: var(--text); }
+
+/* -- Theme Preview ----------------------------------------------------- */
+.theme-options { display: flex; gap: 10px; }
+.theme-option {
+  width: 80px; height: 50px; border-radius: var(--radius); border: 2px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 500; transition: var(--transition);
+}
+.theme-option:hover { border-color: var(--accent); }
+.theme-option.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
+.theme-dark { background: #0f172a; color: #e2e8f0; }
+.theme-light { background: #f8fafc; color: #1e293b; }
+.theme-auto { background: linear-gradient(135deg, #0f172a 50%, #f8fafc 50%); color: #e2e8f0; }
+
+/* -- Agent List -------------------------------------------------------- */
+.agent-row {
+  display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid rgba(51,65,85,0.5);
+}
+.agent-row:last-child { border-bottom: none; }
+.agent-name { font-size: 13px; font-weight: 500; flex: 1; }
+.agent-domain { font-size: 11px; color: var(--text-muted); }
+
+/* -- Toast ------------------------------------------------------------- */
+.toast-container { position: fixed; top: 60px; right: 16px; z-index: 1000; }
+.toast {
+  padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; margin-bottom: 8px; box-shadow: var(--shadow);
+  animation: toastIn 300ms ease;
+}
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>Settings</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html">Knowledge</a>
+    <a href="workflows.html">Workflows</a>
+    <a href="memory.html">Memory</a>
+    <a href="skills.html">Skills</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html">API Docs</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html" class="active">Settings</a>
+  </div>
+</nav>
+
+<div class="settings-main">
+  <div class="settings-header">
+    <h1>Settings</h1>
+    <p>Configure JARVIS components, providers, and preferences</p>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn-save" onclick="saveAll()">Save Changes</button>
+    <button class="btn-reset" onclick="resetDefaults()">Reset Defaults</button>
+    <button class="btn-export" onclick="exportConfig()">Export</button>
+    <button class="btn-import" onclick="document.getElementById('importFile').click()">Import</button>
+    <input type="file" id="importFile" accept=".json,.yaml,.yml" style="display:none" onchange="importConfig(event)">
+  </div>
+
+  <!-- LLM Provider -->
+  <div class="config-panel">
+    <div class="panel-header open" onclick="togglePanel(this)">
+      <h3>
+        <span class="panel-icon" style="background:var(--purple-bg);color:var(--purple)">&#9733;</span>
+        LLM Providers
+      </h3>
+      <span class="panel-chevron">&#9654;</span>
+    </div>
+    <div class="panel-body open">
+      <div class="form-row">
+        <div class="form-label">
+          Primary Provider
+          <small>LLM provider for main tasks</small>
+        </div>
+        <div class="form-control">
+          <select id="llmProvider">
+            <option value="openai">OpenAI</option>
+            <option value="anthropic" selected>Anthropic</option>
+            <option value="google">Google (Gemini)</option>
+            <option value="ollama">Ollama (Local)</option>
+            <option value="openrouter">OpenRouter</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Model
+          <small>Specific model to use</small>
+        </div>
+        <div class="form-control">
+          <select id="llmModel">
+            <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+            <option value="claude-opus-4-20250514" selected>Claude Opus 4</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          API Key
+          <small>Stored locally, never sent to JARVIS servers</small>
+        </div>
+        <div class="form-control">
+          <div class="api-key-field">
+            <input type="password" id="apiKey" value="sk-ant-xxxxxxxx" placeholder="API key">
+            <button class="btn-reveal" onclick="toggleApiKey()">Show</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Temperature
+          <small>Sampling temperature (0-2)</small>
+        </div>
+        <div class="form-control">
+          <input type="number" id="temperature" value="0.7" min="0" max="2" step="0.1" style="min-width:80px">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Max Tokens
+          <small>Maximum tokens per response</small>
+        </div>
+        <div class="form-control">
+          <input type="number" id="maxTokens" value="4096" min="256" max="32768" step="256" style="min-width:100px">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agents -->
+  <div class="config-panel">
+    <div class="panel-header" onclick="togglePanel(this)">
+      <h3>
+        <span class="panel-icon" style="background:var(--green-bg);color:var(--green)">&#9881;</span>
+        Agents
+      </h3>
+      <span class="panel-chevron">&#9654;</span>
+    </div>
+    <div class="panel-body">
+      <div id="agentList">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Security -->
+  <div class="config-panel">
+    <div class="panel-header" onclick="togglePanel(this)">
+      <h3>
+        <span class="panel-icon" style="background:var(--red-bg);color:var(--red)">&#9888;</span>
+        Security
+      </h3>
+      <span class="panel-chevron">&#9654;</span>
+    </div>
+    <div class="panel-body">
+      <div class="form-row">
+        <div class="form-label">
+          Sandbox Mode
+          <small>Run tools in a sandboxed environment</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" id="sandboxMode" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Auto-approve tool calls
+          <small>Skip confirmation for trusted tools</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" id="autoApprove">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          File system access
+          <small>Allow agents to read/write files</small>
+        </div>
+        <div class="form-control">
+          <select id="fsAccess">
+            <option value="none">None</option>
+            <option value="read">Read Only</option>
+            <option value="readwrite" selected>Read/Write</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Network access
+          <small>Allow outgoing network requests</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" id="networkAccess" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Allowed domains
+          <small>Restrict network access to these domains</small>
+        </div>
+        <div class="form-control" style="flex-direction:column;align-items:flex-end">
+          <div style="display:flex;gap:6px">
+            <input type="text" id="newDomain" placeholder="example.com" style="min-width:150px">
+            <button class="btn-reveal" onclick="addDomain()">Add</button>
+          </div>
+          <div class="tag-list" id="domainTags">
+            <span class="tag">api.openai.com <button class="tag-remove" onclick="removeDomain(this)">&times;</button></span>
+            <span class="tag">api.anthropic.com <button class="tag-remove" onclick="removeDomain(this)">&times;</button></span>
+            <span class="tag">github.com <button class="tag-remove" onclick="removeDomain(this)">&times;</button></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gateway & Channels -->
+  <div class="config-panel">
+    <div class="panel-header" onclick="togglePanel(this)">
+      <h3>
+        <span class="panel-icon" style="background:rgba(6,182,212,0.12);color:var(--cyan)">&#9729;</span>
+        Gateway Channels
+      </h3>
+      <span class="panel-chevron">&#9654;</span>
+    </div>
+    <div class="panel-body">
+      <div class="form-row">
+        <div class="form-label">
+          CLI
+          <small>Command-line interface</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Web UI
+          <small>Browser-based dashboard</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Slack
+          <small>Slack bot integration</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Telegram
+          <small>Telegram bot integration</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Discord
+          <small>Discord bot integration</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MCP Servers -->
+  <div class="config-panel">
+    <div class="panel-header" onclick="togglePanel(this)">
+      <h3>
+        <span class="panel-icon" style="background:var(--orange-bg);color:var(--orange)">&#9889;</span>
+        MCP Servers
+      </h3>
+      <span class="panel-chevron">&#9654;</span>
+    </div>
+    <div class="panel-body">
+      <div id="mcpServerList">
+        <!-- Populated by JS -->
+      </div>
+      <div style="margin-top:12px;display:flex;gap:6px">
+        <input type="text" id="newMcpName" placeholder="Server name" style="flex:1">
+        <input type="text" id="newMcpUrl" placeholder="URL or command" style="flex:2">
+        <button class="btn-reveal" onclick="addMcpServer()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme -->
+  <div class="config-panel">
+    <div class="panel-header" onclick="togglePanel(this)">
+      <h3>
+        <span class="panel-icon" style="background:rgba(168,85,247,0.12);color:var(--purple)">&#9790;</span>
+        Appearance
+      </h3>
+      <span class="panel-chevron">&#9654;</span>
+    </div>
+    <div class="panel-body">
+      <div class="form-row">
+        <div class="form-label">
+          Theme
+          <small>Color scheme for the UI</small>
+        </div>
+        <div class="form-control">
+          <div class="theme-options">
+            <div class="theme-option theme-dark active" onclick="setTheme('dark', this)">Dark</div>
+            <div class="theme-option theme-light" onclick="setTheme('light', this)">Light</div>
+            <div class="theme-option theme-auto" onclick="setTheme('auto', this)">Auto</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Font Size
+          <small>Base font size (px)</small>
+        </div>
+        <div class="form-control">
+          <input type="number" id="fontSize" value="14" min="10" max="20" style="min-width:80px">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Show animations
+          <small>UI transition animations</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="config-panel">
+    <div class="panel-header" onclick="togglePanel(this)">
+      <h3>
+        <span class="panel-icon" style="background:rgba(59,130,246,0.15);color:var(--accent)">&#9993;</span>
+        Notifications
+      </h3>
+      <span class="panel-chevron">&#9654;</span>
+    </div>
+    <div class="panel-body">
+      <div class="form-row">
+        <div class="form-label">
+          Desktop notifications
+          <small>Browser push notifications</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Sound
+          <small>Play notification sounds</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Notify on task complete
+          <small>When a spec finishes executing</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">
+          Notify on error
+          <small>When an agent encounters an error</small>
+        </div>
+        <div class="form-control">
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+/* ====================================================================
+   JARVIS Settings Page
+   ==================================================================== */
+
+const API_BASE = window.location.origin;
+
+// -- Panel toggling ----------------------------------------------------
+
+function togglePanel(header) {
+  header.classList.toggle('open');
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// -- Theme -------------------------------------------------------------
+
+function setTheme(theme, el) {
+  document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  if (theme === 'dark') {
+    document.documentElement.removeAttribute('data-theme');
+  } else if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+  showToast(`Theme: ${theme}`);
+}
+
+// -- API Key visibility ------------------------------------------------
+
+function toggleApiKey() {
+  const input = document.getElementById('apiKey');
+  const btn = input.nextElementSibling;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = 'Hide';
+  } else {
+    input.type = 'password';
+    btn.textContent = 'Show';
+  }
+}
+
+// -- Domain management -------------------------------------------------
+
+function addDomain() {
+  const input = document.getElementById('newDomain');
+  const domain = input.value.trim();
+  if (!domain) return;
+
+  const container = document.getElementById('domainTags');
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.innerHTML = `${domain} <button class="tag-remove" onclick="removeDomain(this)">&times;</button>`;
+  container.appendChild(tag);
+  input.value = '';
+}
+
+function removeDomain(btn) {
+  btn.parentElement.remove();
+}
+
+// -- Agents list -------------------------------------------------------
+
+function loadAgents() {
+  const agents = [
+    { name: 'CodeAgent', domain: 'coding', enabled: true },
+    { name: 'SearchAgent', domain: 'search', enabled: true },
+    { name: 'ShellAgent', domain: 'system', enabled: true },
+    { name: 'WriterAgent', domain: 'writing', enabled: true },
+    { name: 'DataAgent', domain: 'data', enabled: false },
+    { name: 'PlannerAgent', domain: 'planning', enabled: true },
+  ];
+
+  const container = document.getElementById('agentList');
+  container.innerHTML = agents.map(a => `
+    <div class="agent-row">
+      <span class="agent-name">${a.name}</span>
+      <span class="agent-domain">${a.domain}</span>
+      <label class="toggle">
+        <input type="checkbox" ${a.enabled ? 'checked' : ''}>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  `).join('');
+
+  // Also try API
+  fetch(`${API_BASE}/agents`).then(r => r.json()).then(data => {
+    if (data.length > 0) {
+      container.innerHTML = data.map(a => `
+        <div class="agent-row">
+          <span class="agent-name">${a.name}</span>
+          <span class="agent-domain">${a.domain || ''}</span>
+          <label class="toggle">
+            <input type="checkbox" ${a.status === 'active' ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      `).join('');
+    }
+  }).catch(() => {});
+}
+
+// -- MCP Servers -------------------------------------------------------
+
+let mcpServers = [
+  { name: 'filesystem', url: 'npx @modelcontextprotocol/server-filesystem', enabled: true },
+  { name: 'github', url: 'npx @modelcontextprotocol/server-github', enabled: true },
+];
+
+function renderMcpServers() {
+  const container = document.getElementById('mcpServerList');
+  container.innerHTML = mcpServers.map((s, i) => `
+    <div class="form-row">
+      <div class="form-label">
+        ${s.name}
+        <small>${s.url}</small>
+      </div>
+      <div class="form-control" style="gap:8px">
+        <label class="toggle">
+          <input type="checkbox" ${s.enabled ? 'checked' : ''} onchange="mcpServers[${i}].enabled=this.checked">
+          <span class="toggle-slider"></span>
+        </label>
+        <button class="tag-remove" onclick="removeMcpServer(${i})">&times;</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addMcpServer() {
+  const name = document.getElementById('newMcpName').value.trim();
+  const url = document.getElementById('newMcpUrl').value.trim();
+  if (!name || !url) { showToast('Name and URL are required'); return; }
+  mcpServers.push({ name, url, enabled: true });
+  renderMcpServers();
+  document.getElementById('newMcpName').value = '';
+  document.getElementById('newMcpUrl').value = '';
+  showToast(`MCP server "${name}" added`);
+}
+
+function removeMcpServer(idx) {
+  const name = mcpServers[idx].name;
+  mcpServers.splice(idx, 1);
+  renderMcpServers();
+  showToast(`MCP server "${name}" removed`);
+}
+
+// -- Save / Load / Export / Import ------------------------------------
+
+function gatherConfig() {
+  return {
+    llm: {
+      provider: document.getElementById('llmProvider').value,
+      model: document.getElementById('llmModel').value,
+      temperature: parseFloat(document.getElementById('temperature').value),
+      max_tokens: parseInt(document.getElementById('maxTokens').value),
+    },
+    security: {
+      sandbox: document.getElementById('sandboxMode').checked,
+      auto_approve: document.getElementById('autoApprove').checked,
+      fs_access: document.getElementById('fsAccess').value,
+      network_access: document.getElementById('networkAccess').checked,
+    },
+    mcp_servers: mcpServers,
+    appearance: {
+      font_size: parseInt(document.getElementById('fontSize').value),
+    },
+  };
+}
+
+function saveAll() {
+  const config = gatherConfig();
+  localStorage.setItem('jarvis_config', JSON.stringify(config));
+  showToast('Settings saved');
+}
+
+function resetDefaults() {
+  if (!confirm('Reset all settings to defaults?')) return;
+  localStorage.removeItem('jarvis_config');
+  location.reload();
+}
+
+function exportConfig() {
+  const config = gatherConfig();
+  const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'jarvis-settings.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Settings exported');
+}
+
+function importConfig(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const config = JSON.parse(e.target.result);
+      localStorage.setItem('jarvis_config', JSON.stringify(config));
+      showToast('Settings imported. Reloading...');
+      setTimeout(() => location.reload(), 1000);
+    } catch (err) {
+      showToast('Invalid config file');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function loadSavedConfig() {
+  const raw = localStorage.getItem('jarvis_config');
+  if (!raw) return;
+  try {
+    const config = JSON.parse(raw);
+    if (config.llm) {
+      if (config.llm.provider) document.getElementById('llmProvider').value = config.llm.provider;
+      if (config.llm.model) document.getElementById('llmModel').value = config.llm.model;
+      if (config.llm.temperature != null) document.getElementById('temperature').value = config.llm.temperature;
+      if (config.llm.max_tokens) document.getElementById('maxTokens').value = config.llm.max_tokens;
+    }
+    if (config.security) {
+      document.getElementById('sandboxMode').checked = !!config.security.sandbox;
+      document.getElementById('autoApprove').checked = !!config.security.auto_approve;
+      if (config.security.fs_access) document.getElementById('fsAccess').value = config.security.fs_access;
+      document.getElementById('networkAccess').checked = !!config.security.network_access;
+    }
+    if (config.mcp_servers) {
+      mcpServers = config.mcp_servers;
+    }
+    if (config.appearance) {
+      if (config.appearance.font_size) document.getElementById('fontSize').value = config.appearance.font_size;
+    }
+  } catch (err) {
+    console.error('Failed to load saved config:', err);
+  }
+}
+
+// -- Toast --------------------------------------------------------------
+
+function showToast(message) {
+  const container = document.getElementById('toasts');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// -- Init ---------------------------------------------------------------
+
+loadSavedConfig();
+loadAgents();
+renderMcpServers();
+</script>
+</body>
+</html>

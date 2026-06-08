@@ -1,0 +1,57 @@
+name: full-stack-feature
+description: "End-to-end feature development: design -> backend -> frontend -> test -> deploy"
+category: development
+parameters:
+  - name: feature_name
+    required: true
+    description: "Name of the feature to implement"
+  - name: tech_stack
+    required: false
+    default: "Python + React"
+    description: "Technology stack for the feature"
+  - name: target_branch
+    required: false
+    default: "main"
+    description: "Branch to base the feature on"
+steps:
+  - name: "Requirements Analysis"
+    agent: research-agent
+    description: "Gather and clarify requirements, define acceptance criteria"
+  - name: "API Design"
+    agent: code-agent
+    depends_on: ["Requirements Analysis"]
+    description: "Design API contracts and data models"
+    skills: [api-design]
+  - name: "Backend Implementation"
+    agent: code-agent
+    depends_on: ["API Design"]
+    description: "Implement server-side logic, models, and API endpoints"
+  - name: "Frontend Implementation"
+    agent: code-agent
+    depends_on: ["API Design"]
+    description: "Build UI components, state management, and API integration"
+  - name: "Unit Tests"
+    agent: code-agent
+    depends_on: ["Backend Implementation", "Frontend Implementation"]
+    description: "Write unit tests for backend and frontend code"
+    skills: [test-generation]
+  - name: "Integration Tests"
+    agent: code-agent
+    depends_on: ["Unit Tests"]
+    description: "Write end-to-end integration tests"
+    skills: [api-testing]
+  - name: "Security Review"
+    agent: security-agent
+    depends_on: ["Integration Tests"]
+    description: "Review code for security vulnerabilities"
+    skills: [security-audit]
+  - name: "Documentation"
+    agent: writing-agent
+    depends_on: ["Integration Tests"]
+    description: "Write user-facing and developer documentation"
+    skills: [code-documentation]
+  - name: "Deployment"
+    agent: devops-agent
+    depends_on: ["Security Review", "Documentation"]
+    description: "Deploy feature to staging, verify, then promote to production"
+    skills: [deploy-checklist]

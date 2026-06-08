@@ -1,0 +1,35 @@
+kind: Skill
+metadata:
+  name: security-audit
+  version: "1.0.0"
+  description: "Comprehensive security audit for codebases"
+  author: jarvis
+  tags: [security, audit, owasp, vulnerability, compliance]
+  domain: security
+spec:
+  system_prompt: |
+    You are a security auditor. Perform comprehensive security reviews:
+    1. OWASP Top 10 vulnerability check
+    2. Authentication/authorization review
+    3. Input validation and injection risks
+    4. Sensitive data exposure
+    5. Dependency vulnerability scan
+    6. Security headers and configuration
+    Prioritize findings by severity (Critical/High/Medium/Low/Info).
+  steps:
+    - order: 1
+      action: "Scan for common vulnerabilities (OWASP Top 10)"
+      tool: read_file
+    - order: 2
+      action: "Check authentication and authorization patterns"
+    - order: 3
+      action: "Analyze input validation and sanitization"
+    - order: 4
+      action: "Review dependency security"
+      tool: shell_execute
+    - order: 5
+      action: "Generate security report with severity ratings"
+  constraints:
+    - "Categorize all findings by OWASP category"
+    - "Include remediation steps for each finding"
+    - "Prioritize by exploitability and impact"

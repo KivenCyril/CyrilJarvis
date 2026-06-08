@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Knowledge Graph</title>
+<style>
+/* ====================================================================
+   JARVIS Knowledge Graph — Standalone Page CSS
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-card:      #1e293b;
+  --bg-hover:     #273549;
+  --bg-input:     #0f172a;
+  --border:       #334155;
+  --border-light: #3f506a;
+  --border-focus: #6366f1;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #64748b;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --orange:       #f59e0b;
+  --red:          #ef4444;
+  --purple:       #a855f7;
+  --cyan:         #06b6d4;
+  --pink:         #ec4899;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
+  --transition:   180ms ease;
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* -- Top Navigation ---------------------------------------------------- */
+.topnav {
+  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
+.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
+.topnav-links a {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+}
+.topnav-links a:hover { background: var(--bg-hover); color: var(--text); }
+.topnav-links a.active { background: var(--accent); color: #fff; }
+
+/* -- Main Layout ------------------------------------------------------- */
+.main-layout {
+  flex: 1; display: flex; overflow: hidden;
+}
+
+/* -- Sidebar ----------------------------------------------------------- */
+.sidebar {
+  width: 300px; background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+}
+.sidebar-section { padding: 16px; border-bottom: 1px solid var(--border); }
+.sidebar-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); margin-bottom: 10px;
+}
+
+/* -- Search ------------------------------------------------------------ */
+.search-box {
+  display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.search-box input {
+  flex: 1; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-size: 13px;
+}
+.search-box input:focus { border-color: var(--border-focus); }
+.search-box button {
+  padding: 8px 16px; background: var(--accent); color: #fff; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; border: none; cursor: pointer;
+}
+.search-box button:hover { background: var(--accent-hover); }
+
+/* -- Stats ------------------------------------------------------------- */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-item {
+  padding: 10px; background: var(--bg-surface); border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.stat-value { font-size: 20px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--text-muted); }
+
+/* -- Node Type Legend -------------------------------------------------- */
+.legend { display: flex; flex-direction: column; gap: 6px; }
+.legend-item {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim);
+  cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: var(--transition);
+}
+.legend-item:hover { background: var(--bg-hover); }
+.legend-dot {
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* -- Add Forms --------------------------------------------------------- */
+.form-group { margin-bottom: 12px; }
+.form-group label {
+  display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px;
+}
+.form-group input, .form-group select {
+  width: 100%; padding: 7px 10px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-size: 13px;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--border-focus); }
+.btn-add {
+  width: 100%; padding: 8px; background: var(--accent); color: #fff; border: none;
+  border-radius: var(--radius); font-size: 13px; font-weight: 500; cursor: pointer;
+  margin-top: 4px;
+}
+.btn-add:hover { background: var(--accent-hover); }
+.btn-secondary {
+  width: 100%; padding: 8px; background: transparent; color: var(--accent); border: 1px solid var(--accent);
+  border-radius: var(--radius); font-size: 13px; cursor: pointer; margin-top: 6px;
+}
+.btn-secondary:hover { background: rgba(59,130,246,0.1); }
+
+/* -- Graph Canvas ------------------------------------------------------ */
+.graph-container {
+  flex: 1; position: relative; overflow: hidden; background: var(--bg-deep);
+}
+.graph-container svg { width: 100%; height: 100%; }
+
+/* -- Node Detail Panel ------------------------------------------------- */
+.detail-panel {
+  position: absolute; top: 12px; right: 12px; width: 280px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md); padding: 16px; display: none;
+  max-height: calc(100% - 24px); overflow-y: auto;
+}
+.detail-panel.visible { display: block; }
+.detail-panel h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; }
+.detail-panel .close-btn {
+  position: absolute; top: 10px; right: 10px; background: none; border: none;
+  color: var(--text-muted); font-size: 18px; cursor: pointer;
+}
+.detail-field { margin-bottom: 8px; }
+.detail-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+.detail-value { font-size: 13px; color: var(--text); }
+.detail-neighbors { margin-top: 12px; }
+.detail-neighbor {
+  display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px;
+  color: var(--text-dim); cursor: pointer;
+}
+.detail-neighbor:hover { color: var(--accent); }
+
+/* -- Toolbar ----------------------------------------------------------- */
+.graph-toolbar {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 4px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 4px; box-shadow: var(--shadow);
+}
+.graph-toolbar button {
+  padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 500;
+  color: var(--text-dim); border: none; background: none; cursor: pointer;
+}
+.graph-toolbar button:hover { background: var(--bg-hover); color: var(--text); }
+
+/* -- Toast ------------------------------------------------------------- */
+.toast-container { position: fixed; top: 60px; right: 16px; z-index: 1000; }
+.toast {
+  padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; margin-bottom: 8px; box-shadow: var(--shadow);
+  animation: toastIn 300ms ease;
+}
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">JARVIS <span>Knowledge Graph</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="knowledge.html" class="active">Knowledge</a>
+    <a href="workflows.html">Workflows</a>
+    <a href="memory.html">Memory</a>
+    <a href="skills.html">Skills</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="tools.html">Tools</a>
+    <a href="agents.html">Agents</a>
+    <a href="observability.html">Observability</a>
+    <a href="curator.html">Curator</a>
+    <a href="api-docs.html">API Docs</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <!-- Search -->
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search entities...">
+      <button onclick="searchEntity()">Find</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">Graph Statistics</div>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="statNodes">0</div>
+          <div class="stat-label">Nodes</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="statEdges">0</div>
+          <div class="stat-label">Edges</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="statTypes">0</div>
+          <div class="stat-label">Types</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="statClusters">0</div>
+          <div class="stat-label">Clusters</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">Node Types</div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <!-- Add Node -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">Add Node</div>
+      <div class="form-group">
+        <label>Label</label>
+        <input type="text" id="addNodeLabel" placeholder="Entity name">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="addNodeType">
+          <option value="concept">Concept</option>
+          <option value="entity">Entity</option>
+          <option value="tool">Tool</option>
+          <option value="agent">Agent</option>
+          <option value="skill">Skill</option>
+          <option value="module">Module</option>
+          <option value="task">Task</option>
+          <option value="fact">Fact</option>
+        </select>
+      </div>
+      <button class="btn-add" onclick="addNode()">Add Node</button>
+    </div>
+
+    <!-- Add Edge -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">Add Edge</div>
+      <div class="form-group">
+        <label>From Node</label>
+        <select id="edgeFrom"></select>
+      </div>
+      <div class="form-group">
+        <label>To Node</label>
+        <select id="edgeTo"></select>
+      </div>
+      <div class="form-group">
+        <label>Relation</label>
+        <input type="text" id="edgeRelation" placeholder="e.g. uses, extends">
+      </div>
+      <button class="btn-add" onclick="addEdge()">Add Edge</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="sidebar-section">
+      <button class="btn-secondary" onclick="loadFromAPI()">Reload from API</button>
+      <button class="btn-secondary" onclick="exportGraph()">Export JSON</button>
+    </div>
+  </aside>
+
+  <!-- Graph Canvas -->
+  <div class="graph-container" id="graphContainer">
+    <svg id="graphSvg">
+      <defs>
+        <marker id="arrowhead" viewBox="0 0 10 7" refX="10" refY="3.5"
+                markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-muted)" />
+        </marker>
+      </defs>
+      <g id="graphGroup">
+        <g id="edgesGroup"></g>
+        <g id="nodesGroup"></g>
+        <g id="labelsGroup"></g>
+      </g>
+    </svg>
+
+    <!-- Node Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+      <button class="close-btn" onclick="closeDetail()">&times;</button>
+      <h3 id="detailTitle"></h3>
+      <div class="detail-field">
+        <div class="detail-label">Type</div>
+        <div class="detail-value" id="detailType"></div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-label">Properties</div>
+        <div class="detail-value" id="detailProps"></div>
+      </div>
+      <div class="detail-neighbors">
+        <div class="detail-label">Neighbors</div>
+        <div id="detailNeighbors"></div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="graph-toolbar">
+      <button onclick="zoomIn()">Zoom +</button>
+      <button onclick="zoomOut()">Zoom -</button>
+      <button onclick="resetView()">Reset</button>
+      <button onclick="togglePhysics()">Pause</button>
+      <button onclick="layoutCircular()">Circular</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+/* ====================================================================
+   JARVIS Knowledge Graph — Force-Directed Visualization
+   ==================================================================== */
+
+const API_BASE = window.location.origin;
+
+// -- Graph data --------------------------------------------------------
+
+const nodeTypeColors = {
+  concept:  '#3b82f6',
+  entity:   '#22c55e',
+  tool:     '#f59e0b',
+  agent:    '#a855f7',
+  skill:    '#06b6d4',
+  module:   '#ec4899',
+  task:     '#ef4444',
+  fact:     '#64748b',
+};
+
+let nodes = [];
+let edges = [];
+let selectedNode = null;
+let physicsRunning = true;
+let transform = { x: 0, y: 0, scale: 1 };
+
+// -- Initialization ----------------------------------------------------
+
+function init() {
+  loadDemoData();
+  renderLegend();
+  updateStats();
+  updateNodeSelectors();
+  setupSVGInteractions();
+  startSimulation();
+  loadFromAPI();
+}
+
+function loadDemoData() {
+  const demoNodes = [
+    { id: 'n1', label: 'JARVIS', type: 'entity', x: 400, y: 300, vx: 0, vy: 0, properties: { version: '0.2.0' } },
+    { id: 'n2', label: 'StreamingSpec', type: 'concept', x: 300, y: 200, vx: 0, vy: 0, properties: {} },
+    { id: 'n3', label: 'Orchestrator', type: 'module', x: 500, y: 200, vx: 0, vy: 0, properties: {} },
+    { id: 'n4', label: 'CodeAgent', type: 'agent', x: 600, y: 350, vx: 0, vy: 0, properties: {} },
+    { id: 'n5', label: 'SearchAgent', type: 'agent', x: 350, y: 420, vx: 0, vy: 0, properties: {} },
+    { id: 'n6', label: 'WebSearch', type: 'tool', x: 250, y: 400, vx: 0, vy: 0, properties: {} },
+    { id: 'n7', label: 'FileOps', type: 'tool', x: 550, y: 450, vx: 0, vy: 0, properties: {} },
+    { id: 'n8', label: 'Knowledge', type: 'module', x: 200, y: 300, vx: 0, vy: 0, properties: {} },
+    { id: 'n9', label: 'LLMRouter', type: 'module', x: 450, y: 150, vx: 0, vy: 0, properties: {} },
+    { id: 'n10', label: 'Curator', type: 'module', x: 500, y: 400, vx: 0, vy: 0, properties: {} },
+  ];
+  const demoEdges = [
+    { source: 'n1', target: 'n2', relation: 'uses' },
+    { source: 'n1', target: 'n3', relation: 'contains' },
+    { source: 'n3', target: 'n4', relation: 'manages' },
+    { source: 'n3', target: 'n5', relation: 'manages' },
+    { source: 'n5', target: 'n6', relation: 'uses' },
+    { source: 'n4', target: 'n7', relation: 'uses' },
+    { source: 'n1', target: 'n8', relation: 'contains' },
+    { source: 'n3', target: 'n9', relation: 'uses' },
+    { source: 'n1', target: 'n10', relation: 'contains' },
+  ];
+  nodes = demoNodes;
+  edges = demoEdges;
+}
+
+// -- Legend -------------------------------------------------------------
+
+function renderLegend() {
+  const container = document.getElementById('legend');
+  container.innerHTML = '';
+  for (const [type, color] of Object.entries(nodeTypeColors)) {
+    const el = document.createElement('div');
+    el.className = 'legend-item';
+    el.innerHTML = `<span class="legend-dot" style="background:${color}"></span>${type}`;
+    el.onclick = () => highlightType(type);
+    container.appendChild(el);
+  }
+}
+
+function highlightType(type) {
+  nodes.forEach(n => n._highlighted = n.type === type);
+  renderGraph();
+  setTimeout(() => { nodes.forEach(n => n._highlighted = false); renderGraph(); }, 2000);
+}
+
+// -- Stats --------------------------------------------------------------
+
+function updateStats() {
+  document.getElementById('statNodes').textContent = nodes.length;
+  document.getElementById('statEdges').textContent = edges.length;
+  const types = new Set(nodes.map(n => n.type));
+  document.getElementById('statTypes').textContent = types.size;
+  document.getElementById('statClusters').textContent = countClusters();
+}
+
+function countClusters() {
+  const parent = {};
+  nodes.forEach(n => parent[n.id] = n.id);
+  function find(a) { return parent[a] === a ? a : (parent[a] = find(parent[a])); }
+  function union(a, b) { parent[find(a)] = find(b); }
+  edges.forEach(e => union(e.source, e.target));
+  return new Set(nodes.map(n => find(n.id))).size;
+}
+
+// -- Node selectors for edge form --------------------------------------
+
+function updateNodeSelectors() {
+  const fromSel = document.getElementById('edgeFrom');
+  const toSel = document.getElementById('edgeTo');
+  const opts = nodes.map(n => `<option value="${n.id}">${n.label}</option>`).join('');
+  fromSel.innerHTML = opts;
+  toSel.innerHTML = opts;
+}
+
+// -- SVG Interactions (pan/zoom) ----------------------------------------
+
+function setupSVGInteractions() {
+  const svg = document.getElementById('graphSvg');
+  let isPanning = false, startX = 0, startY = 0;
+
+  svg.addEventListener('mousedown', e => {
+    if (e.target === svg || e.target.id === 'graphGroup') {
+      isPanning = true;
+      startX = e.clientX - transform.x;
+      startY = e.clientY - transform.y;
+    }
+  });
+  svg.addEventListener('mousemove', e => {
+    if (isPanning) {
+      transform.x = e.clientX - startX;
+      transform.y = e.clientY - startY;
+      applyTransform();
+    }
+  });
+  svg.addEventListener('mouseup', () => isPanning = false);
+  svg.addEventListener('mouseleave', () => isPanning = false);
+  svg.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    transform.scale = Math.max(0.1, Math.min(5, transform.scale * delta));
+    applyTransform();
+  });
+}
+
+function applyTransform() {
+  const g = document.getElementById('graphGroup');
+  g.setAttribute('transform', `translate(${transform.x},${transform.y}) scale(${transform.scale})`);
+}
+
+function zoomIn() { transform.scale = Math.min(5, transform.scale * 1.2); applyTransform(); }
+function zoomOut() { transform.scale = Math.max(0.1, transform.scale * 0.8); applyTransform(); }
+function resetView() { transform = { x: 0, y: 0, scale: 1 }; applyTransform(); }
+
+// -- Physics Simulation ------------------------------------------------
+
+let simInterval = null;
+
+function startSimulation() {
+  if (simInterval) clearInterval(simInterval);
+  simInterval = setInterval(simulate, 16);
+}
+
+function togglePhysics() {
+  physicsRunning = !physicsRunning;
+  showToast(physicsRunning ? 'Physics resumed' : 'Physics paused');
+}
+
+function simulate() {
+  if (!physicsRunning) { renderGraph(); return; }
+
+  const repulsion = 2000;
+  const attraction = 0.005;
+  const damping = 0.85;
+  const centerForce = 0.002;
+  const svg = document.getElementById('graphSvg');
+  const cx = (svg.clientWidth || 800) / 2;
+  const cy = (svg.clientHeight || 600) / 2;
+
+  // Repulsion between nodes
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[j].x - nodes[i].x;
+      const dy = nodes[j].y - nodes[i].y;
+      const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+      const force = repulsion / (dist * dist);
+      const fx = (dx / dist) * force;
+      const fy = (dy / dist) * force;
+      nodes[i].vx -= fx;
+      nodes[i].vy -= fy;
+      nodes[j].vx += fx;
+      nodes[j].vy += fy;
+    }
+  }
+
+  // Attraction along edges
+  for (const edge of edges) {
+    const src = nodes.find(n => n.id === edge.source);
+    const tgt = nodes.find(n => n.id === edge.target);
+    if (!src || !tgt) continue;
+    const dx = tgt.x - src.x;
+    const dy = tgt.y - src.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const force = dist * attraction;
+    const fx = (dx / Math.max(dist, 1)) * force;
+    const fy = (dy / Math.max(dist, 1)) * force;
+    src.vx += fx;
+    src.vy += fy;
+    tgt.vx -= fx;
+    tgt.vy -= fy;
+  }
+
+  // Center gravity
+  for (const node of nodes) {
+    node.vx += (cx - node.x) * centerForce;
+    node.vy += (cy - node.y) * centerForce;
+  }
+
+  // Apply velocity
+  for (const node of nodes) {
+    if (node._dragging) continue;
+    node.vx *= damping;
+    node.vy *= damping;
+    node.x += node.vx;
+    node.y += node.vy;
+  }
+
+  renderGraph();
+}
+
+// -- Rendering ---------------------------------------------------------
+
+function renderGraph() {
+  const edgesGroup = document.getElementById('edgesGroup');
+  const nodesGroup = document.getElementById('nodesGroup');
+  const labelsGroup = document.getElementById('labelsGroup');
+
+  // Edges
+  let edgeHtml = '';
+  for (const edge of edges) {
+    const src = nodes.find(n => n.id === edge.source);
+    const tgt = nodes.find(n => n.id === edge.target);
+    if (!src || !tgt) continue;
+    const mx = (src.x + tgt.x) / 2;
+    const my = (src.y + tgt.y) / 2;
+    edgeHtml += `<line x1="${src.x}" y1="${src.y}" x2="${tgt.x}" y2="${tgt.y}"
+      stroke="var(--border)" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.6"/>`;
+    if (edge.relation) {
+      edgeHtml += `<text x="${mx}" y="${my - 6}" text-anchor="middle" fill="var(--text-muted)"
+        font-size="9" font-family="var(--font)">${edge.relation}</text>`;
+    }
+  }
+  edgesGroup.innerHTML = edgeHtml;
+
+  // Nodes
+  let nodeHtml = '';
+  for (const node of nodes) {
+    const color = nodeTypeColors[node.type] || '#64748b';
+    const r = node._highlighted ? 18 : (selectedNode === node.id ? 16 : 12);
+    const opacity = node._highlighted === false ? 0.3 : 1;
+    nodeHtml += `<circle cx="${node.x}" cy="${node.y}" r="${r}" fill="${color}"
+      stroke="${selectedNode === node.id ? '#fff' : 'transparent'}" stroke-width="2"
+      style="cursor:pointer;opacity:${opacity}"
+      onmousedown="startDrag(event,'${node.id}')"
+      onclick="selectNode('${node.id}')"/>`;
+  }
+  nodesGroup.innerHTML = nodeHtml;
+
+  // Labels
+  let labelHtml = '';
+  for (const node of nodes) {
+    const opacity = node._highlighted === false ? 0.3 : 1;
+    labelHtml += `<text x="${node.x}" y="${node.y + 22}" text-anchor="middle"
+      fill="var(--text-dim)" font-size="11" font-family="var(--font)"
+      style="pointer-events:none;opacity:${opacity}">${node.label}</text>`;
+  }
+  labelsGroup.innerHTML = labelHtml;
+}
+
+// -- Node Dragging -----------------------------------------------------
+
+let dragNode = null;
+
+function startDrag(event, nodeId) {
+  event.stopPropagation();
+  dragNode = nodes.find(n => n.id === nodeId);
+  if (!dragNode) return;
+  dragNode._dragging = true;
+
+  const svg = document.getElementById('graphSvg');
+  function onMove(e) {
+    const rect = svg.getBoundingClientRect();
+    dragNode.x = (e.clientX - rect.left - transform.x) / transform.scale;
+    dragNode.y = (e.clientY - rect.top - transform.y) / transform.scale;
+    dragNode.vx = 0;
+    dragNode.vy = 0;
+  }
+  function onUp() {
+    if (dragNode) dragNode._dragging = false;
+    dragNode = null;
+    svg.removeEventListener('mousemove', onMove);
+    svg.removeEventListener('mouseup', onUp);
+  }
+  svg.addEventListener('mousemove', onMove);
+  svg.addEventListener('mouseup', onUp);
+}
+
+// -- Node Selection ----------------------------------------------------
+
+function selectNode(nodeId) {
+  selectedNode = nodeId;
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return;
+
+  const panel = document.getElementById('detailPanel');
+  panel.classList.add('visible');
+  document.getElementById('detailTitle').textContent = node.label;
+  document.getElementById('detailType').textContent = node.type;
+  document.getElementById('detailProps').textContent =
+    Object.keys(node.properties || {}).length > 0
+      ? JSON.stringify(node.properties, null, 2)
+      : 'None';
+
+  // Find neighbors
+  const neighbors = [];
+  for (const edge of edges) {
+    if (edge.source === nodeId) {
+      const tgt = nodes.find(n => n.id === edge.target);
+      if (tgt) neighbors.push({ node: tgt, relation: edge.relation, direction: 'out' });
+    }
+    if (edge.target === nodeId) {
+      const src = nodes.find(n => n.id === edge.source);
+      if (src) neighbors.push({ node: src, relation: edge.relation, direction: 'in' });
+    }
+  }
+
+  const neighborsEl = document.getElementById('detailNeighbors');
+  neighborsEl.innerHTML = neighbors.map(n => {
+    const arrow = n.direction === 'out' ? '&rarr;' : '&larr;';
+    const color = nodeTypeColors[n.node.type] || '#64748b';
+    return `<div class="detail-neighbor" onclick="selectNode('${n.node.id}')">
+      <span class="legend-dot" style="background:${color};width:8px;height:8px"></span>
+      ${arrow} ${n.node.label} <span style="color:var(--text-muted)">(${n.relation})</span>
+    </div>`;
+  }).join('');
+
+  renderGraph();
+}
+
+function closeDetail() {
+  selectedNode = null;
+  document.getElementById('detailPanel').classList.remove('visible');
+  renderGraph();
+}
+
+// -- Search -------------------------------------------------------------
+
+function searchEntity() {
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (!query) return;
+  const found = nodes.find(n => n.label.toLowerCase().includes(query));
+  if (found) {
+    selectNode(found.id);
+    // Center on node
+    const svg = document.getElementById('graphSvg');
+    transform.x = (svg.clientWidth || 800) / 2 - found.x * transform.scale;
+    transform.y = (svg.clientHeight || 600) / 2 - found.y * transform.scale;
+    applyTransform();
+    showToast(`Found: ${found.label}`);
+  } else {
+    showToast('No matching entity found');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') searchEntity();
+  });
+});
+
+// -- Add Node / Edge ---------------------------------------------------
+
+let nodeCounter = 100;
+
+function addNode() {
+  const label = document.getElementById('addNodeLabel').value.trim();
+  const type = document.getElementById('addNodeType').value;
+  if (!label) { showToast('Label is required'); return; }
+
+  const svg = document.getElementById('graphSvg');
+  const cx = (svg.clientWidth || 800) / 2;
+  const cy = (svg.clientHeight || 600) / 2;
+
+  nodes.push({
+    id: `n${++nodeCounter}`,
+    label, type,
+    x: cx + (Math.random() - 0.5) * 100,
+    y: cy + (Math.random() - 0.5) * 100,
+    vx: 0, vy: 0,
+    properties: {},
+  });
+
+  document.getElementById('addNodeLabel').value = '';
+  updateNodeSelectors();
+  updateStats();
+  showToast(`Node "${label}" added`);
+}
+
+function addEdge() {
+  const from = document.getElementById('edgeFrom').value;
+  const to = document.getElementById('edgeTo').value;
+  const relation = document.getElementById('edgeRelation').value.trim() || 'related';
+  if (from === to) { showToast('Cannot link a node to itself'); return; }
+
+  edges.push({ source: from, target: to, relation });
+  document.getElementById('edgeRelation').value = '';
+  updateStats();
+  showToast('Edge added');
+}
+
+// -- Circular Layout ---------------------------------------------------
+
+function layoutCircular() {
+  const svg = document.getElementById('graphSvg');
+  const cx = (svg.clientWidth || 800) / 2;
+  const cy = (svg.clientHeight || 600) / 2;
+  const radius = Math.min(cx, cy) * 0.6;
+
+  nodes.forEach((n, i) => {
+    const angle = (2 * Math.PI * i) / nodes.length;
+    n.x = cx + radius * Math.cos(angle);
+    n.y = cy + radius * Math.sin(angle);
+    n.vx = 0;
+    n.vy = 0;
+  });
+}
+
+// -- API ----------------------------------------------------------------
+
+async function loadFromAPI() {
+  try {
+    const res = await fetch(`${API_BASE}/knowledge/graph`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.nodes && data.nodes.length > 0) {
+      const svg = document.getElementById('graphSvg');
+      const cx = (svg.clientWidth || 800) / 2;
+      const cy = (svg.clientHeight || 600) / 2;
+      nodes = data.nodes.map((n, i) => ({
+        id: n.id, label: n.label, type: n.type || 'entity',
+        x: n.x || cx + (Math.random() - 0.5) * 300,
+        y: n.y || cy + (Math.random() - 0.5) * 300,
+        vx: 0, vy: 0, properties: n.properties || {},
+      }));
+      edges = (data.edges || []).map(e => ({
+        source: e.source, target: e.target, relation: e.relation || '',
+      }));
+      updateNodeSelectors();
+      updateStats();
+      showToast(`Loaded ${nodes.length} nodes from API`);
+    }
+  } catch (err) {
+    // Keep demo data on error
+    console.log('API not available, using demo data:', err.message);
+  }
+}
+
+function exportGraph() {
+  const data = { nodes, edges };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'jarvis-knowledge-graph.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Graph exported');
+}
+
+// -- Toast --------------------------------------------------------------
+
+function showToast(message) {
+  const container = document.getElementById('toasts');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// -- Start --------------------------------------------------------------
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+kind: Skill
+metadata:
+  name: code-review
+  version: "1.0.0"
+  description: "Review code for bugs, style issues, and security vulnerabilities"
+  author: jarvis
+  tags: [code, review, security]
+  domain: development
+spec:
+  system_prompt: |
+    You are an expert code reviewer. Analyze the provided code for:
+    1. Bugs and logic errors
+    2. Security vulnerabilities (OWASP Top 10)
+    3. Performance issues
+    4. Code style and readability
+    Provide actionable feedback with specific line references.
+  steps:
+    - order: 1
+      action: "Read the target file or diff"
+      tool: read_file
+      tool_args: {}
+    - order: 2
+      action: "Analyze code for bugs, security issues, and performance problems"
+      tool: null
+      tool_args: {}
+    - order: 3
+      action: "Generate structured review report with severity levels and fix suggestions"
+      tool: null
+      tool_args: {}
+  constraints:
+    - "Focus on high-impact issues first"
+    - "Provide fix suggestions, not just problem descriptions"
+    - "Flag any hardcoded secrets or credentials as critical"
+    - "Use severity levels: critical, warning, info"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

@@ -1,0 +1,28 @@
+kind: Skill
+metadata:
+  name: meeting-notes
+  version: "1.0.0"
+  description: "Process meeting notes: action items, decisions, follow-ups"
+  author: jarvis
+  tags: [meeting, notes, action-items, summary, productivity]
+  domain: personal-productivity
+spec:
+  system_prompt: |
+    You are a meeting notes processor. Given raw meeting notes:
+    1. Extract key decisions made
+    2. Identify action items with assignees and deadlines
+    3. Summarize discussion points
+    4. Flag unresolved issues for follow-up
+    5. Generate structured meeting summary
+  steps:
+    - order: 1
+      action: "Parse raw meeting notes"
+    - order: 2
+      action: "Extract decisions and action items"
+    - order: 3
+      action: "Generate structured summary"
+    - order: 4
+      action: "Create follow-up tasks"
+  constraints:
+    - "Every action item must have an owner"
+    - "Decisions should reference the discussion context"

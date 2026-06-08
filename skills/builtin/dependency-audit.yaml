@@ -1,0 +1,41 @@
+kind: Skill
+metadata:
+  name: dependency-audit
+  version: "1.0.0"
+  description: "Audit and update project dependencies for security and freshness"
+  author: jarvis
+  tags: [dependencies, security, audit, packages, vulnerabilities]
+  domain: security
+spec:
+  system_prompt: |
+    You are a dependency management specialist. Audit project dependencies for
+    security vulnerabilities, licensing issues, and staleness. Follow these steps:
+    1. Identify all direct and transitive dependencies
+    2. Check for known CVEs using advisory databases
+    3. Flag outdated packages with available updates
+    4. Verify license compatibility with the project
+    5. Identify unused or redundant dependencies
+    6. Recommend safe upgrade paths with breaking change warnings
+  steps:
+    - order: 1
+      action: "Detect package manager and read dependency manifests"
+      tool: read_file
+    - order: 2
+      action: "Run vulnerability scanning tools"
+      tool: shell_execute
+    - order: 3
+      action: "Check for outdated packages and available updates"
+      tool: shell_execute
+    - order: 4
+      action: "Analyze license compatibility"
+    - order: 5
+      action: "Generate audit report with prioritized recommendations"
+  constraints:
+    - "Classify vulnerabilities by severity: critical, high, medium, low"
+    - "Never auto-upgrade major versions without user confirmation"
+    - "Flag any GPL-licensed dependency in MIT/Apache projects"
+    - "Include CVE identifiers for all known vulnerabilities"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

@@ -1,0 +1,66 @@
+app_name: JARVIS
+version: 0.2.0
+specs_dir: specs
+
+# --- Logging ---
+log:
+  level: INFO
+  format: "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+  file: ""  # empty = stderr only; set path for file logging
+
+# --- Server ---
+server:
+  host: 127.0.0.1
+  port: 8000
+  reload: true
+  cors_origins:
+    - "http://localhost:8000"
+    - "http://127.0.0.1:8000"
+
+# --- Agents ---
+agents:
+  enabled_agents:
+    - code-agent
+    - calendar-agent
+    - knowledge-agent
+    - comms-agent
+    - ops-agent
+  default_model: claude-sonnet-4-6
+  max_concurrent: 5
+  timeout: 120  # seconds per agent call
+
+# --- Hooks ---
+hooks:
+  enabled: true
+  cron_check_interval: 60
+
+# --- Knowledge ---
+knowledge:
+  graph_backend: in-memory
+  lightrag_endpoint: ""
+  embedding_model: ""
+
+# --- Security ---
+security:
+  sandbox_mode: basic       # off | basic | strict
+  secret_scanning: true
+  allowed_domains: []        # empty = no restriction
+
+# --- Streaming Spec ---
+streaming_spec:
+  enabled: true
+  checkpoint_interval: 5    # seconds between auto-saves
+  max_history: 100           # max spec revisions to keep
+
+# --- Storage ---
+storage:
+  backend: local             # local | postgres | redis
+  data_dir: data
+  memory_dir: ~/.jarvis
+
+# --- Docker ---
+docker:
+  image: jarvis:latest
+  compose_profiles:
+    - full
+    - local-llm

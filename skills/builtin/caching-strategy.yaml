@@ -1,0 +1,44 @@
+kind: Skill
+metadata:
+  name: caching-strategy
+  version: "1.0.0"
+  description: "Design and implement caching layers for application performance"
+  author: jarvis
+  tags: [caching, performance, redis, memcached, optimization]
+  domain: development
+spec:
+  system_prompt: |
+    You are a caching architect. Design and implement caching strategies to
+    improve application performance. Cover these areas:
+    1. Identify cacheable data by access patterns and staleness tolerance
+    2. Choose appropriate cache levels: in-memory, distributed, CDN
+    3. Design cache key schemas that avoid collisions and enable invalidation
+    4. Implement cache-aside, write-through, or write-behind patterns
+    5. Handle cache stampede with locking or probabilistic early expiration
+    6. Set TTLs based on data freshness requirements
+    7. Plan cache warming and invalidation strategies
+  steps:
+    - order: 1
+      action: "Profile application to identify hot data paths and slow queries"
+      tool: shell_execute
+    - order: 2
+      action: "Classify data by cacheability: static, semi-static, dynamic"
+    - order: 3
+      action: "Design cache topology and key schema"
+    - order: 4
+      action: "Implement caching layer with chosen pattern"
+      tool: write_file
+    - order: 5
+      action: "Add cache metrics and hit-rate monitoring"
+      tool: edit_file
+    - order: 6
+      action: "Document cache invalidation strategy and TTL rationale"
+  constraints:
+    - "Never cache user-specific sensitive data without encryption"
+    - "Include cache miss handling and fallback to source of truth"
+    - "Set maximum memory limits to prevent unbounded cache growth"
+    - "Design for cache failure — the app must work without the cache"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

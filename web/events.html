@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS - Event Browser</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+      --border: #334155;
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header .title { font-size: 1.25rem; font-weight: 600; }
+    .header .nav-links { display: flex; gap: 1rem; }
+    .header .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+    .header .nav-links a:hover,
+    .header .nav-links a.active {
+      color: var(--text-primary);
+      background: var(--bg-card-hover);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr 350px;
+      gap: 0;
+      height: calc(100vh - 56px);
+    }
+
+    /* --- Left panel: Filters & subscriptions --- */
+    .left-panel {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .filter-input {
+      padding: 0.6rem 0.8rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .filter-input:focus { outline: none; border-color: var(--accent-blue); }
+
+    .filter-select {
+      padding: 0.6rem 0.8rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .topic-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .topic-chip {
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+    }
+
+    .topic-chip:hover { border-color: var(--accent-blue); color: var(--text-primary); }
+    .topic-chip.active { background: rgba(59,130,246,0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
+
+    .subscription-list { list-style: none; }
+    .subscription-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(51,65,85,0.3);
+      font-size: 0.85rem;
+    }
+
+    .sub-topic { color: var(--text-primary); }
+    .sub-count {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 8px;
+      background: rgba(59,130,246,0.15);
+      color: var(--accent-blue);
+    }
+
+    .sub-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .sub-remove:hover { color: var(--accent-red); }
+
+    /* --- Center panel: Event timeline --- */
+    .center-panel {
+      padding: 1.25rem;
+      overflow-y: auto;
+    }
+
+    .timeline-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .timeline-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .timeline-count {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-event {
+      position: relative;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .timeline-event:hover {
+      border-color: var(--accent-blue);
+      background: var(--bg-card-hover);
+    }
+
+    .timeline-event.selected {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 1px var(--accent-blue);
+    }
+
+    .timeline-event::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 1.2rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--bg-primary);
+    }
+
+    .timeline-event.priority-high::before { border-color: var(--accent-red); background: var(--accent-red); }
+    .timeline-event.priority-normal::before { border-color: var(--accent-blue); background: var(--accent-blue); }
+    .timeline-event.priority-low::before { border-color: var(--text-muted); }
+
+    .event-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .event-topic {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+
+    .event-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .event-source {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+    }
+
+    .event-preview {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-badges {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: 0.4rem;
+    }
+
+    .event-badge {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 8px;
+      background: rgba(100,116,139,0.2);
+      color: var(--text-secondary);
+    }
+
+    .event-badge.priority-high { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+    .event-badge.priority-normal { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+
+    /* --- Right panel: Detail & Publish --- */
+    .right-panel {
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border);
+      padding: 1.25rem;
+      overflow-y: auto;
+    }
+
+    .detail-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .detail-field {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(51,65,85,0.3);
+      font-size: 0.85rem;
+    }
+
+    .detail-key { color: var(--text-secondary); }
+    .detail-value { color: var(--text-primary); font-weight: 500; }
+
+    .detail-payload {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-family: 'SF Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent-green);
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    /* --- Publish form --- */
+    .publish-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.2rem;
+    }
+
+    .form-input {
+      padding: 0.6rem 0.8rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .form-input:focus { outline: none; border-color: var(--accent-blue); }
+
+    .form-textarea {
+      padding: 0.6rem 0.8rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      min-height: 80px;
+      resize: vertical;
+      font-family: 'SF Mono', monospace;
+    }
+
+    .publish-btn {
+      padding: 0.7rem 1.5rem;
+      background: var(--accent-blue);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .publish-btn:hover { opacity: 0.9; }
+
+    /* --- Dead letter queue --- */
+    .dlq-list { list-style: none; }
+
+    .dlq-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(51,65,85,0.3);
+    }
+
+    .dlq-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      flex-shrink: 0;
+    }
+
+    .dlq-info { flex: 1; }
+    .dlq-topic { font-size: 0.85rem; color: var(--text-primary); }
+    .dlq-reason { font-size: 0.7rem; color: var(--text-muted); }
+
+    .dlq-retry {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.2rem 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+
+    .dlq-retry:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 1200px) {
+      .main-layout { grid-template-columns: 250px 1fr; }
+      .right-panel { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .main-layout { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="title">Event Browser</div>
+    <nav class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="workflows.html">Workflows</a>
+      <a href="events.html" class="active">Events</a>
+      <a href="observability.html">Observability</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <div class="main-layout">
+
+    <!-- Left Panel: Filters & Subscriptions -->
+    <div class="left-panel">
+      <div class="panel-section">
+        <div class="section-title">Filters</div>
+        <div class="filter-group">
+          <input type="text" class="filter-input" id="search-input" placeholder="Search events..." oninput="filterEvents()">
+          <select class="filter-select" id="priority-filter" onchange="filterEvents()">
+            <option value="">All Priorities</option>
+            <option value="high">High</option>
+            <option value="normal">Normal</option>
+            <option value="low">Low</option>
+          </select>
+          <select class="filter-select" id="source-filter" onchange="filterEvents()">
+            <option value="">All Sources</option>
+            <option value="api">API</option>
+            <option value="cli">CLI</option>
+            <option value="agent">Agent</option>
+            <option value="system">System</option>
+            <option value="webhook">Webhook</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">Topics</div>
+        <div class="topic-chips" id="topic-chips">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">Subscriptions</div>
+        <ul class="subscription-list" id="subscription-list">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">Dead Letter Queue</div>
+        <ul class="dlq-list" id="dlq-list">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+    </div>
+
+    <!-- Center Panel: Event Timeline -->
+    <div class="center-panel">
+      <div class="timeline-header">
+        <div class="timeline-title">Event Timeline</div>
+        <div class="timeline-count" id="event-count">0 events</div>
+      </div>
+      <div class="timeline" id="event-timeline">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Right Panel: Event Detail & Publish -->
+    <div class="right-panel">
+      <div class="detail-section" id="event-detail">
+        <div class="detail-title">Event Detail</div>
+        <div class="empty-state">Select an event to view details</div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Publish Event</div>
+        <div class="publish-form">
+          <div>
+            <div class="form-label">Topic</div>
+            <input type="text" class="form-input" id="publish-topic" placeholder="e.g. deploy.started">
+          </div>
+          <div>
+            <div class="form-label">Source</div>
+            <input type="text" class="form-input" id="publish-source" placeholder="e.g. dashboard" value="dashboard">
+          </div>
+          <div>
+            <div class="form-label">Priority</div>
+            <select class="filter-select" id="publish-priority" style="width:100%">
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label">Payload (JSON)</div>
+            <textarea class="form-textarea" id="publish-payload" placeholder='{"key": "value"}'>{}</textarea>
+          </div>
+          <button class="publish-btn" onclick="publishEvent()">Publish Event</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+
+    // Mock data
+    const MOCK_EVENTS = [
+      { id: 'evt-001', topic: 'spec.created', source: 'api', priority: 'normal', timestamp: '2025-06-01T14:30:00Z', payload: { spec_id: 'spec-001', intent: 'Review code' }, delivered: true },
+      { id: 'evt-002', topic: 'agent.routed', source: 'system', priority: 'normal', timestamp: '2025-06-01T14:29:00Z', payload: { agent: 'code-agent', message: 'review code' }, delivered: true },
+      { id: 'evt-003', topic: 'spec.step_completed', source: 'agent', priority: 'normal', timestamp: '2025-06-01T14:28:00Z', payload: { step_id: 'step-1', status: 'completed' }, delivered: true },
+      { id: 'evt-004', topic: 'deploy.started', source: 'webhook', priority: 'high', timestamp: '2025-06-01T14:25:00Z', payload: { version: '1.3.0', env: 'staging' }, delivered: true },
+      { id: 'evt-005', topic: 'memory.added', source: 'system', priority: 'low', timestamp: '2025-06-01T14:20:00Z', payload: { type: 'fact', importance: 0.8 }, delivered: true },
+      { id: 'evt-006', topic: 'tool.executed', source: 'agent', priority: 'normal', timestamp: '2025-06-01T14:18:00Z', payload: { tool: 'shell', command: 'git status' }, delivered: true },
+      { id: 'evt-007', topic: 'spec.completed', source: 'system', priority: 'normal', timestamp: '2025-06-01T14:15:00Z', payload: { spec_id: 'spec-002', steps_completed: 4 }, delivered: true },
+      { id: 'evt-008', topic: 'error.occurred', source: 'system', priority: 'high', timestamp: '2025-06-01T14:10:00Z', payload: { error: 'Connection timeout', service: 'llm' }, delivered: true },
+      { id: 'evt-009', topic: 'knowledge.extracted', source: 'agent', priority: 'low', timestamp: '2025-06-01T14:05:00Z', payload: { entities: 5, relations: 3 }, delivered: true },
+      { id: 'evt-010', topic: 'workflow.completed', source: 'system', priority: 'normal', timestamp: '2025-06-01T14:00:00Z', payload: { workflow: 'ci-pipeline', status: 'success' }, delivered: true },
+      { id: 'evt-011', topic: 'deploy.completed', source: 'webhook', priority: 'high', timestamp: '2025-06-01T13:55:00Z', payload: { version: '1.3.0', env: 'staging', duration: '3m 42s' }, delivered: true },
+      { id: 'evt-012', topic: 'agent.delegation', source: 'system', priority: 'normal', timestamp: '2025-06-01T13:50:00Z', payload: { from: 'orchestrator', to: 'research-agent' }, delivered: true },
+    ];
+
+    const MOCK_TOPICS = [
+      'spec.created', 'spec.completed', 'spec.step_completed',
+      'agent.routed', 'agent.delegation', 'tool.executed',
+      'deploy.started', 'deploy.completed', 'error.occurred',
+      'memory.added', 'knowledge.extracted', 'workflow.completed',
+    ];
+
+    const MOCK_SUBSCRIPTIONS = [
+      { topic: 'deploy.*', count: 42 },
+      { topic: 'error.*', count: 8 },
+      { topic: 'spec.*', count: 156 },
+      { topic: 'agent.*', count: 89 },
+    ];
+
+    const MOCK_DLQ = [
+      { topic: 'webhook.github', reason: 'Target unreachable (503)', time: '10 min ago' },
+      { topic: 'notification.slack', reason: 'Auth token expired', time: '25 min ago' },
+    ];
+
+    let selectedTopic = null;
+    let selectedEvent = null;
+
+    function renderTopicChips() {
+      const container = document.getElementById('topic-chips');
+      container.innerHTML = MOCK_TOPICS.map(t => `
+        <span class="topic-chip${selectedTopic === t ? ' active' : ''}" onclick="toggleTopic('${t}')">${t}</span>
+      `).join('');
+    }
+
+    function toggleTopic(topic) {
+      selectedTopic = selectedTopic === topic ? null : topic;
+      renderTopicChips();
+      renderTimeline();
+    }
+
+    function renderSubscriptions() {
+      const list = document.getElementById('subscription-list');
+      list.innerHTML = MOCK_SUBSCRIPTIONS.map(s => `
+        <li class="subscription-item">
+          <span class="sub-topic">${s.topic}</span>
+          <span class="sub-count">${s.count}</span>
+          <button class="sub-remove" title="Unsubscribe">x</button>
+        </li>
+      `).join('');
+    }
+
+    function renderDLQ() {
+      const list = document.getElementById('dlq-list');
+      if (MOCK_DLQ.length === 0) {
+        list.innerHTML = '<div class="empty-state">No dead letters</div>';
+        return;
+      }
+      list.innerHTML = MOCK_DLQ.map(d => `
+        <li class="dlq-item">
+          <span class="dlq-icon"></span>
+          <div class="dlq-info">
+            <div class="dlq-topic">${d.topic}</div>
+            <div class="dlq-reason">${d.reason} -- ${d.time}</div>
+          </div>
+          <button class="dlq-retry">Retry</button>
+        </li>
+      `).join('');
+    }
+
+    function renderTimeline() {
+      let events = [...MOCK_EVENTS];
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const priority = document.getElementById('priority-filter').value;
+      const source = document.getElementById('source-filter').value;
+
+      if (search) events = events.filter(e => e.topic.includes(search) || e.id.includes(search));
+      if (priority) events = events.filter(e => e.priority === priority);
+      if (source) events = events.filter(e => e.source === source);
+      if (selectedTopic) events = events.filter(e => e.topic === selectedTopic);
+
+      document.getElementById('event-count').textContent = `${events.length} events`;
+
+      const timeline = document.getElementById('event-timeline');
+      if (events.length === 0) {
+        timeline.innerHTML = '<div class="empty-state">No events match the current filters</div>';
+        return;
+      }
+
+      timeline.innerHTML = events.map(e => {
+        const time = new Date(e.timestamp).toLocaleTimeString();
+        const payloadPreview = JSON.stringify(e.payload).substring(0, 60);
+        return `
+          <div class="timeline-event priority-${e.priority}${selectedEvent === e.id ? ' selected' : ''}"
+               onclick="selectEvent('${e.id}')">
+            <div class="event-header">
+              <span class="event-topic">${e.topic}</span>
+              <span class="event-time">${time}</span>
+            </div>
+            <div class="event-source">Source: ${e.source} | ID: ${e.id}</div>
+            <div class="event-preview">${payloadPreview}...</div>
+            <div class="event-badges">
+              <span class="event-badge priority-${e.priority}">${e.priority}</span>
+              <span class="event-badge">${e.source}</span>
+              <span class="event-badge">${e.delivered ? 'delivered' : 'pending'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectEvent(eventId) {
+      selectedEvent = eventId;
+      const event = MOCK_EVENTS.find(e => e.id === eventId);
+      if (!event) return;
+
+      renderTimeline();
+
+      const detail = document.getElementById('event-detail');
+      detail.innerHTML = `
+        <div class="detail-title">Event Detail</div>
+        <div class="detail-field">
+          <span class="detail-key">ID</span>
+          <span class="detail-value">${event.id}</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-key">Topic</span>
+          <span class="detail-value">${event.topic}</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-key">Source</span>
+          <span class="detail-value">${event.source}</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-key">Priority</span>
+          <span class="detail-value">${event.priority}</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-key">Timestamp</span>
+          <span class="detail-value">${new Date(event.timestamp).toLocaleString()}</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-key">Delivered</span>
+          <span class="detail-value">${event.delivered ? 'Yes' : 'No'}</span>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="form-label" style="margin-bottom:0.5rem;">Payload</div>
+          <div class="detail-payload">${JSON.stringify(event.payload, null, 2)}</div>
+        </div>
+      `;
+    }
+
+    function filterEvents() {
+      renderTimeline();
+    }
+
+    async function publishEvent() {
+      const topic = document.getElementById('publish-topic').value;
+      const source = document.getElementById('publish-source').value;
+      const priority = document.getElementById('publish-priority').value;
+      let payload;
+      try {
+        payload = JSON.parse(document.getElementById('publish-payload').value);
+      } catch (e) {
+        alert('Invalid JSON payload');
+        return;
+      }
+
+      if (!topic) { alert('Topic is required'); return; }
+
+      try {
+        const resp = await fetch(`${API_BASE}/events/publish`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, source, priority, payload }),
+        });
+        const data = await resp.json();
+
+        // Add to local list
+        MOCK_EVENTS.unshift({
+          id: data.id || `evt-local-${Date.now()}`,
+          topic, source, priority,
+          timestamp: data.timestamp || new Date().toISOString(),
+          payload, delivered: true,
+        });
+
+        renderTimeline();
+        document.getElementById('publish-topic').value = '';
+        document.getElementById('publish-payload').value = '{}';
+      } catch (e) {
+        // Add locally even if server is down
+        MOCK_EVENTS.unshift({
+          id: `evt-local-${Date.now()}`, topic, source, priority,
+          timestamp: new Date().toISOString(), payload, delivered: false,
+        });
+        renderTimeline();
+      }
+    }
+
+    // --- Fetch real events from API ---
+    async function fetchRealEvents() {
+      try {
+        const resp = await fetch(`${API_BASE}/events`);
+        const data = await resp.json();
+        if (data.events && data.events.length > 0) {
+          data.events.forEach(evt => {
+            if (!MOCK_EVENTS.find(e => e.id === evt.id)) {
+              MOCK_EVENTS.push(evt);
+            }
+          });
+          renderTimeline();
+        }
+      } catch (e) {
+        // Server not available, use mock data
+      }
+    }
+
+    // --- Initialize ---
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTopicChips();
+      renderSubscriptions();
+      renderDLQ();
+      renderTimeline();
+      fetchRealEvents();
+    });
+  </script>
+
+</body>
+</html>

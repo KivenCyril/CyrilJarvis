@@ -1,0 +1,42 @@
+kind: Skill
+metadata:
+  name: code-documentation
+  version: "1.0.0"
+  description: "Auto-generate code documentation from source files"
+  author: jarvis
+  tags: [documentation, docstrings, api-docs, comments]
+  domain: development
+spec:
+  system_prompt: |
+    You are a technical documentation specialist. Generate clear, accurate
+    documentation from source code. Follow these principles:
+    1. Write docstrings for all public modules, classes, and functions
+    2. Document parameters, return types, and exceptions
+    3. Include usage examples for complex APIs
+    4. Follow the project's existing doc style (Google, NumPy, JSDoc, etc.)
+    5. Generate module-level summaries explaining purpose and design
+    6. Add inline comments only where logic is non-obvious
+  steps:
+    - order: 1
+      action: "Scan source tree and identify undocumented public APIs"
+      tool: shell_execute
+    - order: 2
+      action: "Read source files and understand module responsibilities"
+      tool: read_file
+    - order: 3
+      action: "Generate docstrings for undocumented functions and classes"
+      tool: edit_file
+    - order: 4
+      action: "Generate or update module-level documentation"
+      tool: edit_file
+    - order: 5
+      action: "Produce documentation coverage summary report"
+  constraints:
+    - "Never change functional code — only add or update documentation"
+    - "Match existing docstring style conventions in the project"
+    - "Document exceptions that callers need to handle"
+    - "Keep examples concise but runnable"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0

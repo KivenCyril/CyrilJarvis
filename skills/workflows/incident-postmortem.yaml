@@ -1,0 +1,51 @@
+name: incident-postmortem
+description: "Post-incident analysis: timeline -> root cause -> action items -> report"
+category: operations
+parameters:
+  - name: incident_id
+    required: true
+    description: "Incident tracking ID"
+  - name: severity
+    required: true
+    description: "Incident severity: SEV1, SEV2, SEV3, SEV4"
+  - name: incident_date
+    required: true
+    description: "Date the incident occurred (YYYY-MM-DD)"
+steps:
+  - name: "Timeline Reconstruction"
+    agent: research-agent
+    description: "Build minute-by-minute timeline from logs, alerts, and chat history"
+  - name: "Impact Assessment"
+    agent: research-agent
+    depends_on: ["Timeline Reconstruction"]
+    description: "Quantify user impact: affected users, duration, revenue loss"
+  - name: "Root Cause Analysis"
+    agent: research-agent
+    depends_on: ["Timeline Reconstruction"]
+    description: "Apply 5-whys technique to identify contributing factors"
+  - name: "Detection Gap Analysis"
+    agent: devops-agent
+    depends_on: ["Timeline Reconstruction"]
+    description: "Evaluate monitoring gaps — why was the issue not caught earlier"
+    skills: [monitoring-setup]
+  - name: "Response Evaluation"
+    agent: research-agent
+    depends_on: ["Timeline Reconstruction"]
+    description: "Evaluate incident response effectiveness and communication"
+  - name: "Preventive Actions"
+    agent: code-agent
+    depends_on: ["Root Cause Analysis", "Detection Gap Analysis"]
+    description: "Define concrete engineering actions to prevent recurrence"
+  - name: "Monitoring Improvements"
+    agent: devops-agent
+    depends_on: ["Detection Gap Analysis"]
+    description: "Add alerts and dashboards to catch similar issues"
+    skills: [monitoring-setup]
+  - name: "Postmortem Report"
+    agent: writing-agent
+    depends_on:
+      - "Impact Assessment"
+      - "Root Cause Analysis"
+      - "Preventive Actions"
+      - "Response Evaluation"
+    description: "Generate blameless postmortem document for stakeholder review"

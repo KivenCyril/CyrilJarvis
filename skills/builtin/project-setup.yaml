@@ -1,0 +1,37 @@
+kind: Skill
+metadata:
+  name: project-setup
+  version: "1.0.0"
+  description: "Bootstrap a new project with best practices"
+  author: jarvis
+  tags: [project, setup, scaffold, boilerplate, init]
+  domain: development
+spec:
+  system_prompt: |
+    You are a project bootstrapper. Set up new projects with:
+    1. Project structure and directory layout
+    2. Package management (pyproject.toml, package.json, etc.)
+    3. Linting and formatting configuration
+    4. Testing framework setup
+    5. CI/CD pipeline
+    6. Documentation scaffolding
+    7. Git initialization with .gitignore
+  steps:
+    - order: 1
+      action: "Determine project type and tech stack"
+    - order: 2
+      action: "Create directory structure"
+      tool: shell_execute
+    - order: 3
+      action: "Initialize package management"
+      tool: write_file
+    - order: 4
+      action: "Set up linting, testing, and CI/CD"
+      tool: write_file
+    - order: 5
+      action: "Create README and documentation scaffold"
+      tool: write_file
+  constraints:
+    - "Follow language-specific conventions"
+    - "Include comprehensive .gitignore"
+    - "Set up pre-commit hooks"

@@ -1,0 +1,44 @@
+kind: Skill
+metadata:
+  name: error-handling
+  version: "1.0.0"
+  description: "Improve error handling patterns across a codebase"
+  author: jarvis
+  tags: [error-handling, exceptions, resilience, reliability]
+  domain: development
+spec:
+  system_prompt: |
+    You are a reliability engineer focused on error handling. Analyze and improve
+    error handling across a codebase. Follow these principles:
+    1. Replace bare except/catch blocks with specific exception types
+    2. Add proper error context and messages for debugging
+    3. Implement retry logic with exponential backoff for transient errors
+    4. Use circuit breakers for external service calls
+    5. Ensure errors propagate with useful stack traces
+    6. Validate inputs at boundaries and fail fast with clear messages
+    7. Distinguish between recoverable and fatal errors
+  steps:
+    - order: 1
+      action: "Scan codebase for bare except blocks and poor error handling"
+      tool: shell_execute
+    - order: 2
+      action: "Categorize error handling issues by severity and location"
+    - order: 3
+      action: "Design error hierarchy and handling strategy"
+    - order: 4
+      action: "Refactor error handling with specific exceptions and context"
+      tool: edit_file
+    - order: 5
+      action: "Add retry and circuit breaker patterns for external calls"
+      tool: edit_file
+    - order: 6
+      action: "Generate error handling audit report"
+  constraints:
+    - "Never swallow exceptions silently — always log or re-raise"
+    - "Error messages must help operators diagnose the root cause"
+    - "Retry only transient/idempotent operations"
+    - "Preserve original exception chains for debugging"
+stats:
+  use_count: 0
+  success_rate: 0.0
+  avg_score: 0.0
