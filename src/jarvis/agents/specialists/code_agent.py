@@ -284,6 +284,7 @@ class CodeAgent(BaseAgent):
             output_modes=["text", "code", "structured-comment"],
             domain="development",
             can_delegate=True,
+            tool_filter=["shell_execute", "read_file", "write_file", "git_status", "git_diff", "git_log", "python_execute", "list_directory"],
         ))
 
     # -- public API --------------------------------------------------------
@@ -300,7 +301,7 @@ class CodeAgent(BaseAgent):
             result = await self._llm_execute(
                 message, context,
                 system_prompt=system_prompt,
-                max_tool_rounds=8,
+                max_tool_rounds=3,
             )
             if result.success:
                 return result

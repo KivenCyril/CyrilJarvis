@@ -406,6 +406,7 @@ class SecurityAgent(BaseAgent):
             output_modes=["text", "structured-data"],
             domain="security",
             can_delegate=True,
+            tool_filter=["shell_execute", "read_file", "list_directory", "git_log"],
         ))
 
     # -- public API --------------------------------------------------------
@@ -421,7 +422,7 @@ class SecurityAgent(BaseAgent):
             result = await self._llm_execute(
                 message, context,
                 system_prompt=system_prompt,
-                max_tool_rounds=8,
+                max_tool_rounds=3,
             )
             if result.success:
                 return result

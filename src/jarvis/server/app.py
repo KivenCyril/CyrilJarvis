@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import json
 from contextlib import asynccontextmanager
+from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 from fastapi import FastAPI, HTTPException, WebSocket, Query, WebSocketDisconnect
 from pydantic import BaseModel
@@ -85,6 +89,7 @@ class UpdateStepRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
+    agent: str | None = None
 
 
 class RunSpecRequest(BaseModel):
@@ -105,9 +110,31 @@ async def health():
 
 # --- Chat (direct agent routing) ---
 
+_CHAT_TIMEOUT = 30
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
-    result = await jarvis.orchestrator.handle(req.message)
+    import asyncio
+    from jarvis.agents.base import AgentContext, TaskResult
+
+    try:
+        if req.agent and req.agent != "auto":
+            agent = jarvis.registry.get(req.agent)
+            if not agent:
+                raise HTTPException(404, f"Agent '{req.agent}' not found")
+            coro = agent.run(req.message)
+        else:
+            coro = jarvis.orchestrator.handle(req.message)
+
+        result = await asyncio.wait_for(coro, timeout=_CHAT_TIMEOUT)
+    except asyncio.TimeoutError:
+        result = TaskResult(
+            task_id="timeout",
+            agent_name=req.agent or "orchestrator",
+            success=False,
+            error=f"Request timed out after {_CHAT_TIMEOUT}s",
+        )
+
     return {
         "success": result.success,
         "agent": result.agent_name,

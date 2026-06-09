@@ -627,6 +627,7 @@ class DevOpsAgent(BaseAgent):
             output_modes=["text", "code", "structured-data"],
             domain="devops",
             can_delegate=True,
+            tool_filter=["shell_execute", "docker_list", "docker_inspect", "read_file"],
         ))
 
     # -- public API --------------------------------------------------------
@@ -642,7 +643,7 @@ class DevOpsAgent(BaseAgent):
             result = await self._llm_execute(
                 message, context,
                 system_prompt=system_prompt,
-                max_tool_rounds=8,
+                max_tool_rounds=3,
             )
             if result.success:
                 return result

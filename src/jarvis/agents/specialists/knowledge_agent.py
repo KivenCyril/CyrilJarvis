@@ -338,6 +338,7 @@ class KnowledgeAgent(BaseAgent):
             output_modes=["text", "structured-data"],
             domain="knowledge",
             can_delegate=True,
+            tool_filter=["web_search", "read_file", "python_execute"],
         ))
 
     # -- public API --------------------------------------------------------
@@ -355,7 +356,7 @@ class KnowledgeAgent(BaseAgent):
             result = await self._llm_execute(
                 message, context,
                 system_prompt=system_prompt,
-                max_tool_rounds=8,
+                max_tool_rounds=3,
             )
             if result.success:
                 return result

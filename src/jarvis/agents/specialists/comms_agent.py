@@ -318,6 +318,7 @@ class CommsAgent(BaseAgent):
             output_modes=["text", "notification"],
             domain="communication",
             can_delegate=True,
+            tool_filter=[],
         ))
 
     # -- public API --------------------------------------------------------

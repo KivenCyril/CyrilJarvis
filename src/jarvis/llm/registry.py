@@ -22,6 +22,8 @@ _MODEL_PROVIDER_HINTS = {
     "o3": "openai",
     "o4": "openai",
     "claude-": "anthropic",
+    "qwen": "anthropic",
+    "Qwen": "anthropic",
     "deepseek": "deepseek",
     "mock-": "mock",
     "llama": "ollama",

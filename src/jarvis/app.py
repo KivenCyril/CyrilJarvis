@@ -7,6 +7,7 @@ from jarvis.agents.orchestrator import Orchestrator
 from jarvis.agents.registry import AgentRegistry
 from jarvis.agents.specialists.calendar_agent import CalendarAgent
 from jarvis.agents.specialists.code_agent import CodeAgent
+from jarvis.agents.specialists.general_agent import GeneralAgent
 from jarvis.agents.specialists.comms_agent import CommsAgent
 from jarvis.agents.specialists.data_agent import DataAgent
 from jarvis.agents.specialists.devops_agent import DevOpsAgent
@@ -59,6 +60,7 @@ class JarvisApp:
         self._init_tools()
 
         agents = [
+            GeneralAgent(),
             CodeAgent(),
             CalendarAgent(),
             KnowledgeAgent(),

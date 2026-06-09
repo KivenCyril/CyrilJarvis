@@ -47,6 +47,7 @@ class AgentCard:
     version: str = "1.0"
     can_delegate: bool = False
     max_concurrent: int = 1
+    tool_filter: list[str] | None = None
 
 
 @dataclass
@@ -149,12 +150,19 @@ class BaseAgent(ABC):
             constraints=context.constraints,
         )
 
-        # Get tool definitions
+        # Get tool definitions filtered by agent's tool_filter
         tools = None
         tool_executor = None
-        if self._tool_registry:
-            tools = self._tool_registry.get_definitions()
-            tool_executor = self._tool_registry
+        if self._tool_registry and self.card.tool_filter != []:
+            if self.card.tool_filter is None:
+                tools = self._tool_registry.get_definitions()
+            else:
+                allowed = set(self.card.tool_filter)
+                tools = [t for t in self._tool_registry.get_definitions() if t.name in allowed]
+                if not tools:
+                    tools = None
+            if tools:
+                tool_executor = self._tool_registry
 
         # Run conversation loop
         loop = ConversationLoop(

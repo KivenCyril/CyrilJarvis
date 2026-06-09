@@ -325,6 +325,7 @@ class DataAgent(BaseAgent):
             output_modes=["text", "structured-data"],
             domain="data",
             can_delegate=True,
+            tool_filter=["read_file", "python_execute", "csv_parse", "json_parse"],
         ))
 
     # -- public API --------------------------------------------------------
@@ -341,7 +342,7 @@ class DataAgent(BaseAgent):
             result = await self._llm_execute(
                 message, context,
                 system_prompt=system_prompt,
-                max_tool_rounds=8,
+                max_tool_rounds=3,
             )
             if result.success:
                 return result

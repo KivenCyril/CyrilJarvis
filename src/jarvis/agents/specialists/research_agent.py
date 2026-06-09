@@ -406,6 +406,7 @@ class ResearchAgent(BaseAgent):
             output_modes=["text", "structured-data"],
             domain="research",
             can_delegate=True,
+            tool_filter=["web_search", "read_file", "python_execute"],
         ))
 
     # -- public API --------------------------------------------------------
@@ -421,7 +422,7 @@ class ResearchAgent(BaseAgent):
             result = await self._llm_execute(
                 message, context,
                 system_prompt=system_prompt,
-                max_tool_rounds=12,
+                max_tool_rounds=3,
             )
             if result.success:
                 return result

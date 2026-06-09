@@ -338,6 +338,7 @@ class CalendarAgent(BaseAgent):
             output_modes=["text", "calendar-event", "notification"],
             domain="personal-productivity",
             can_delegate=True,
+            tool_filter=[],
         ))
 
     # -- public API --------------------------------------------------------

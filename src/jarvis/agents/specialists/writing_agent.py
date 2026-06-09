@@ -479,6 +479,7 @@ class WritingAgent(BaseAgent):
             output_modes=["text", "markdown", "html"],
             domain="writing",
             can_delegate=True,
+            tool_filter=["read_file", "write_file", "web_search"],
         ))
 
     # -- public API --------------------------------------------------------
