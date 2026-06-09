@@ -1,28 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Workflow Manager</title>
+<title>JARVIS - 工作流</title>
 <style>
-/* ====================================================================
-   JARVIS Workflow Manager — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
@@ -35,43 +30,77 @@
   --purple-bg:    rgba(168,85,247,0.12);
   --cyan:         #06b6d4;
   --cyan-bg:      rgba(6,182,212,0.12);
+  --yellow:       #eab308;
   --radius:       8px;
   --radius-lg:    12px;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
   --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Navigation ---------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
+
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
 }
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
 
-/* -- Main Layout ------------------------------------------------------- */
-.main-layout { flex: 1; display: flex; overflow: hidden; }
+.page-content { overflow-y: auto; }
 
-/* -- Left Panel: Workflow List ----------------------------------------- */
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
+
+/* ── Workflow Main Layout ────────────────────────────────── */
+.wf-main { display: flex; height: 100%; overflow: hidden; }
+
+/* ── Left Panel: Workflow List ───────────────────────────── */
 .wf-list-panel {
-  width: 340px; background: var(--bg-base); border-right: 1px solid var(--border);
+  width: 320px; min-width: 260px; background: var(--bg-base); border-right: 1px solid var(--border);
   display: flex; flex-direction: column; flex-shrink: 0;
 }
 .wf-list-header {
@@ -82,8 +111,10 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .btn-new {
   padding: 6px 14px; background: var(--accent); color: #fff; border: none;
   border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer;
+  display: flex; align-items: center; gap: 5px; transition: var(--transition);
 }
 .btn-new:hover { background: var(--accent-hover); }
+.btn-new svg { width: 13px; height: 13px; }
 .wf-list { flex: 1; overflow-y: auto; }
 .wf-item {
   padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
@@ -95,18 +126,18 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .wf-item-meta { display: flex; gap: 8px; align-items: center; }
 .wf-item-meta span { font-size: 11px; color: var(--text-muted); }
 
-/* Badges */
+/* ── Badges ──────────────────────────────────────────────── */
 .badge {
   display: inline-block; padding: 2px 8px; border-radius: 10px;
   font-size: 10px; font-weight: 600; text-transform: uppercase;
 }
-.badge-running  { background: var(--green-bg); color: var(--green); }
-.badge-pending  { background: var(--orange-bg); color: var(--orange); }
-.badge-failed   { background: var(--red-bg); color: var(--red); }
-.badge-completed{ background: var(--cyan-bg); color: var(--cyan); }
-.badge-draft    { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+.badge-running   { background: var(--green-bg); color: var(--green); }
+.badge-pending   { background: var(--orange-bg); color: var(--orange); }
+.badge-failed    { background: var(--red-bg); color: var(--red); }
+.badge-completed { background: var(--cyan-bg); color: var(--cyan); }
+.badge-draft     { background: rgba(100,116,139,0.15); color: var(--text-muted); }
 
-/* -- Center: Workflow Editor ------------------------------------------- */
+/* ── Center: Workflow Editor ─────────────────────────────── */
 .wf-editor {
   flex: 1; display: flex; flex-direction: column; overflow: hidden;
 }
@@ -114,21 +145,21 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   height: 48px; padding: 0 16px; border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 10px; background: var(--bg-base);
 }
-.wf-editor-toolbar .wf-name {
-  font-size: 15px; font-weight: 600; flex: 1;
-}
+.wf-editor-toolbar .wf-name { font-size: 15px; font-weight: 600; flex: 1; }
 .wf-editor-toolbar button {
   padding: 6px 14px; border-radius: var(--radius); font-size: 12px;
-  font-weight: 500; border: none; cursor: pointer;
+  font-weight: 500; border: none; cursor: pointer; display: flex;
+  align-items: center; gap: 5px; transition: var(--transition);
 }
+.wf-editor-toolbar button svg { width: 13px; height: 13px; }
 .btn-run { background: var(--green); color: #fff; }
 .btn-run:hover { background: #16a34a; }
 .btn-save { background: var(--accent); color: #fff; }
 .btn-save:hover { background: var(--accent-hover); }
 .btn-delete { background: var(--red); color: #fff; }
-.btn-delete:hover { opacity: 0.9; }
+.btn-delete:hover { opacity: 0.85; }
 
-/* -- Canvas ------------------------------------------------------------ */
+/* ── Canvas ──────────────────────────────────────────────── */
 .wf-canvas {
   flex: 1; position: relative; overflow: auto; background: var(--bg-deep);
   background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
@@ -136,9 +167,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 }
 .wf-canvas-inner { position: relative; min-height: 600px; padding: 40px; }
 
-/* -- Step Card --------------------------------------------------------- */
+/* ── Step Card ───────────────────────────────────────────── */
 .step-card {
-  position: absolute; width: 220px; background: var(--bg-card);
+  position: absolute; width: 220px; background: var(--bg-surface);
   border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 14px; cursor: grab; box-shadow: var(--shadow); transition: box-shadow 150ms;
   user-select: none;
@@ -148,13 +179,14 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .step-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .step-icon {
   width: 28px; height: 28px; border-radius: 6px; display: flex;
-  align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+  align-items: center; justify-content: center; flex-shrink: 0;
 }
-.step-icon.action   { background: var(--green-bg); color: var(--green); }
+.step-icon svg { width: 14px; height: 14px; }
+.step-icon.action    { background: var(--green-bg); color: var(--green); }
 .step-icon.condition { background: var(--orange-bg); color: var(--orange); }
-.step-icon.loop     { background: var(--purple-bg); color: var(--purple); }
-.step-icon.parallel { background: var(--cyan-bg); color: var(--cyan); }
-.step-icon.approval { background: var(--red-bg); color: var(--red); }
+.step-icon.loop      { background: var(--purple-bg); color: var(--purple); }
+.step-icon.parallel  { background: var(--cyan-bg); color: var(--cyan); }
+.step-icon.approval  { background: var(--red-bg); color: var(--red); }
 .step-name { font-size: 13px; font-weight: 600; flex: 1; }
 .step-desc { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
 .step-status { font-size: 10px; }
@@ -164,40 +196,42 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .step-card:hover .step-actions { opacity: 1; }
 .step-actions button {
   padding: 3px 8px; font-size: 10px; border-radius: 4px; border: 1px solid var(--border);
-  color: var(--text-dim); background: var(--bg-surface); cursor: pointer;
+  color: var(--text-dim); background: var(--bg-surface); cursor: pointer; transition: var(--transition);
 }
 .step-actions button:hover { color: var(--text); border-color: var(--accent); }
 
-/* -- Connectors -------------------------------------------------------- */
+/* ── Connectors ──────────────────────────────────────────── */
 .wf-connectors { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 .wf-connectors svg { width: 100%; height: 100%; }
 
-/* -- Right Panel: Variables & Progress --------------------------------- */
+/* ── Right Panel: Detail ─────────────────────────────────── */
 .wf-right-panel {
-  width: 320px; background: var(--bg-base); border-left: 1px solid var(--border);
+  width: 300px; background: var(--bg-base); border-left: 1px solid var(--border);
   display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
 }
 .panel-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
 .panel-title {
-  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
   color: var(--text-muted); margin-bottom: 10px;
 }
 
-/* -- Template Selector ------------------------------------------------- */
+/* ── Template Selector ───────────────────────────────────── */
 .template-select {
   width: 100%; padding: 8px 10px; background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius); color: var(--text); font-size: 13px; margin-bottom: 8px;
+  border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: var(--font);
+  transition: var(--transition); cursor: pointer;
 }
+.template-select:focus { outline: none; border-color: var(--accent); }
 
-/* -- Progress Steps ---------------------------------------------------- */
+/* ── Progress Steps ──────────────────────────────────────── */
 .progress-step { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
 .progress-dot {
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
 }
-.progress-dot.done { background: var(--green); }
+.progress-dot.done    { background: var(--green); }
 .progress-dot.running { background: var(--accent); animation: pulse 1.5s infinite; }
 .progress-dot.pending { background: var(--text-muted); }
-.progress-dot.failed { background: var(--red); }
+.progress-dot.failed  { background: var(--red); }
 .progress-label { font-size: 12px; color: var(--text-dim); flex: 1; }
 .progress-time { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
 
@@ -206,8 +240,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   50% { opacity: 0.5; transform: scale(0.8); }
 }
 
-/* -- Variable Inspector ------------------------------------------------ */
+/* ── Variable Inspector ──────────────────────────────────── */
 .var-item { display: flex; align-items: center; padding: 6px 0; gap: 8px; border-bottom: 1px solid var(--border); }
+.var-item:last-child { border-bottom: none; }
 .var-name { font-size: 12px; font-family: var(--mono); color: var(--cyan); min-width: 80px; }
 .var-value { font-size: 12px; color: var(--text-dim); flex: 1; word-break: break-all; }
 .var-type {
@@ -215,7 +250,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   background: var(--bg-surface); color: var(--text-muted);
 }
 
-/* -- Add Step Toolbar -------------------------------------------------- */
+/* ── Add Step Toolbar ────────────────────────────────────── */
 .add-step-bar {
   padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--bg-base);
   display: flex; gap: 6px; flex-wrap: wrap;
@@ -223,18 +258,19 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .add-step-btn {
   padding: 5px 10px; border-radius: var(--radius); font-size: 11px; font-weight: 500;
   border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-dim);
-  cursor: pointer; display: flex; align-items: center; gap: 4px;
+  cursor: pointer; display: flex; align-items: center; gap: 5px; transition: var(--transition);
 }
 .add-step-btn:hover { border-color: var(--accent); color: var(--text); }
+.add-step-btn svg { width: 12px; height: 12px; }
 
-/* -- Create Workflow Dialog -------------------------------------------- */
+/* ── Create Workflow Dialog ──────────────────────────────── */
 .dialog-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
-  display: none; align-items: center; justify-content: center;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  z-index: 1000; display: none; align-items: center; justify-content: center;
 }
 .dialog-overlay.visible { display: flex; }
 .dialog {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 24px; width: 420px; box-shadow: var(--shadow-md);
 }
 .dialog h3 { font-size: 16px; margin-bottom: 16px; }
@@ -242,181 +278,286 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .dialog label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
 .dialog input, .dialog select, .dialog textarea {
   width: 100%; padding: 8px 10px; background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius); color: var(--text); font-size: 13px;
+  border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: var(--font);
+  transition: var(--transition);
 }
+.dialog input:focus, .dialog select:focus, .dialog textarea:focus { outline: none; border-color: var(--accent); }
 .dialog textarea { resize: vertical; min-height: 60px; }
 .dialog-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 .dialog-actions button {
   padding: 8px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
-  border: none; cursor: pointer;
+  border: none; cursor: pointer; transition: var(--transition);
 }
-.btn-cancel { background: var(--bg-surface); color: var(--text-dim); }
+.btn-cancel { background: var(--bg-hover); color: var(--text-dim); }
+.btn-cancel:hover { background: var(--border-light); color: var(--text); }
 .btn-create { background: var(--accent); color: #fff; }
 .btn-create:hover { background: var(--accent-hover); }
 
-/* -- Toast ------------------------------------------------------------- */
+/* ── Toast ───────────────────────────────────────────────── */
 .toast-container { position: fixed; top: 60px; right: 16px; z-index: 1001; }
 .toast {
-  padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border);
+  padding: 10px 16px; background: var(--bg-surface); border: 1px solid var(--border);
   border-radius: var(--radius); font-size: 13px; margin-bottom: 8px; box-shadow: var(--shadow);
-  animation: toastIn 300ms ease;
+  animation: toastIn 300ms ease; display: flex; align-items: center; gap: 8px;
 }
+.toast svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--green); }
 @keyframes toastIn {
   from { transform: translateX(120%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Workflow Info ────────────────────────────────────────── */
+.wf-info-row { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; display: flex; gap: 6px; }
+.wf-info-label { color: var(--text-muted); min-width: 60px; flex-shrink: 0; }
+.wf-info-desc { font-size: 12px; color: var(--text-dim); margin-top: 8px; line-height: 1.5; }
+
+/* ── Empty State ─────────────────────────────────────────── */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); gap: 12px; padding: 40px; }
+.empty-state svg { width: 48px; height: 48px; opacity: 0.3; }
+.empty-state p { font-size: 13px; }
+
+@media (max-width: 768px) {
+  .wf-list-panel { width: 240px; min-width: 200px; }
+  .wf-right-panel { width: 240px; }
 }
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Workflows</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html" class="active">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">工作流</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Left Panel: Workflow List -->
-  <div class="wf-list-panel">
-    <div class="wf-list-header">
-      <h2>Workflows</h2>
-      <button class="btn-new" onclick="showCreateDialog()">+ New</button>
-    </div>
-    <div class="wf-list" id="workflowList"></div>
-  </div>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item active" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
+  </aside>
 
-  <!-- Center: Workflow Editor -->
-  <div class="wf-editor">
-    <div class="wf-editor-toolbar">
-      <div class="wf-name" id="editorTitle">Select a workflow</div>
-      <button class="btn-run" id="btnRun" onclick="runWorkflow()" style="display:none">Run</button>
-      <button class="btn-save" id="btnSave" onclick="saveWorkflow()" style="display:none">Save</button>
-      <button class="btn-delete" id="btnDelete" onclick="deleteWorkflow()" style="display:none">Delete</button>
-    </div>
-    <div class="add-step-bar" id="addStepBar" style="display:none">
-      <button class="add-step-btn" onclick="addStep('action')">
-        <span style="color:var(--green)">&#9654;</span> Action
-      </button>
-      <button class="add-step-btn" onclick="addStep('condition')">
-        <span style="color:var(--orange)">&#9670;</span> Condition
-      </button>
-      <button class="add-step-btn" onclick="addStep('loop')">
-        <span style="color:var(--purple)">&#8634;</span> Loop
-      </button>
-      <button class="add-step-btn" onclick="addStep('parallel')">
-        <span style="color:var(--cyan)">&#8741;</span> Parallel
-      </button>
-      <button class="add-step-btn" onclick="addStep('approval')">
-        <span style="color:var(--red)">&#10003;</span> Approval
-      </button>
-    </div>
-    <div class="wf-canvas" id="wfCanvas">
-      <div class="wf-canvas-inner" id="canvasInner">
-        <div class="wf-connectors" id="connectorsLayer">
-          <svg id="connectorsSvg"></svg>
+  <div class="page-content">
+    <div class="wf-main">
+      <!-- Left Panel: Workflow List -->
+      <div class="wf-list-panel">
+        <div class="wf-list-header">
+          <h2>工作流</h2>
+          <button class="btn-new" onclick="showCreateDialog()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新建
+          </button>
+        </div>
+        <div class="wf-list" id="workflowList"></div>
+      </div>
+
+      <!-- Center: Workflow Editor -->
+      <div class="wf-editor">
+        <div class="wf-editor-toolbar">
+          <div class="wf-name" id="editorTitle">选择一个工作流</div>
+          <button class="btn-run" id="btnRun" onclick="runWorkflow()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            运行
+          </button>
+          <button class="btn-save" id="btnSave" onclick="saveWorkflow()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            保存
+          </button>
+          <button class="btn-delete" id="btnDelete" onclick="deleteWorkflow()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            删除
+          </button>
+        </div>
+        <div class="add-step-bar" id="addStepBar" style="display:none">
+          <button class="add-step-btn" onclick="addStep('action')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            动作
+          </button>
+          <button class="add-step-btn" onclick="addStep('condition')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+            条件
+          </button>
+          <button class="add-step-btn" onclick="addStep('loop')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            循环
+          </button>
+          <button class="add-step-btn" onclick="addStep('parallel')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="16" y2="21"/></svg>
+            并行
+          </button>
+          <button class="add-step-btn" onclick="addStep('approval')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            审批
+          </button>
+        </div>
+        <div class="wf-canvas" id="wfCanvas">
+          <div class="wf-canvas-inner" id="canvasInner">
+            <div class="wf-connectors" id="connectorsLayer">
+              <svg id="connectorsSvg"></svg>
+            </div>
+            <div class="empty-state" id="emptyState">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <p>选择左侧工作流或新建一个</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="wf-right-panel">
+        <!-- Template -->
+        <div class="panel-section">
+          <div class="panel-title">从模板创建</div>
+          <select class="template-select" id="templateSelect" onchange="applyTemplate()">
+            <option value="">-- 选择模板 --</option>
+            <option value="research">研究报告</option>
+            <option value="code-review">代码审查管线</option>
+            <option value="data-pipeline">数据处理管线</option>
+            <option value="deployment">部署工作流</option>
+            <option value="onboarding">用户引导</option>
+          </select>
+        </div>
+
+        <!-- Execution Progress -->
+        <div class="panel-section">
+          <div class="panel-title">执行进度</div>
+          <div id="progressList">
+            <div style="font-size:12px;color:var(--text-muted)">暂无执行中的任务</div>
+          </div>
+        </div>
+
+        <!-- Variable Inspector -->
+        <div class="panel-section">
+          <div class="panel-title">变量</div>
+          <div id="variableList">
+            <div style="font-size:12px;color:var(--text-muted)">暂无定义变量</div>
+          </div>
+        </div>
+
+        <!-- Workflow Info -->
+        <div class="panel-section" id="wfInfoPanel" style="display:none">
+          <div class="panel-title">工作流信息</div>
+          <div id="wfInfo"></div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Right Panel -->
-  <div class="wf-right-panel">
-    <!-- Template -->
-    <div class="panel-section">
-      <div class="panel-title">Create from Template</div>
-      <select class="template-select" id="templateSelect" onchange="applyTemplate()">
-        <option value="">-- Select template --</option>
-        <option value="research">Research & Report</option>
-        <option value="code-review">Code Review Pipeline</option>
-        <option value="data-pipeline">Data Processing Pipeline</option>
-        <option value="deployment">Deployment Workflow</option>
-        <option value="onboarding">User Onboarding</option>
-      </select>
-    </div>
-
-    <!-- Execution Progress -->
-    <div class="panel-section">
-      <div class="panel-title">Execution Progress</div>
-      <div id="progressList">
-        <div style="font-size:12px;color:var(--text-muted)">No active execution</div>
+    <!-- Create Workflow Dialog -->
+    <div class="dialog-overlay" id="createDialog">
+      <div class="dialog">
+        <h3>创建工作流</h3>
+        <div class="form-group">
+          <label>名称</label>
+          <input type="text" id="newWfName" placeholder="我的工作流">
+        </div>
+        <div class="form-group">
+          <label>描述</label>
+          <textarea id="newWfDesc" placeholder="这个工作流做什么？"></textarea>
+        </div>
+        <div class="form-group">
+          <label>模板</label>
+          <select id="newWfTemplate">
+            <option value="">空白</option>
+            <option value="research">研究报告</option>
+            <option value="code-review">代码审查管线</option>
+            <option value="data-pipeline">数据处理管线</option>
+            <option value="deployment">部署工作流</option>
+            <option value="onboarding">用户引导</option>
+          </select>
+        </div>
+        <div class="dialog-actions">
+          <button class="btn-cancel" onclick="hideCreateDialog()">取消</button>
+          <button class="btn-create" onclick="createWorkflow()">创建</button>
+        </div>
       </div>
     </div>
 
-    <!-- Variable Inspector -->
-    <div class="panel-section">
-      <div class="panel-title">Variables</div>
-      <div id="variableList">
-        <div style="font-size:12px;color:var(--text-muted)">No variables defined</div>
-      </div>
-    </div>
-
-    <!-- Workflow Info -->
-    <div class="panel-section" id="wfInfoPanel" style="display:none">
-      <div class="panel-title">Workflow Info</div>
-      <div id="wfInfo"></div>
-    </div>
+    <div class="toast-container" id="toasts"></div>
   </div>
 </div>
-
-<!-- Create Workflow Dialog -->
-<div class="dialog-overlay" id="createDialog">
-  <div class="dialog">
-    <h3>Create Workflow</h3>
-    <div class="form-group">
-      <label>Name</label>
-      <input type="text" id="newWfName" placeholder="My Workflow">
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="newWfDesc" placeholder="What does this workflow do?"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Template</label>
-      <select id="newWfTemplate">
-        <option value="">Blank</option>
-        <option value="research">Research & Report</option>
-        <option value="code-review">Code Review Pipeline</option>
-        <option value="data-pipeline">Data Processing Pipeline</option>
-        <option value="deployment">Deployment Workflow</option>
-        <option value="onboarding">User Onboarding</option>
-      </select>
-    </div>
-    <div class="dialog-actions">
-      <button class="btn-cancel" onclick="hideCreateDialog()">Cancel</button>
-      <button class="btn-create" onclick="createWorkflow()">Create</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast-container" id="toasts"></div>
 
 <script>
+(() => {
+'use strict';
+
 /* ====================================================================
    JARVIS Workflow Manager
    ==================================================================== */
 
 const API_BASE = window.location.origin;
 
-const stepIcons = {
-  action:   { symbol: '▶', cssClass: 'action' },
-  condition:{ symbol: '◆', cssClass: 'condition' },
-  loop:     { symbol: '↺', cssClass: 'loop' },
-  parallel: { symbol: '‖', cssClass: 'parallel' },
-  approval: { symbol: '✓', cssClass: 'approval' },
+/* SVG icon markup for each step type */
+const STEP_ICONS = {
+  action: {
+    cssClass: 'action',
+    svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+  },
+  condition: {
+    cssClass: 'condition',
+    svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l10 10-10 10L2 12z"/></svg>'
+  },
+  loop: {
+    cssClass: 'loop',
+    svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'
+  },
+  parallel: {
+    cssClass: 'parallel',
+    svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="16" y2="21"/></svg>'
+  },
+  approval: {
+    cssClass: 'approval',
+    svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>'
+  }
+};
+
+/* Status label map */
+const STATUS_LABELS = {
+  running: '运行中',
+  pending: '待执行',
+  completed: '已完成',
+  failed: '已失败',
+  draft: '草稿',
+  done: '已完成'
+};
+
+/* Step type label map */
+const STEP_TYPE_LABELS = {
+  action: '动作',
+  condition: '条件',
+  loop: '循环',
+  parallel: '并行',
+  approval: '审批'
 };
 
 let workflows = [];
@@ -424,15 +565,15 @@ let activeWfId = null;
 let dragTarget = null;
 let dragOffset = { x: 0, y: 0 };
 
-// -- Templates ----------------------------------------------------------
+/* ── Templates ──────────────────────────────────────────── */
 
-const templates = {
+const TEMPLATES = {
   research: {
     steps: [
-      { id: 's1', name: 'Gather Sources', type: 'action', desc: 'Search and collect relevant sources', x: 60, y: 40, status: 'pending' },
-      { id: 's2', name: 'Filter Quality', type: 'condition', desc: 'Check source reliability', x: 60, y: 160, status: 'pending' },
-      { id: 's3', name: 'Extract Data', type: 'loop', desc: 'Extract key facts from each source', x: 60, y: 280, status: 'pending' },
-      { id: 's4', name: 'Generate Report', type: 'action', desc: 'Compile findings into report', x: 60, y: 400, status: 'pending' },
+      { id: 's1', name: '收集资料', type: 'action', desc: '搜索并收集相关来源', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: '质量过滤', type: 'condition', desc: '检查来源可靠性', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: '提取数据', type: 'loop', desc: '从每个来源提取关键信息', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: '生成报告', type: 'action', desc: '整理发现并生成报告', x: 60, y: 400, status: 'pending' },
     ],
     connections: [['s1','s2'],['s2','s3'],['s3','s4']],
     variables: [
@@ -442,10 +583,10 @@ const templates = {
   },
   'code-review': {
     steps: [
-      { id: 's1', name: 'Fetch PR', type: 'action', desc: 'Get pull request diff', x: 60, y: 40, status: 'pending' },
-      { id: 's2', name: 'Static Analysis', type: 'parallel', desc: 'Run linting, type checks, security scan', x: 60, y: 160, status: 'pending' },
-      { id: 's3', name: 'AI Review', type: 'action', desc: 'LLM-based code review', x: 60, y: 280, status: 'pending' },
-      { id: 's4', name: 'Approve/Reject', type: 'approval', desc: 'Human approval gate', x: 60, y: 400, status: 'pending' },
+      { id: 's1', name: '获取 PR', type: 'action', desc: '获取拉取请求差异', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: '静态分析', type: 'parallel', desc: '运行 lint、类型检查、安全扫描', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: 'AI 审查', type: 'action', desc: '基于大模型的代码审查', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: '审批/驳回', type: 'approval', desc: '人工审批关卡', x: 60, y: 400, status: 'pending' },
     ],
     connections: [['s1','s2'],['s2','s3'],['s3','s4']],
     variables: [
@@ -455,10 +596,10 @@ const templates = {
   },
   'data-pipeline': {
     steps: [
-      { id: 's1', name: 'Ingest Data', type: 'action', desc: 'Read from data source', x: 60, y: 40, status: 'pending' },
-      { id: 's2', name: 'Validate Schema', type: 'condition', desc: 'Ensure data matches schema', x: 60, y: 160, status: 'pending' },
-      { id: 's3', name: 'Transform', type: 'loop', desc: 'Apply transformations row by row', x: 60, y: 280, status: 'pending' },
-      { id: 's4', name: 'Load', type: 'action', desc: 'Write to destination', x: 60, y: 400, status: 'pending' },
+      { id: 's1', name: '采集数据', type: 'action', desc: '从数据源读取', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: '校验结构', type: 'condition', desc: '确保数据符合模式', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: '数据转换', type: 'loop', desc: '逐行应用转换规则', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: '写入目标', type: 'action', desc: '写入目标存储', x: 60, y: 400, status: 'pending' },
     ],
     connections: [['s1','s2'],['s2','s3'],['s3','s4']],
     variables: [
@@ -468,11 +609,11 @@ const templates = {
   },
   deployment: {
     steps: [
-      { id: 's1', name: 'Build', type: 'action', desc: 'Compile and package', x: 60, y: 40, status: 'pending' },
-      { id: 's2', name: 'Test', type: 'parallel', desc: 'Run unit + integration tests', x: 60, y: 160, status: 'pending' },
-      { id: 's3', name: 'Stage Deploy', type: 'action', desc: 'Deploy to staging environment', x: 60, y: 280, status: 'pending' },
-      { id: 's4', name: 'Approve Prod', type: 'approval', desc: 'Manual approval for production', x: 60, y: 400, status: 'pending' },
-      { id: 's5', name: 'Deploy Prod', type: 'action', desc: 'Deploy to production', x: 60, y: 520, status: 'pending' },
+      { id: 's1', name: '构建', type: 'action', desc: '编译并打包', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: '测试', type: 'parallel', desc: '运行单元测试和集成测试', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: '部署预发', type: 'action', desc: '部署至预发环境', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: '生产审批', type: 'approval', desc: '生产部署人工审批', x: 60, y: 400, status: 'pending' },
+      { id: 's5', name: '部署生产', type: 'action', desc: '部署至生产环境', x: 60, y: 520, status: 'pending' },
     ],
     connections: [['s1','s2'],['s2','s3'],['s3','s4'],['s4','s5']],
     variables: [
@@ -482,10 +623,10 @@ const templates = {
   },
   onboarding: {
     steps: [
-      { id: 's1', name: 'Create Account', type: 'action', desc: 'Set up user account', x: 60, y: 40, status: 'pending' },
-      { id: 's2', name: 'Send Welcome', type: 'action', desc: 'Send welcome email', x: 60, y: 160, status: 'pending' },
-      { id: 's3', name: 'Setup Workspace', type: 'parallel', desc: 'Configure tools and permissions', x: 60, y: 280, status: 'pending' },
-      { id: 's4', name: 'Check Completion', type: 'condition', desc: 'Verify all steps done', x: 60, y: 400, status: 'pending' },
+      { id: 's1', name: '创建账户', type: 'action', desc: '设置用户账户', x: 60, y: 40, status: 'pending' },
+      { id: 's2', name: '发送欢迎邮件', type: 'action', desc: '发送欢迎通知', x: 60, y: 160, status: 'pending' },
+      { id: 's3', name: '配置工作区', type: 'parallel', desc: '配置工具和权限', x: 60, y: 280, status: 'pending' },
+      { id: 's4', name: '完成检查', type: 'condition', desc: '验证所有步骤完成', x: 60, y: 400, status: 'pending' },
     ],
     connections: [['s1','s2'],['s2','s3'],['s3','s4']],
     variables: [
@@ -495,7 +636,7 @@ const templates = {
   },
 };
 
-// -- Initialize ---------------------------------------------------------
+/* ── Initialize ─────────────────────────────────────────── */
 
 function init() {
   loadDemoWorkflows();
@@ -505,36 +646,39 @@ function init() {
 function loadDemoWorkflows() {
   workflows = [
     {
-      id: 'wf1', name: 'Research Pipeline', description: 'Automated research and report generation',
-      status: 'running', created: '2025-05-28', steps: templates.research.steps.map(s => ({...s})),
-      connections: [...templates.research.connections],
-      variables: templates.research.variables.map(v => ({...v})),
+      id: 'wf1', name: '研究管线', description: '自动化研究与报告生成',
+      status: 'running', created: '2025-05-28',
+      steps: TEMPLATES.research.steps.map(s => ({...s})),
+      connections: [...TEMPLATES.research.connections],
+      variables: TEMPLATES.research.variables.map(v => ({...v})),
     },
     {
-      id: 'wf2', name: 'Code Review Bot', description: 'Automated PR review pipeline',
-      status: 'completed', created: '2025-05-25', steps: templates['code-review'].steps.map(s => ({...s, status: 'done'})),
-      connections: [...templates['code-review'].connections],
-      variables: templates['code-review'].variables.map(v => ({...v})),
+      id: 'wf2', name: '代码审查机器人', description: '自动化 PR 审查管线',
+      status: 'completed', created: '2025-05-25',
+      steps: TEMPLATES['code-review'].steps.map(s => ({...s, status: 'done'})),
+      connections: [...TEMPLATES['code-review'].connections],
+      variables: TEMPLATES['code-review'].variables.map(v => ({...v})),
     },
     {
-      id: 'wf3', name: 'Daily Deploy', description: 'CI/CD pipeline',
-      status: 'pending', created: '2025-05-30', steps: templates.deployment.steps.map(s => ({...s})),
-      connections: [...templates.deployment.connections],
-      variables: templates.deployment.variables.map(v => ({...v})),
+      id: 'wf3', name: '每日部署', description: 'CI/CD 持续集成管线',
+      status: 'pending', created: '2025-05-30',
+      steps: TEMPLATES.deployment.steps.map(s => ({...s})),
+      connections: [...TEMPLATES.deployment.connections],
+      variables: TEMPLATES.deployment.variables.map(v => ({...v})),
     },
   ];
 }
 
-// -- Workflow List -------------------------------------------------------
+/* ── Workflow List ──────────────────────────────────────── */
 
 function renderWorkflowList() {
   const container = document.getElementById('workflowList');
   container.innerHTML = workflows.map(wf => `
     <div class="wf-item ${wf.id === activeWfId ? 'active' : ''}" onclick="selectWorkflow('${wf.id}')">
-      <div class="wf-item-title">${wf.name}</div>
+      <div class="wf-item-title">${escapeHtml(wf.name)}</div>
       <div class="wf-item-meta">
-        <span class="badge badge-${wf.status}">${wf.status}</span>
-        <span>${wf.steps.length} steps</span>
+        <span class="badge badge-${wf.status}">${STATUS_LABELS[wf.status] || wf.status}</span>
+        <span>${wf.steps.length} 个步骤</span>
         <span>${wf.created}</span>
       </div>
     </div>
@@ -551,6 +695,7 @@ function selectWorkflow(id) {
   document.getElementById('btnSave').style.display = '';
   document.getElementById('btnDelete').style.display = '';
   document.getElementById('addStepBar').style.display = '';
+  document.getElementById('emptyState').style.display = 'none';
 
   renderWorkflowList();
   renderSteps(wf);
@@ -560,37 +705,34 @@ function selectWorkflow(id) {
   renderWfInfo(wf);
 }
 
-// -- Step Rendering ------------------------------------------------------
+/* ── Step Rendering ─────────────────────────────────────── */
 
 function renderSteps(wf) {
   const container = document.getElementById('canvasInner');
-  // Remove old step cards (keep connectors layer)
   container.querySelectorAll('.step-card').forEach(el => el.remove());
 
   for (const step of wf.steps) {
-    const iconInfo = stepIcons[step.type] || stepIcons.action;
+    const iconInfo = STEP_ICONS[step.type] || STEP_ICONS.action;
     const card = document.createElement('div');
     card.className = 'step-card';
-    card.id = `step-${step.id}`;
-    card.style.left = `${step.x}px`;
-    card.style.top = `${step.y}px`;
+    card.id = 'step-' + step.id;
+    card.style.left = step.x + 'px';
+    card.style.top = step.y + 'px';
     card.dataset.stepId = step.id;
 
-    card.innerHTML = `
-      <div class="step-header">
-        <div class="step-icon ${iconInfo.cssClass}">${iconInfo.symbol}</div>
-        <div class="step-name">${step.name}</div>
-      </div>
-      <div class="step-desc">${step.desc}</div>
-      <div class="step-status"><span class="badge badge-${step.status}">${step.status}</span></div>
-      <div class="step-actions">
-        <button onclick="editStep('${step.id}')">Edit</button>
-        <button onclick="removeStep('${step.id}')">Remove</button>
-      </div>
-    `;
+    card.innerHTML =
+      '<div class="step-header">' +
+        '<div class="step-icon ' + iconInfo.cssClass + '">' + iconInfo.svg + '</div>' +
+        '<div class="step-name">' + escapeHtml(step.name) + '</div>' +
+      '</div>' +
+      '<div class="step-desc">' + escapeHtml(step.desc) + '</div>' +
+      '<div class="step-status"><span class="badge badge-' + step.status + '">' + (STATUS_LABELS[step.status] || step.status) + '</span></div>' +
+      '<div class="step-actions">' +
+        '<button onclick="editStep(\'' + step.id + '\')">编辑</button>' +
+        '<button onclick="removeStep(\'' + step.id + '\')">移除</button>' +
+      '</div>';
 
-    // Drag support
-    card.addEventListener('mousedown', e => {
+    card.addEventListener('mousedown', function(e) {
       if (e.target.tagName === 'BUTTON') return;
       dragTarget = step;
       const rect = card.getBoundingClientRect();
@@ -603,8 +745,8 @@ function renderSteps(wf) {
   }
 }
 
-// Global drag handlers
-document.addEventListener('mousemove', e => {
+/* Global drag handlers */
+document.addEventListener('mousemove', function(e) {
   if (!dragTarget) return;
   const canvas = document.getElementById('wfCanvas');
   const canvasRect = canvas.getBoundingClientRect();
@@ -612,24 +754,24 @@ document.addEventListener('mousemove', e => {
   const newY = e.clientY - canvasRect.top - dragOffset.y + canvas.scrollTop;
   dragTarget.x = Math.max(0, newX);
   dragTarget.y = Math.max(0, newY);
-  const card = document.getElementById(`step-${dragTarget.id}`);
+  const card = document.getElementById('step-' + dragTarget.id);
   if (card) {
-    card.style.left = `${dragTarget.x}px`;
-    card.style.top = `${dragTarget.y}px`;
+    card.style.left = dragTarget.x + 'px';
+    card.style.top = dragTarget.y + 'px';
   }
   const wf = workflows.find(w => w.id === activeWfId);
   if (wf) renderConnectors(wf);
 });
 
-document.addEventListener('mouseup', () => {
+document.addEventListener('mouseup', function() {
   if (dragTarget) {
-    const card = document.getElementById(`step-${dragTarget.id}`);
+    const card = document.getElementById('step-' + dragTarget.id);
     if (card) card.classList.remove('dragging');
     dragTarget = null;
   }
 });
 
-// -- Connectors ----------------------------------------------------------
+/* ── Connectors ─────────────────────────────────────────── */
 
 function renderConnectors(wf) {
   const svg = document.getElementById('connectorsSvg');
@@ -644,34 +786,33 @@ function renderConnectors(wf) {
     const y1 = fromStep.y + 90;
     const x2 = toStep.x + 110;
     const y2 = toStep.y;
-    const mx = (x1 + x2) / 2;
     const my = (y1 + y2) / 2;
 
-    html += `<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}"
-      fill="none" stroke="var(--border-light)" stroke-width="2"
-      stroke-dasharray="4,4" />`;
-    // Arrowhead
-    html += `<polygon points="${x2-5},${y2-8} ${x2+5},${y2-8} ${x2},${y2}"
-      fill="var(--border-light)" />`;
+    html += '<path d="M' + x1 + ',' + y1 + ' C' + x1 + ',' + my + ' ' + x2 + ',' + my + ' ' + x2 + ',' + y2 + '"' +
+      ' fill="none" stroke="var(--border-light)" stroke-width="2" stroke-dasharray="4,4" />';
+    html += '<polygon points="' + (x2-5) + ',' + (y2-8) + ' ' + (x2+5) + ',' + (y2-8) + ' ' + x2 + ',' + y2 + '"' +
+      ' fill="var(--border-light)" />';
   }
 
   svg.innerHTML = html;
 }
 
-// -- Add / Edit / Remove Steps -------------------------------------------
+/* ── Add / Edit / Remove Steps ──────────────────────────── */
 
 let stepCounter = 100;
 
-function addStep(type) {
+window.addStep = function(type) {
   const wf = workflows.find(w => w.id === activeWfId);
   if (!wf) return;
 
-  const id = `s${++stepCounter}`;
+  const id = 's' + (++stepCounter);
   const lastStep = wf.steps[wf.steps.length - 1];
   const y = lastStep ? lastStep.y + 120 : 40;
+  const typeLabel = STEP_TYPE_LABELS[type] || type;
 
   wf.steps.push({
-    id, name: `New ${type}`, type, desc: `${type} step`, x: 60, y, status: 'pending',
+    id: id, name: '新' + typeLabel, type: type,
+    desc: typeLabel + '步骤', x: 60, y: y, status: 'pending',
   });
 
   if (lastStep) {
@@ -679,99 +820,104 @@ function addStep(type) {
   }
 
   selectWorkflow(wf.id);
-  showToast(`${type} step added`);
-}
+  showToast(typeLabel + '步骤已添加');
+};
 
-function editStep(stepId) {
+window.editStep = function(stepId) {
   const wf = workflows.find(w => w.id === activeWfId);
   if (!wf) return;
   const step = wf.steps.find(s => s.id === stepId);
   if (!step) return;
 
-  const name = prompt('Step name:', step.name);
+  const name = prompt('步骤名称:', step.name);
   if (name !== null && name.trim()) {
     step.name = name.trim();
-    const desc = prompt('Description:', step.desc);
+    const desc = prompt('步骤描述:', step.desc);
     if (desc !== null) step.desc = desc.trim();
     selectWorkflow(wf.id);
   }
-}
+};
 
-function removeStep(stepId) {
+window.removeStep = function(stepId) {
   const wf = workflows.find(w => w.id === activeWfId);
   if (!wf) return;
   wf.steps = wf.steps.filter(s => s.id !== stepId);
-  wf.connections = wf.connections.filter(([a, b]) => a !== stepId && b !== stepId);
+  wf.connections = wf.connections.filter(function(c) { return c[0] !== stepId && c[1] !== stepId; });
   selectWorkflow(wf.id);
-  showToast('Step removed');
-}
+  showToast('步骤已移除');
+};
 
-// -- Progress Rendering --------------------------------------------------
+/* ── Progress Rendering ─────────────────────────────────── */
 
 function renderProgress(wf) {
   const container = document.getElementById('progressList');
   if (wf.status === 'pending' || wf.status === 'draft') {
-    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">Workflow not started</div>';
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">工作流未启动</div>';
     return;
   }
 
-  container.innerHTML = wf.steps.map(step => {
+  container.innerHTML = wf.steps.map(function(step) {
     const dotClass = step.status === 'done' ? 'done' :
                      step.status === 'running' ? 'running' :
                      step.status === 'failed' ? 'failed' : 'pending';
-    return `<div class="progress-step">
-      <div class="progress-dot ${dotClass}"></div>
-      <div class="progress-label">${step.name}</div>
-      <div class="progress-time">${step.status === 'done' ? '2.1s' : step.status === 'running' ? '...' : '--'}</div>
-    </div>`;
+    return '<div class="progress-step">' +
+      '<div class="progress-dot ' + dotClass + '"></div>' +
+      '<div class="progress-label">' + escapeHtml(step.name) + '</div>' +
+      '<div class="progress-time">' + (step.status === 'done' ? '2.1s' : step.status === 'running' ? '...' : '--') + '</div>' +
+    '</div>';
   }).join('');
 }
 
-// -- Variable Inspector --------------------------------------------------
+/* ── Variable Inspector ─────────────────────────────────── */
 
 function renderVariables(wf) {
   const container = document.getElementById('variableList');
   if (!wf.variables || wf.variables.length === 0) {
-    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">No variables</div>';
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">暂无定义变量</div>';
     return;
   }
 
-  container.innerHTML = wf.variables.map(v => `
-    <div class="var-item">
-      <span class="var-name">${v.name}</span>
-      <span class="var-value">${v.value || '(empty)'}</span>
-      <span class="var-type">${v.type}</span>
-    </div>
-  `).join('');
+  container.innerHTML = wf.variables.map(function(v) {
+    return '<div class="var-item">' +
+      '<span class="var-name">' + escapeHtml(v.name) + '</span>' +
+      '<span class="var-value">' + (v.value ? escapeHtml(v.value) : '(空)') + '</span>' +
+      '<span class="var-type">' + escapeHtml(v.type) + '</span>' +
+    '</div>';
+  }).join('');
 }
 
-// -- Workflow Info --------------------------------------------------------
+/* ── Workflow Info ──────────────────────────────────────── */
 
 function renderWfInfo(wf) {
   const panel = document.getElementById('wfInfoPanel');
   panel.style.display = '';
-  document.getElementById('wfInfo').innerHTML = `
-    <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px">
-      <strong>ID:</strong> ${wf.id}<br>
-      <strong>Created:</strong> ${wf.created}<br>
-      <strong>Steps:</strong> ${wf.steps.length}<br>
-      <strong>Status:</strong> <span class="badge badge-${wf.status}">${wf.status}</span>
-    </div>
-    <div style="font-size:12px;color:var(--text-dim)">${wf.description}</div>
-  `;
+  document.getElementById('wfInfo').innerHTML =
+    '<div class="wf-info-row"><span class="wf-info-label">ID</span><span>' + escapeHtml(wf.id) + '</span></div>' +
+    '<div class="wf-info-row"><span class="wf-info-label">创建时间</span><span>' + escapeHtml(wf.created) + '</span></div>' +
+    '<div class="wf-info-row"><span class="wf-info-label">步骤数</span><span>' + wf.steps.length + '</span></div>' +
+    '<div class="wf-info-row"><span class="wf-info-label">状态</span><span class="badge badge-' + wf.status + '">' + (STATUS_LABELS[wf.status] || wf.status) + '</span></div>' +
+    '<div class="wf-info-desc">' + escapeHtml(wf.description) + '</div>';
 }
 
-// -- Template Application ------------------------------------------------
+/* ── Template Application ──────────────────────────────── */
 
-function applyTemplate() {
+window.applyTemplate = function() {
   const sel = document.getElementById('templateSelect');
   const tplName = sel.value;
-  if (!tplName || !templates[tplName]) return;
+  if (!tplName || !TEMPLATES[tplName]) return;
 
-  const tpl = templates[tplName];
-  const id = `wf${Date.now()}`;
+  const tpl = TEMPLATES[tplName];
+  const id = 'wf' + Date.now();
+  const nameMap = {
+    'research': '研究报告工作流',
+    'code-review': '代码审查工作流',
+    'data-pipeline': '数据处理工作流',
+    'deployment': '部署工作流',
+    'onboarding': '用户引导工作流'
+  };
+
   workflows.push({
-    id, name: `${tplName.replace(/-/g,' ')} Workflow`, description: `Created from ${tplName} template`,
+    id: id, name: nameMap[tplName] || tplName, description: '从模板创建',
     status: 'draft', created: new Date().toISOString().slice(0,10),
     steps: tpl.steps.map(s => ({...s})),
     connections: tpl.connections.map(c => [...c]),
@@ -781,24 +927,24 @@ function applyTemplate() {
   renderWorkflowList();
   selectWorkflow(id);
   sel.value = '';
-  showToast('Workflow created from template');
-}
+  showToast('已从模板创建工作流');
+};
 
-// -- CRUD Operations -----------------------------------------------------
+/* ── CRUD Operations ───────────────────────────────────── */
 
-function showCreateDialog() { document.getElementById('createDialog').classList.add('visible'); }
-function hideCreateDialog() { document.getElementById('createDialog').classList.remove('visible'); }
+window.showCreateDialog = function() { document.getElementById('createDialog').classList.add('visible'); };
+window.hideCreateDialog = function() { document.getElementById('createDialog').classList.remove('visible'); };
 
-function createWorkflow() {
-  const name = document.getElementById('newWfName').value.trim() || 'Untitled Workflow';
+window.createWorkflow = function() {
+  const name = document.getElementById('newWfName').value.trim() || '未命名工作流';
   const desc = document.getElementById('newWfDesc').value.trim();
   const tplName = document.getElementById('newWfTemplate').value;
 
-  const id = `wf${Date.now()}`;
-  const tpl = tplName && templates[tplName] ? templates[tplName] : { steps: [], connections: [], variables: [] };
+  const id = 'wf' + Date.now();
+  const tpl = tplName && TEMPLATES[tplName] ? TEMPLATES[tplName] : { steps: [], connections: [], variables: [] };
 
   workflows.push({
-    id, name, description: desc, status: 'draft',
+    id: id, name: name, description: desc, status: 'draft',
     created: new Date().toISOString().slice(0,10),
     steps: tpl.steps.map(s => ({...s})),
     connections: tpl.connections.map(c => [...c]),
@@ -806,43 +952,50 @@ function createWorkflow() {
   });
 
   hideCreateDialog();
+  document.getElementById('newWfName').value = '';
+  document.getElementById('newWfDesc').value = '';
+  document.getElementById('newWfTemplate').value = '';
   renderWorkflowList();
   selectWorkflow(id);
-  showToast(`Workflow "${name}" created`);
-}
+  showToast('工作流"' + name + '"已创建');
+};
 
-function saveWorkflow() {
-  showToast('Workflow saved');
-}
+window.saveWorkflow = function() {
+  showToast('工作流已保存');
+};
 
-function deleteWorkflow() {
+window.deleteWorkflow = function() {
   if (!activeWfId) return;
+  const wf = workflows.find(w => w.id === activeWfId);
+  const wfName = wf ? wf.name : '';
   workflows = workflows.filter(w => w.id !== activeWfId);
   activeWfId = null;
-  document.getElementById('editorTitle').textContent = 'Select a workflow';
+  document.getElementById('editorTitle').textContent = '选择一个工作流';
   document.getElementById('btnRun').style.display = 'none';
   document.getElementById('btnSave').style.display = 'none';
   document.getElementById('btnDelete').style.display = 'none';
   document.getElementById('addStepBar').style.display = 'none';
+  document.getElementById('emptyState').style.display = '';
   document.getElementById('canvasInner').querySelectorAll('.step-card').forEach(el => el.remove());
   document.getElementById('connectorsSvg').innerHTML = '';
   document.getElementById('wfInfoPanel').style.display = 'none';
+  document.getElementById('progressList').innerHTML = '<div style="font-size:12px;color:var(--text-muted)">暂无执行中的任务</div>';
+  document.getElementById('variableList').innerHTML = '<div style="font-size:12px;color:var(--text-muted)">暂无定义变量</div>';
   renderWorkflowList();
-  showToast('Workflow deleted');
-}
+  showToast('工作流"' + wfName + '"已删除');
+};
 
-function runWorkflow() {
+window.runWorkflow = function() {
   const wf = workflows.find(w => w.id === activeWfId);
   if (!wf) return;
   wf.status = 'running';
   wf.steps[0].status = 'running';
   selectWorkflow(wf.id);
   renderWorkflowList();
-  showToast('Workflow started');
+  showToast('工作流已启动');
 
-  // Simulate step progression
   let idx = 0;
-  const interval = setInterval(() => {
+  const interval = setInterval(function() {
     if (idx < wf.steps.length) {
       wf.steps[idx].status = 'done';
       idx++;
@@ -851,30 +1004,52 @@ function runWorkflow() {
     if (idx >= wf.steps.length) {
       wf.status = 'completed';
       clearInterval(interval);
-      showToast('Workflow completed');
+      showToast('工作流已完成');
     }
     if (wf.id === activeWfId) {
       renderSteps(wf);
+      renderConnectors(wf);
       renderProgress(wf);
       renderWorkflowList();
     }
   }, 1500);
-}
+};
 
-// -- Toast ---------------------------------------------------------------
+/* ── Toast ──────────────────────────────────────────────── */
 
 function showToast(message) {
   const container = document.getElementById('toasts');
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.textContent = message;
+  toast.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' +
+    '<span>' + escapeHtml(message) + '</span>';
   container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+  setTimeout(function() { toast.remove(); }, 3000);
 }
 
-// -- Start ---------------------------------------------------------------
+/* ── Utilities ──────────────────────────────────────────── */
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ── Sidebar Toggle ─────────────────────────────────────── */
+
+document.getElementById('sidebarToggle').addEventListener('click', function() {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
+
+/* ── Expose select for onclick ──────────────────────────── */
+
+window.selectWorkflow = selectWorkflow;
+
+/* ── Start ──────────────────────────────────────────────── */
 
 init();
+
+})();
 </script>
 </body>
 </html>

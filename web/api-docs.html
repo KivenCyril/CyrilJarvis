@@ -1,97 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - API Documentation</title>
+<title>JARVIS - 接口文档</title>
 <style>
-/* ====================================================================
-   JARVIS API Documentation — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
-  --orange:       #f59e0b;
-  --red:          #ef4444;
   --purple:       #a855f7;
+  --yellow:       #eab308;
+  --red:          #ef4444;
+  --orange:       #f59e0b;
   --cyan:         #06b6d4;
-  --pink:         #ec4899;
   --radius:       8px;
   --radius-lg:    12px;
-  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
-::-webkit-scrollbar { width: 6px; }
+
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Nav ----------------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-/* -- Layout ------------------------------------------------------------ */
-.main-layout { flex: 1; display: grid; grid-template-columns: 260px 1fr; overflow: hidden; }
-.sidebar {
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow-y: auto; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
+
+/* ── API Docs Layout ─────────────────────────────────────── */
+.api-layout { display: grid; grid-template-columns: 260px 1fr; height: 100%; overflow: hidden; }
+.api-sidebar {
   background: var(--bg-base); border-right: 1px solid var(--border);
   overflow-y: auto; display: flex; flex-direction: column;
 }
-.content-area { overflow-y: auto; padding: 24px; }
+.api-content { overflow-y: auto; padding: 24px; }
 
-/* -- Sidebar ----------------------------------------------------------- */
-.sidebar-search {
+/* ── API Sidebar ─────────────────────────────────────────── */
+.api-sidebar-search {
   padding: 12px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
-.sidebar-search input {
+.api-sidebar-search input {
   width: 100%; background: var(--bg-input); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-size: 12px;
+  font-family: var(--font); outline: none; transition: var(--transition);
 }
-.sidebar-search input:focus { border-color: var(--border-focus); outline: none; }
+.api-sidebar-search input:focus { border-color: var(--accent); }
 
-.sidebar-group { padding: 10px 0; }
-.sidebar-group-title {
+.api-sidebar-group { padding: 10px 0; }
+.api-sidebar-group-title {
   padding: 6px 14px; font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
   color: var(--text-muted); font-weight: 700;
 }
-.sidebar-item {
+.api-sidebar-item {
   display: flex; align-items: center; gap: 8px; padding: 7px 14px;
   cursor: pointer; transition: var(--transition); font-size: 12px; color: var(--text-dim);
 }
-.sidebar-item:hover { background: var(--bg-hover); color: var(--text); }
-.sidebar-item.active { background: rgba(59,130,246,0.1); color: var(--accent); border-right: 2px solid var(--accent); }
+.api-sidebar-item:hover { background: var(--bg-hover); color: var(--text); }
+.api-sidebar-item.active { background: rgba(59,130,246,0.1); color: var(--accent); border-right: 2px solid var(--accent); }
 
-/* -- Method Badges ----------------------------------------------------- */
+/* ── Method Badges ───────────────────────────────────────── */
 .method-badge {
   display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 4px;
   font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
@@ -104,9 +132,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .method-PUT { background: rgba(59,130,246,0.15); color: var(--accent); }
 .method-WS { background: rgba(6,182,212,0.15); color: var(--cyan); }
 
-/* -- Endpoint Card ----------------------------------------------------- */
+/* ── Endpoint Card ───────────────────────────────────────── */
 .endpoint-card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 24px; margin-bottom: 20px; scroll-margin-top: 20px;
   animation: fadeInUp 0.3s ease both;
 }
@@ -115,10 +143,8 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .endpoint-path { font-family: var(--mono); font-size: 15px; font-weight: 600; }
 .endpoint-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
 
-/* Parameters table */
-.params-table {
-  width: 100%; border-collapse: collapse; margin-bottom: 16px;
-}
+/* ── Parameters Table ────────────────────────────────────── */
+.params-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
 .params-table th {
   text-align: left; padding: 8px 12px; font-size: 10px; text-transform: uppercase;
   letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border);
@@ -130,11 +156,11 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 }
 .params-table tr:last-child td { border-bottom: none; }
 .param-name { font-family: var(--mono); color: var(--accent); font-weight: 500; }
-.param-type { font-size: 11px; color: var(--purple); padding: 1px 6px; background: rgba(168,85,247,0.1); border-radius: 3px; }
+.param-type-tag { font-size: 11px; color: var(--purple); padding: 1px 6px; background: rgba(168,85,247,0.1); border-radius: 3px; }
 .param-required { font-size: 10px; color: var(--red); font-weight: 600; }
 .param-optional { font-size: 10px; color: var(--text-muted); }
 
-/* Request body / Response */
+/* ── Schema Section ──────────────────────────────────────── */
 .schema-section { margin-bottom: 16px; }
 .schema-label {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
@@ -147,7 +173,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   line-height: 1.6;
 }
 
-/* Try it */
+/* ── Try It Section ──────────────────────────────────────── */
 .try-section {
   background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 16px; margin-top: 16px;
@@ -160,8 +186,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .try-field-input {
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 8px 12px; color: var(--text); font-size: 12px; font-family: var(--mono);
+  outline: none; transition: var(--transition);
 }
-.try-field-input:focus { border-color: var(--border-focus); outline: none; }
+.try-field-input:focus { border-color: var(--accent); }
 textarea.try-field-input { resize: vertical; min-height: 60px; font-family: var(--mono); }
 .try-actions { display: flex; gap: 8px; margin-top: 8px; }
 .try-response {
@@ -175,10 +202,11 @@ textarea.try-field-input { resize: vertical; min-height: 60px; font-family: var(
 .try-status.ok { color: var(--green); }
 .try-status.error { color: var(--red); }
 
+/* ── Buttons ─────────────────────────────────────────────── */
 .btn {
   padding: 8px 16px; border-radius: var(--radius); font-size: 12px; font-weight: 600;
   cursor: pointer; border: none; transition: var(--transition); display: inline-flex;
-  align-items: center; gap: 6px;
+  align-items: center; gap: 6px; font-family: var(--font);
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hover); }
@@ -187,271 +215,171 @@ textarea.try-field-input { resize: vertical; min-height: 60px; font-family: var(
 .btn-sm { padding: 5px 10px; font-size: 11px; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* -- Section Divider --------------------------------------------------- */
+/* ── Category Header ─────────────────────────────────────── */
 .category-header {
   font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
 }
 
-/* -- No results -------------------------------------------------------- */
+/* ── No Results ──────────────────────────────────────────── */
 .no-results {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 12px; padding: 60px 20px; color: var(--text-muted); text-align: center;
 }
-.no-results-icon { font-size: 36px; opacity: 0.3; }
+.no-results svg { width: 36px; height: 36px; opacity: 0.3; }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 960px) {
+  .api-layout { grid-template-columns: 1fr; }
+  .api-sidebar { display: none; }
+}
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>API Docs</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html" class="active">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">接口文档</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-search">
-      <input type="text" id="endpointSearch" placeholder="Search endpoints..." />
-    </div>
-    <div id="sidebarContent">
-      <!-- Populated by JS -->
-    </div>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item active" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
   </aside>
 
-  <!-- Content -->
-  <div class="content-area" id="contentArea">
-    <!-- Populated by JS -->
+  <div class="page-content">
+    <div class="api-layout">
+      <aside class="api-sidebar">
+        <div class="api-sidebar-search">
+          <input type="text" id="endpointSearch" placeholder="搜索接口..." />
+        </div>
+        <div style="padding:10px 14px 0;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">接口列表</div>
+        <div id="apiSidebarContent"></div>
+      </aside>
+
+      <div class="api-content" id="apiContentArea"></div>
+    </div>
   </div>
 </div>
 
 <script>
-/* ====================================================================
-   JARVIS API Documentation — JavaScript
-   ==================================================================== */
 (() => {
 'use strict';
 
-/* ── Endpoint Data ────────────────────────────────────────────────── */
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
+
 const ENDPOINTS = [
-  // System
-  { category: 'System', method: 'GET', path: '/health', description: 'Health check endpoint. Returns system status, version, and uptime.', params: [], body: null, response: '{\n  "status": "healthy",\n  "version": "2.0.0",\n  "uptime_seconds": 86400,\n  "agents_online": 5\n}' },
-  { category: 'System', method: 'GET', path: '/version', description: 'Returns the current JARVIS version and build info.', params: [], body: null, response: '{\n  "version": "2.0.0",\n  "build": "abc123",\n  "timestamp": "2024-01-15T10:00:00Z"\n}' },
-  { category: 'System', method: 'GET', path: '/metrics', description: 'Returns system metrics: counters, gauges, and histograms.', params: [], body: null, response: '{\n  "counters": [...],\n  "gauges": [...],\n  "histogram": {...}\n}' },
+  { category: 'System', method: 'GET', path: '/health', description: '健康检查接口。返回系统状态、版本和运行时间。', params: [], body: null, response: '{\n  "status": "healthy",\n  "version": "2.0.0",\n  "uptime_seconds": 86400,\n  "agents_online": 5\n}' },
+  { category: 'System', method: 'GET', path: '/version', description: '返回当前 JARVIS 版本和构建信息。', params: [], body: null, response: '{\n  "version": "2.0.0",\n  "build": "abc123",\n  "timestamp": "2024-01-15T10:00:00Z"\n}' },
+  { category: 'System', method: 'GET', path: '/metrics', description: '返回系统指标：计数器、仪表盘和直方图。', params: [], body: null, response: '{\n  "counters": [...],\n  "gauges": [...],\n  "histogram": {...}\n}' },
 
-  // Specs
-  { category: 'Specs', method: 'GET', path: '/specs', description: 'List all streaming specs. Supports pagination and filtering.', params: [{ name: 'status', type: 'string', required: false, desc: 'Filter by status (planning, executing, completed, failed)' }, { name: 'limit', type: 'integer', required: false, desc: 'Max results (default 50)' }, { name: 'offset', type: 'integer', required: false, desc: 'Pagination offset' }], body: null, response: '[\n  {\n    "id": "spec-123",\n    "intent": "Build a REST API...",\n    "status": "executing",\n    "steps": [...]\n  }\n]' },
-  { category: 'Specs', method: 'POST', path: '/specs', description: 'Create a new streaming spec from a natural language intent.', params: [], body: '{\n  "intent": "Build a REST API for user management",\n  "constraints": ["Use PostgreSQL", "Include auth"]\n}', response: '{\n  "id": "spec-456",\n  "intent": "Build a REST API...",\n  "status": "planning",\n  "steps": [],\n  "created_at": "2024-01-15T10:00:00Z"\n}' },
-  { category: 'Specs', method: 'GET', path: '/specs/{spec_id}', description: 'Get a specific spec by ID, including all steps and constraints.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '{\n  "id": "spec-123",\n  "intent": "...",\n  "status": "executing",\n  "steps": [...],\n  "constraints": [...],\n  "changelog": [...]\n}' },
-  { category: 'Specs', method: 'PATCH', path: '/specs/{spec_id}', description: 'Update a spec (e.g., change intent/redirect, modify constraints).', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: '{\n  "intent": "Updated intent...",\n  "status": "paused"\n}', response: '{\n  "id": "spec-123",\n  "status": "paused",\n  "updated_at": "..."\n}' },
-  { category: 'Specs', method: 'DELETE', path: '/specs/{spec_id}', description: 'Delete a spec and all associated data.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '{\n  "deleted": true\n}' },
-  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/execute', description: 'Start or resume execution of a spec.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '{\n  "status": "executing",\n  "message": "Execution started"\n}' },
-  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/pause', description: 'Pause execution of a running spec.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '{\n  "status": "paused"\n}' },
-  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/redirect', description: 'Redirect a spec to a new intent while preserving completed work.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: '{\n  "new_intent": "Change to GraphQL API instead"\n}', response: '{\n  "status": "redirected",\n  "new_steps": [...]\n}' },
-  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/constraints', description: 'Add a constraint to a spec.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: '{\n  "content": "Must use TypeScript",\n  "source": "human"\n}', response: '{\n  "id": "constraint-789",\n  "content": "Must use TypeScript",\n  "source": "human"\n}' },
+  { category: 'Specs', method: 'GET', path: '/specs', description: '列出所有流式规格。支持分页和过滤。', params: [{ name: 'status', type: 'string', required: false, desc: '按状态过滤 (planning, executing, completed, failed)' }, { name: 'limit', type: 'integer', required: false, desc: '最大结果数（默认 50）' }, { name: 'offset', type: 'integer', required: false, desc: '分页偏移量' }], body: null, response: '[\n  {\n    "id": "spec-123",\n    "intent": "Build a REST API...",\n    "status": "executing",\n    "steps": [...]\n  }\n]' },
+  { category: 'Specs', method: 'POST', path: '/specs', description: '从自然语言意图创建新的流式规格。', params: [], body: '{\n  "intent": "Build a REST API for user management",\n  "constraints": ["Use PostgreSQL", "Include auth"]\n}', response: '{\n  "id": "spec-456",\n  "intent": "Build a REST API...",\n  "status": "planning",\n  "steps": [],\n  "created_at": "2024-01-15T10:00:00Z"\n}' },
+  { category: 'Specs', method: 'GET', path: '/specs/{spec_id}', description: '按 ID 获取特定规格，包括所有步骤和约束。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }], body: null, response: '{\n  "id": "spec-123",\n  "intent": "...",\n  "status": "executing",\n  "steps": [...],\n  "constraints": [...],\n  "changelog": [...]\n}' },
+  { category: 'Specs', method: 'PATCH', path: '/specs/{spec_id}', description: '更新规格（例如更改意图/重定向、修改约束）。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }], body: '{\n  "intent": "Updated intent...",\n  "status": "paused"\n}', response: '{\n  "id": "spec-123",\n  "status": "paused",\n  "updated_at": "..."\n}' },
+  { category: 'Specs', method: 'DELETE', path: '/specs/{spec_id}', description: '删除规格及其所有关联数据。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }], body: null, response: '{\n  "deleted": true\n}' },
+  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/execute', description: '启动或恢复规格的执行。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }], body: null, response: '{\n  "status": "executing",\n  "message": "Execution started"\n}' },
+  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/pause', description: '暂停正在运行的规格。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }], body: null, response: '{\n  "status": "paused"\n}' },
+  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/redirect', description: '重定向规格到新意图，同时保留已完成的工作。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }], body: '{\n  "new_intent": "Change to GraphQL API instead"\n}', response: '{\n  "status": "redirected",\n  "new_steps": [...]\n}' },
+  { category: 'Specs', method: 'POST', path: '/specs/{spec_id}/constraints', description: '为规格添加约束条件。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }], body: '{\n  "content": "Must use TypeScript",\n  "source": "human"\n}', response: '{\n  "id": "constraint-789",\n  "content": "Must use TypeScript",\n  "source": "human"\n}' },
 
-  // Steps
-  { category: 'Steps', method: 'GET', path: '/specs/{spec_id}/steps', description: 'List all steps in a spec.', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }], body: null, response: '[\n  {\n    "id": "step-1",\n    "name": "Setup project",\n    "status": "completed",\n    "agent": "coding-agent"\n  }\n]' },
-  { category: 'Steps', method: 'PATCH', path: '/specs/{spec_id}/steps/{step_id}', description: 'Modify a step (change description, reorder, skip).', params: [{ name: 'spec_id', type: 'string', required: true, desc: 'The spec ID' }, { name: 'step_id', type: 'string', required: true, desc: 'The step ID' }], body: '{\n  "description": "Updated description",\n  "status": "skipped"\n}', response: '{\n  "id": "step-1",\n  "status": "skipped"\n}' },
+  { category: 'Steps', method: 'GET', path: '/specs/{spec_id}/steps', description: '列出规格中的所有步骤。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }], body: null, response: '[\n  {\n    "id": "step-1",\n    "name": "Setup project",\n    "status": "completed",\n    "agent": "coding-agent"\n  }\n]' },
+  { category: 'Steps', method: 'PATCH', path: '/specs/{spec_id}/steps/{step_id}', description: '修改步骤（更改描述、重排序、跳过）。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '规格 ID' }, { name: 'step_id', type: 'string', required: true, desc: '步骤 ID' }], body: '{\n  "description": "Updated description",\n  "status": "skipped"\n}', response: '{\n  "id": "step-1",\n  "status": "skipped"\n}' },
 
-  // Agents
-  { category: 'Agents', method: 'GET', path: '/agents', description: 'List all registered agents with their capabilities and status.', params: [], body: null, response: '[\n  {\n    "name": "coding-agent",\n    "domain": "coding",\n    "status": "idle",\n    "skills": ["python", "typescript"]\n  }\n]' },
-  { category: 'Agents', method: 'GET', path: '/agents/{name}', description: 'Get detailed info about a specific agent.', params: [{ name: 'name', type: 'string', required: true, desc: 'Agent name' }], body: null, response: '{\n  "name": "coding-agent",\n  "domain": "coding",\n  "status": "idle",\n  "skills": [...],\n  "metadata": {...}\n}' },
-  { category: 'Agents', method: 'POST', path: '/agents/{name}/task', description: 'Assign a task directly to a specific agent.', params: [{ name: 'name', type: 'string', required: true, desc: 'Agent name' }], body: '{\n  "instruction": "Write a function to...",\n  "context": {...}\n}', response: '{\n  "task_id": "task-123",\n  "status": "accepted"\n}' },
-  { category: 'Agents', method: 'GET', path: '/agents/{name}/delegations', description: 'List delegations for an agent.', params: [{ name: 'name', type: 'string', required: true, desc: 'Agent name' }], body: null, response: '[\n  {\n    "from": "orchestrator",\n    "task": "...",\n    "status": "completed"\n  }\n]' },
+  { category: 'Agents', method: 'GET', path: '/agents', description: '列出所有注册的智能体及其能力和状态。', params: [], body: null, response: '[\n  {\n    "name": "coding-agent",\n    "domain": "coding",\n    "status": "idle",\n    "skills": ["python", "typescript"]\n  }\n]' },
+  { category: 'Agents', method: 'GET', path: '/agents/{name}', description: '获取特定智能体的详细信息。', params: [{ name: 'name', type: 'string', required: true, desc: '智能体名称' }], body: null, response: '{\n  "name": "coding-agent",\n  "domain": "coding",\n  "status": "idle",\n  "skills": [...],\n  "metadata": {...}\n}' },
+  { category: 'Agents', method: 'POST', path: '/agents/{name}/task', description: '将任务直接分配给特定智能体。', params: [{ name: 'name', type: 'string', required: true, desc: '智能体名称' }], body: '{\n  "instruction": "Write a function to...",\n  "context": {...}\n}', response: '{\n  "task_id": "task-123",\n  "status": "accepted"\n}' },
+  { category: 'Agents', method: 'GET', path: '/agents/{name}/delegations', description: '列出智能体的委托任务。', params: [{ name: 'name', type: 'string', required: true, desc: '智能体名称' }], body: null, response: '[\n  {\n    "from": "orchestrator",\n    "task": "...",\n    "status": "completed"\n  }\n]' },
 
-  // Tools
-  { category: 'Tools', method: 'GET', path: '/tools', description: 'List all available tools across agents.', params: [{ name: 'category', type: 'string', required: false, desc: 'Filter by tool category' }], body: null, response: '[\n  {\n    "name": "code_gen",\n    "description": "Generate code...",\n    "agent": "coding-agent"\n  }\n]' },
-  { category: 'Tools', method: 'POST', path: '/tools/{name}/invoke', description: 'Invoke a tool directly with parameters.', params: [{ name: 'name', type: 'string', required: true, desc: 'Tool name' }], body: '{\n  "params": {\n    "language": "python",\n    "description": "Sort function"\n  }\n}', response: '{\n  "result": "def sort_list(items):\\n  ...",\n  "duration_ms": 1200\n}' },
+  { category: 'Tools', method: 'GET', path: '/tools', description: '列出所有智能体的可用工具。', params: [{ name: 'category', type: 'string', required: false, desc: '按工具分类过滤' }], body: null, response: '[\n  {\n    "name": "code_gen",\n    "description": "Generate code...",\n    "agent": "coding-agent"\n  }\n]' },
+  { category: 'Tools', method: 'POST', path: '/tools/{name}/invoke', description: '直接调用工具并传入参数。', params: [{ name: 'name', type: 'string', required: true, desc: '工具名称' }], body: '{\n  "params": {\n    "language": "python",\n    "description": "Sort function"\n  }\n}', response: '{\n  "result": "def sort_list(items):\\n  ...",\n  "duration_ms": 1200\n}' },
 
-  // Memory
-  { category: 'Memory', method: 'GET', path: '/memory', description: 'List all memory entries (facts, episodes, procedures).', params: [{ name: 'type', type: 'string', required: false, desc: 'Filter by type (fact, episode, procedure)' }, { name: 'query', type: 'string', required: false, desc: 'Semantic search query' }], body: null, response: '[\n  {\n    "id": "mem-1",\n    "type": "fact",\n    "content": "User prefers TypeScript",\n    "importance": 0.9\n  }\n]' },
-  { category: 'Memory', method: 'POST', path: '/memory', description: 'Store a new memory entry.', params: [], body: '{\n  "type": "fact",\n  "content": "The project uses PostgreSQL",\n  "importance": 0.8\n}', response: '{\n  "id": "mem-123",\n  "stored": true\n}' },
-  { category: 'Memory', method: 'DELETE', path: '/memory/{id}', description: 'Delete a memory entry.', params: [{ name: 'id', type: 'string', required: true, desc: 'Memory entry ID' }], body: null, response: '{\n  "deleted": true\n}' },
-  { category: 'Memory', method: 'POST', path: '/memory/search', description: 'Semantic search across memory entries.', params: [], body: '{\n  "query": "database preferences",\n  "top_k": 5\n}', response: '[\n  {\n    "id": "mem-1",\n    "content": "...",\n    "score": 0.95\n  }\n]' },
+  { category: 'Memory', method: 'GET', path: '/memory', description: '列出所有记忆条目（事实、事件、流程）。', params: [{ name: 'type', type: 'string', required: false, desc: '按类型过滤 (fact, episode, procedure)' }, { name: 'query', type: 'string', required: false, desc: '语义搜索查询' }], body: null, response: '[\n  {\n    "id": "mem-1",\n    "type": "fact",\n    "content": "User prefers TypeScript",\n    "importance": 0.9\n  }\n]' },
+  { category: 'Memory', method: 'POST', path: '/memory', description: '存储新的记忆条目。', params: [], body: '{\n  "type": "fact",\n  "content": "The project uses PostgreSQL",\n  "importance": 0.8\n}', response: '{\n  "id": "mem-123",\n  "stored": true\n}' },
+  { category: 'Memory', method: 'DELETE', path: '/memory/{id}', description: '删除记忆条目。', params: [{ name: 'id', type: 'string', required: true, desc: '记忆条目 ID' }], body: null, response: '{\n  "deleted": true\n}' },
+  { category: 'Memory', method: 'POST', path: '/memory/search', description: '在记忆条目中进行语义搜索。', params: [], body: '{\n  "query": "database preferences",\n  "top_k": 5\n}', response: '[\n  {\n    "id": "mem-1",\n    "content": "...",\n    "score": 0.95\n  }\n]' },
 
-  // Knowledge
-  { category: 'Knowledge', method: 'GET', path: '/knowledge', description: 'List all knowledge base documents.', params: [], body: null, response: '[\n  {\n    "id": "kb-1",\n    "title": "API Design Guide",\n    "chunks": 24\n  }\n]' },
-  { category: 'Knowledge', method: 'POST', path: '/knowledge/ingest', description: 'Ingest a new document into the knowledge base.', params: [], body: '{\n  "title": "System Architecture",\n  "content": "...",\n  "metadata": {...}\n}', response: '{\n  "id": "kb-123",\n  "chunks": 15,\n  "status": "indexed"\n}' },
-  { category: 'Knowledge', method: 'POST', path: '/knowledge/query', description: 'Query the knowledge base with semantic search.', params: [], body: '{\n  "query": "How does authentication work?",\n  "top_k": 3\n}', response: '[\n  {\n    "chunk_id": "ch-1",\n    "content": "...",\n    "score": 0.92\n  }\n]' },
+  { category: 'Knowledge', method: 'GET', path: '/knowledge', description: '列出知识库中的所有文档。', params: [], body: null, response: '[\n  {\n    "id": "kb-1",\n    "title": "API Design Guide",\n    "chunks": 24\n  }\n]' },
+  { category: 'Knowledge', method: 'POST', path: '/knowledge/ingest', description: '将新文档导入知识库。', params: [], body: '{\n  "title": "System Architecture",\n  "content": "...",\n  "metadata": {...}\n}', response: '{\n  "id": "kb-123",\n  "chunks": 15,\n  "status": "indexed"\n}' },
+  { category: 'Knowledge', method: 'POST', path: '/knowledge/query', description: '对知识库进行语义搜索。', params: [], body: '{\n  "query": "How does authentication work?",\n  "top_k": 3\n}', response: '[\n  {\n    "chunk_id": "ch-1",\n    "content": "...",\n    "score": 0.92\n  }\n]' },
 
-  // Sessions
-  { category: 'Sessions', method: 'GET', path: '/sessions', description: 'List all active and recent sessions.', params: [], body: null, response: '[\n  {\n    "id": "sess-1",\n    "agent": "coding-agent",\n    "status": "active",\n    "messages": 12\n  }\n]' },
-  { category: 'Sessions', method: 'GET', path: '/sessions/{id}', description: 'Get session details including message history.', params: [{ name: 'id', type: 'string', required: true, desc: 'Session ID' }], body: null, response: '{\n  "id": "sess-1",\n  "messages": [...],\n  "created_at": "..."\n}' },
-  { category: 'Sessions', method: 'DELETE', path: '/sessions/{id}', description: 'End and delete a session.', params: [{ name: 'id', type: 'string', required: true, desc: 'Session ID' }], body: null, response: '{\n  "deleted": true\n}' },
+  { category: 'Sessions', method: 'GET', path: '/sessions', description: '列出所有活跃和最近的会话。', params: [], body: null, response: '[\n  {\n    "id": "sess-1",\n    "agent": "coding-agent",\n    "status": "active",\n    "messages": 12\n  }\n]' },
+  { category: 'Sessions', method: 'GET', path: '/sessions/{id}', description: '获取会话详情，包括消息历史。', params: [{ name: 'id', type: 'string', required: true, desc: '会话 ID' }], body: null, response: '{\n  "id": "sess-1",\n  "messages": [...],\n  "created_at": "..."\n}' },
+  { category: 'Sessions', method: 'DELETE', path: '/sessions/{id}', description: '结束并删除会话。', params: [{ name: 'id', type: 'string', required: true, desc: '会话 ID' }], body: null, response: '{\n  "deleted": true\n}' },
 
-  // Skills
-  { category: 'Skills', method: 'GET', path: '/skills',
-    description: 'List all registered skills across all agents.',
-    params: [
-      { name: 'agent', type: 'string', required: false, desc: 'Filter by agent name' },
-      { name: 'category', type: 'string', required: false, desc: 'Filter by skill category' }
-    ],
-    body: null,
-    response: '[\n  {\n    "name": "code_review",\n    "agent": "review-agent",\n    "description": "Review code for quality...",\n    "category": "analysis",\n    "enabled": true\n  }\n]' },
-  { category: 'Skills', method: 'GET', path: '/skills/{name}',
-    description: 'Get detailed information about a specific skill.',
-    params: [{ name: 'name', type: 'string', required: true, desc: 'Skill name' }],
-    body: null,
-    response: '{\n  "name": "code_review",\n  "agent": "review-agent",\n  "description": "Review code for quality and best practices",\n  "parameters": {\n    "language": "string",\n    "strictness": "number"\n  },\n  "usage_count": 234,\n  "avg_duration_ms": 4500\n}' },
-  { category: 'Skills', method: 'POST', path: '/skills/{name}/invoke',
-    description: 'Invoke a skill directly with given parameters.',
-    params: [{ name: 'name', type: 'string', required: true, desc: 'Skill name' }],
-    body: '{\n  "params": {\n    "code": "def hello(): ...",\n    "language": "python"\n  }\n}',
-    response: '{\n  "result": "...",\n  "duration_ms": 3200,\n  "agent": "review-agent"\n}' },
+  { category: 'Skills', method: 'GET', path: '/skills', description: '列出所有智能体注册的技能。', params: [{ name: 'agent', type: 'string', required: false, desc: '按智能体名称过滤' }, { name: 'category', type: 'string', required: false, desc: '按技能分类过滤' }], body: null, response: '[\n  {\n    "name": "code_review",\n    "agent": "review-agent",\n    "description": "Review code for quality...",\n    "category": "analysis",\n    "enabled": true\n  }\n]' },
+  { category: 'Skills', method: 'GET', path: '/skills/{name}', description: '获取特定技能的详细信息。', params: [{ name: 'name', type: 'string', required: true, desc: '技能名称' }], body: null, response: '{\n  "name": "code_review",\n  "agent": "review-agent",\n  "description": "Review code for quality and best practices",\n  "parameters": {\n    "language": "string",\n    "strictness": "number"\n  },\n  "usage_count": 234,\n  "avg_duration_ms": 4500\n}' },
+  { category: 'Skills', method: 'POST', path: '/skills/{name}/invoke', description: '直接调用技能并传入参数。', params: [{ name: 'name', type: 'string', required: true, desc: '技能名称' }], body: '{\n  "params": {\n    "code": "def hello(): ...",\n    "language": "python"\n  }\n}', response: '{\n  "result": "...",\n  "duration_ms": 3200,\n  "agent": "review-agent"\n}' },
 
-  // Workflows
-  { category: 'Workflows', method: 'GET', path: '/workflows',
-    description: 'List all workflows with status and execution history.',
-    params: [
-      { name: 'status', type: 'string', required: false, desc: 'Filter by status (active, paused, completed)' },
-      { name: 'limit', type: 'integer', required: false, desc: 'Max results (default 50)' }
-    ],
-    body: null,
-    response: '[\n  {\n    "id": "wf-1",\n    "name": "CI/CD Pipeline",\n    "status": "active",\n    "steps_total": 5,\n    "steps_completed": 3,\n    "created_at": "2024-01-15T10:00:00Z"\n  }\n]' },
-  { category: 'Workflows', method: 'POST', path: '/workflows',
-    description: 'Create a new workflow from a step definition.',
-    params: [],
-    body: '{\n  "name": "Deploy Pipeline",\n  "description": "Full deployment workflow",\n  "steps": [\n    {\n      "name": "Build",\n      "action": "build_project",\n      "params": {}\n    },\n    {\n      "name": "Test",\n      "action": "run_tests",\n      "depends_on": ["Build"]\n    }\n  ]\n}',
-    response: '{\n  "id": "wf-123",\n  "status": "created",\n  "steps_total": 2\n}' },
-  { category: 'Workflows', method: 'GET', path: '/workflows/{id}',
-    description: 'Get detailed workflow information including step status.',
-    params: [{ name: 'id', type: 'string', required: true, desc: 'Workflow ID' }],
-    body: null,
-    response: '{\n  "id": "wf-1",\n  "name": "CI/CD Pipeline",\n  "status": "active",\n  "steps": [\n    {\n      "name": "Build",\n      "status": "completed",\n      "duration_ms": 12000\n    }\n  ]\n}' },
-  { category: 'Workflows', method: 'POST', path: '/workflows/{id}/execute',
-    description: 'Start or resume execution of a workflow.',
-    params: [{ name: 'id', type: 'string', required: true, desc: 'Workflow ID' }],
-    body: null,
-    response: '{\n  "status": "executing",\n  "message": "Workflow execution started"\n}' },
-  { category: 'Workflows', method: 'DELETE', path: '/workflows/{id}',
-    description: 'Delete a workflow and its execution history.',
-    params: [{ name: 'id', type: 'string', required: true, desc: 'Workflow ID' }],
-    body: null,
-    response: '{\n  "deleted": true\n}' },
+  { category: 'Workflows', method: 'GET', path: '/workflows', description: '列出所有工作流及其状态和执行历史。', params: [{ name: 'status', type: 'string', required: false, desc: '按状态过滤 (active, paused, completed)' }, { name: 'limit', type: 'integer', required: false, desc: '最大结果数（默认 50）' }], body: null, response: '[\n  {\n    "id": "wf-1",\n    "name": "CI/CD Pipeline",\n    "status": "active",\n    "steps_total": 5,\n    "steps_completed": 3,\n    "created_at": "2024-01-15T10:00:00Z"\n  }\n]' },
+  { category: 'Workflows', method: 'POST', path: '/workflows', description: '从步骤定义创建新工作流。', params: [], body: '{\n  "name": "Deploy Pipeline",\n  "description": "Full deployment workflow",\n  "steps": [\n    {\n      "name": "Build",\n      "action": "build_project",\n      "params": {}\n    },\n    {\n      "name": "Test",\n      "action": "run_tests",\n      "depends_on": ["Build"]\n    }\n  ]\n}', response: '{\n  "id": "wf-123",\n  "status": "created",\n  "steps_total": 2\n}' },
+  { category: 'Workflows', method: 'GET', path: '/workflows/{id}', description: '获取工作流详细信息，包括步骤状态。', params: [{ name: 'id', type: 'string', required: true, desc: '工作流 ID' }], body: null, response: '{\n  "id": "wf-1",\n  "name": "CI/CD Pipeline",\n  "status": "active",\n  "steps": [\n    {\n      "name": "Build",\n      "status": "completed",\n      "duration_ms": 12000\n    }\n  ]\n}' },
+  { category: 'Workflows', method: 'POST', path: '/workflows/{id}/execute', description: '启动或恢复工作流的执行。', params: [{ name: 'id', type: 'string', required: true, desc: '工作流 ID' }], body: null, response: '{\n  "status": "executing",\n  "message": "Workflow execution started"\n}' },
+  { category: 'Workflows', method: 'DELETE', path: '/workflows/{id}', description: '删除工作流及其执行历史。', params: [{ name: 'id', type: 'string', required: true, desc: '工作流 ID' }], body: null, response: '{\n  "deleted": true\n}' },
 
-  // Chat
-  { category: 'Chat', method: 'POST', path: '/chat',
-    description: 'Send a message and get a response. Supports auto-routing to the best agent or targeting a specific agent.',
-    params: [],
-    body: '{\n  "message": "How do I implement auth?",\n  "agent": "auto",\n  "session_id": "sess-1",\n  "context": {\n    "spec_id": "spec-123"\n  }\n}',
-    response: '{\n  "response": "To implement authentication, I recommend...",\n  "agent": "coding-agent",\n  "session_id": "sess-1",\n  "routing_scores": {\n    "coding-agent": 0.95,\n    "research-agent": 0.3,\n    "orchestrator": 0.5\n  },\n  "timestamp": "2024-01-15T10:05:00Z"\n}' },
-  { category: 'Chat', method: 'GET', path: '/chat/history/{session_id}',
-    description: 'Get the message history for a specific chat session.',
-    params: [
-      { name: 'session_id', type: 'string', required: true, desc: 'Session ID' },
-      { name: 'limit', type: 'integer', required: false, desc: 'Max messages to return' }
-    ],
-    body: null,
-    response: '[\n  {\n    "role": "user",\n    "content": "Hello",\n    "timestamp": "2024-01-15T10:00:00Z"\n  },\n  {\n    "role": "agent",\n    "content": "Hi! How can I help?",\n    "agent": "orchestrator",\n    "timestamp": "2024-01-15T10:00:01Z"\n  }\n]' },
+  { category: 'Chat', method: 'POST', path: '/chat', description: '发送消息并获取响应。支持自动路由到最佳智能体或指定特定智能体。', params: [], body: '{\n  "message": "How do I implement auth?",\n  "agent": "auto",\n  "session_id": "sess-1",\n  "context": {\n    "spec_id": "spec-123"\n  }\n}', response: '{\n  "response": "To implement authentication, I recommend...",\n  "agent": "coding-agent",\n  "session_id": "sess-1",\n  "routing_scores": {\n    "coding-agent": 0.95,\n    "research-agent": 0.3,\n    "orchestrator": 0.5\n  },\n  "timestamp": "2024-01-15T10:05:00Z"\n}' },
+  { category: 'Chat', method: 'GET', path: '/chat/history/{session_id}', description: '获取特定聊天会话的消息历史。', params: [{ name: 'session_id', type: 'string', required: true, desc: '会话 ID' }, { name: 'limit', type: 'integer', required: false, desc: '返回的最大消息数' }], body: null, response: '[\n  {\n    "role": "user",\n    "content": "Hello",\n    "timestamp": "2024-01-15T10:00:00Z"\n  },\n  {\n    "role": "agent",\n    "content": "Hi! How can I help?",\n    "agent": "orchestrator",\n    "timestamp": "2024-01-15T10:00:01Z"\n  }\n]' },
 
-  // Observability
-  { category: 'Observability', method: 'GET', path: '/traces',
-    description: 'List recent traces with filtering and pagination support.',
-    params: [
-      { name: 'limit', type: 'integer', required: false, desc: 'Max results (default 50)' },
-      { name: 'status', type: 'string', required: false, desc: 'Filter by status (ok, error)' },
-      { name: 'operation', type: 'string', required: false, desc: 'Filter by root operation name' }
-    ],
-    body: null,
-    response: '[\n  {\n    "trace_id": "tr-a1b2c3d4e5f6",\n    "root_operation": "POST /specs",\n    "span_count": 8,\n    "duration_ms": 1243,\n    "status": "ok",\n    "timestamp": "2024-01-15T10:00:00Z"\n  }\n]' },
-  { category: 'Observability', method: 'GET', path: '/traces/{trace_id}',
-    description: 'Get a specific trace with all spans, timing data, and tags.',
-    params: [{ name: 'trace_id', type: 'string', required: true, desc: 'Trace ID' }],
-    body: null,
-    response: '{\n  "trace_id": "tr-a1b2c3d4e5f6",\n  "root_operation": "POST /specs",\n  "duration_ms": 1243,\n  "status": "ok",\n  "spans": [\n    {\n      "span_id": "sp-001",\n      "operation": "POST /specs",\n      "service": "gateway",\n      "start_ms": 0,\n      "duration_ms": 1243,\n      "status": "ok",\n      "tags": {\n        "http.method": "POST"\n      }\n    }\n  ]\n}' },
-  { category: 'Observability', method: 'GET', path: '/metrics',
-    description: 'Get system metrics including counters, gauges, and histograms. Used by the observability dashboard for live monitoring.',
-    params: [],
-    body: null,
-    response: '{\n  "counters": [\n    { "name": "requests_total", "value": 12847 }\n  ],\n  "gauges": [\n    { "name": "active_specs", "value": 5 }\n  ],\n  "histogram": {\n    "title": "Request Latency",\n    "buckets": [\n      { "label": "0-50ms", "count": 4520 }\n    ]\n  }\n}' },
+  { category: 'Observability', method: 'GET', path: '/traces', description: '列出最近的链路追踪，支持过滤和分页。', params: [{ name: 'limit', type: 'integer', required: false, desc: '最大结果数（默认 50）' }, { name: 'status', type: 'string', required: false, desc: '按状态过滤 (ok, error)' }, { name: 'operation', type: 'string', required: false, desc: '按根操作名称过滤' }], body: null, response: '[\n  {\n    "trace_id": "tr-a1b2c3d4e5f6",\n    "root_operation": "POST /specs",\n    "span_count": 8,\n    "duration_ms": 1243,\n    "status": "ok",\n    "timestamp": "2024-01-15T10:00:00Z"\n  }\n]' },
+  { category: 'Observability', method: 'GET', path: '/traces/{trace_id}', description: '获取特定链路追踪的所有 Span、时间数据和标签。', params: [{ name: 'trace_id', type: 'string', required: true, desc: '链路追踪 ID' }], body: null, response: '{\n  "trace_id": "tr-a1b2c3d4e5f6",\n  "root_operation": "POST /specs",\n  "duration_ms": 1243,\n  "status": "ok",\n  "spans": [\n    {\n      "span_id": "sp-001",\n      "operation": "POST /specs",\n      "service": "gateway",\n      "start_ms": 0,\n      "duration_ms": 1243,\n      "status": "ok",\n      "tags": {\n        "http.method": "POST"\n      }\n    }\n  ]\n}' },
+  { category: 'Observability', method: 'GET', path: '/metrics', description: '获取系统指标，包括计数器、仪表盘和直方图。用于可观测仪表板的实时监控。', params: [], body: null, response: '{\n  "counters": [\n    { "name": "requests_total", "value": 12847 }\n  ],\n  "gauges": [\n    { "name": "active_specs", "value": 5 }\n  ],\n  "histogram": {\n    "title": "Request Latency",\n    "buckets": [\n      { "label": "0-50ms", "count": 4520 }\n    ]\n  }\n}' },
 
-  // Curator
-  { category: 'Curator', method: 'POST', path: '/curator/review',
-    description: 'Submit a request/output pair for automated quality review. The curator evaluates the output against the request and any constraints, returning a verdict and score.',
-    params: [],
-    body: '{\n  "request": "Write a sort function",\n  "output": "def sort(arr):\\n    return sorted(arr)",\n  "constraints": "Must be O(n log n)"\n}',
-    response: '{\n  "id": "rev-123",\n  "verdict": "approved",\n  "score": 0.88,\n  "feedback": "Clean implementation using Python built-in sorted() which uses Timsort (O(n log n)). Meets the constraint.",\n  "timestamp": "2024-01-15T10:00:00Z"\n}' },
-  { category: 'Curator', method: 'GET', path: '/curator/stats',
-    description: 'Get curator quality statistics including total reviews, average score, verdict distribution, and score trends over time.',
-    params: [],
-    body: null,
-    response: '{\n  "total_reviews": 156,\n  "average_score": 0.74,\n  "approved_count": 89,\n  "needs_revision_count": 34,\n  "rejected_count": 12,\n  "flagged_count": 21,\n  "scores_over_time": [0.68, 0.72, 0.75, 0.78, 0.82]\n}' },
-  { category: 'Curator', method: 'GET', path: '/curator/reviews',
-    description: 'List all review history with verdicts and scores.',
-    params: [
-      { name: 'verdict', type: 'string', required: false, desc: 'Filter by verdict (approved, needs_revision, rejected, flagged)' },
-      { name: 'limit', type: 'integer', required: false, desc: 'Max results' }
-    ],
-    body: null,
-    response: '[\n  {\n    "id": "rev-001",\n    "verdict": "approved",\n    "score": 0.92,\n    "request": "Generate a REST API...",\n    "timestamp": "2024-01-15T10:00:00Z"\n  }\n]' },
-  { category: 'Curator', method: 'GET', path: '/curator/flagged',
-    description: 'List all flagged reviews that need human attention.',
-    params: [],
-    body: null,
-    response: '[\n  {\n    "id": "rev-005",\n    "score": 0.55,\n    "request": "Refactor the user model...",\n    "flag_reason": "Backward compatibility concern"\n  }\n]' },
+  { category: 'Curator', method: 'POST', path: '/curator/review', description: '提交请求/输出对进行自动化质量审查。策展器评估输出是否符合请求和约束，返回裁定和评分。', params: [], body: '{\n  "request": "Write a sort function",\n  "output": "def sort(arr):\\n    return sorted(arr)",\n  "constraints": "Must be O(n log n)"\n}', response: '{\n  "id": "rev-123",\n  "verdict": "approved",\n  "score": 0.88,\n  "feedback": "Clean implementation using Python built-in sorted() which uses Timsort (O(n log n)). Meets the constraint.",\n  "timestamp": "2024-01-15T10:00:00Z"\n}' },
+  { category: 'Curator', method: 'GET', path: '/curator/stats', description: '获取策展器质量统计数据，包括总审查数、平均分、裁定分布和分数趋势。', params: [], body: null, response: '{\n  "total_reviews": 156,\n  "average_score": 0.74,\n  "approved_count": 89,\n  "needs_revision_count": 34,\n  "rejected_count": 12,\n  "flagged_count": 21,\n  "scores_over_time": [0.68, 0.72, 0.75, 0.78, 0.82]\n}' },
+  { category: 'Curator', method: 'GET', path: '/curator/reviews', description: '列出所有审查历史及裁定和评分。', params: [{ name: 'verdict', type: 'string', required: false, desc: '按裁定过滤 (approved, needs_revision, rejected, flagged)' }, { name: 'limit', type: 'integer', required: false, desc: '最大结果数' }], body: null, response: '[\n  {\n    "id": "rev-001",\n    "verdict": "approved",\n    "score": 0.92,\n    "request": "Generate a REST API...",\n    "timestamp": "2024-01-15T10:00:00Z"\n  }\n]' },
+  { category: 'Curator', method: 'GET', path: '/curator/flagged', description: '列出所有需要人工关注的标记审查。', params: [], body: null, response: '[\n  {\n    "id": "rev-005",\n    "score": 0.55,\n    "request": "Refactor the user model...",\n    "flag_reason": "Backward compatibility concern"\n  }\n]' },
 
-  // Settings
-  { category: 'Settings', method: 'GET', path: '/settings',
-    description: 'Get current system settings and configuration.',
-    params: [],
-    body: null,
-    response: '{\n  "api_url": "http://localhost:8000",\n  "ws_reconnect_ms": 3000,\n  "theme": "dark",\n  "max_agents": 10,\n  "log_level": "info"\n}' },
-  { category: 'Settings', method: 'PATCH', path: '/settings',
-    description: 'Update system settings. Partial updates are supported.',
-    params: [],
-    body: '{\n  "theme": "light",\n  "log_level": "debug"\n}',
-    response: '{\n  "updated": true,\n  "settings": {\n    "theme": "light",\n    "log_level": "debug"\n  }\n}' },
+  { category: 'Settings', method: 'GET', path: '/settings', description: '获取当前系统设置和配置。', params: [], body: null, response: '{\n  "api_url": "http://localhost:8000",\n  "ws_reconnect_ms": 3000,\n  "theme": "dark",\n  "max_agents": 10,\n  "log_level": "info"\n}' },
+  { category: 'Settings', method: 'PATCH', path: '/settings', description: '更新系统设置。支持部分更新。', params: [], body: '{\n  "theme": "light",\n  "log_level": "debug"\n}', response: '{\n  "updated": true,\n  "settings": {\n    "theme": "light",\n    "log_level": "debug"\n  }\n}' },
 
-  // WebSocket
-  { category: 'WebSocket', method: 'WS', path: '/ws/{spec_id}',
-    description: 'WebSocket connection for real-time spec updates. Receives events for step status changes, constraint additions, spec redirections, and completion. Automatically reconnects on disconnection.',
-    params: [
-      { name: 'spec_id', type: 'string', required: true, desc: 'Spec ID to subscribe to' },
-      { name: 'client_id', type: 'string', required: false, desc: 'Unique client identifier for deduplication' }
-    ],
-    body: null,
-    response: '// Event types:\n// step_status_changed\n// constraint_added\n// constraint_removed\n// spec_redirected\n// spec_completed\n// spec_failed\n// step_output\n{\n  "event": "step_status_changed",\n  "data": {\n    "step_id": "step-1",\n    "old_status": "executing",\n    "new_status": "completed",\n    "output": "Task completed successfully"\n  },\n  "timestamp": "2024-01-15T10:05:00Z"\n}' },
-  { category: 'WebSocket', method: 'WS', path: '/ws/agents',
-    description: 'WebSocket for real-time agent status updates. Broadcasts when agents come online, go offline, or change from idle to busy.',
-    params: [
-      { name: 'client_id', type: 'string', required: false, desc: 'Unique client identifier' }
-    ],
-    body: null,
-    response: '{\n  "event": "agent_status",\n  "data": {\n    "name": "coding-agent",\n    "old_status": "idle",\n    "new_status": "busy",\n    "task": "Executing step-3"\n  },\n  "timestamp": "2024-01-15T10:03:00Z"\n}' },
-  { category: 'WebSocket', method: 'WS', path: '/ws/metrics',
-    description: 'WebSocket for real-time metrics streaming. Pushes counter and gauge updates every second.',
-    params: [],
-    body: null,
-    response: '{\n  "event": "metric_update",\n  "data": {\n    "counters": {\n      "requests_total": 12848\n    },\n    "gauges": {\n      "active_specs": 5\n    }\n  },\n  "timestamp": "2024-01-15T10:05:01Z"\n}' },
+  { category: 'WebSocket', method: 'WS', path: '/ws/{spec_id}', description: 'WebSocket 连接用于实时规格更新。接收步骤状态变更、约束添加、规格重定向和完成事件。断开时自动重连。', params: [{ name: 'spec_id', type: 'string', required: true, desc: '要订阅的规格 ID' }, { name: 'client_id', type: 'string', required: false, desc: '唯一客户端标识符（用于去重）' }], body: null, response: '// Event types:\n// step_status_changed\n// constraint_added\n// constraint_removed\n// spec_redirected\n// spec_completed\n// spec_failed\n// step_output\n{\n  "event": "step_status_changed",\n  "data": {\n    "step_id": "step-1",\n    "old_status": "executing",\n    "new_status": "completed",\n    "output": "Task completed successfully"\n  },\n  "timestamp": "2024-01-15T10:05:00Z"\n}' },
+  { category: 'WebSocket', method: 'WS', path: '/ws/agents', description: 'WebSocket 用于实时智能体状态更新。当智能体上线、下线或从空闲变为忙碌时广播。', params: [{ name: 'client_id', type: 'string', required: false, desc: '唯一客户端标识符' }], body: null, response: '{\n  "event": "agent_status",\n  "data": {\n    "name": "coding-agent",\n    "old_status": "idle",\n    "new_status": "busy",\n    "task": "Executing step-3"\n  },\n  "timestamp": "2024-01-15T10:03:00Z"\n}' },
+  { category: 'WebSocket', method: 'WS', path: '/ws/metrics', description: 'WebSocket 用于实时指标流。每秒推送计数器和仪表盘更新。', params: [], body: null, response: '{\n  "event": "metric_update",\n  "data": {\n    "counters": {\n      "requests_total": 12848\n    },\n    "gauges": {\n      "active_specs": 5\n    }\n  },\n  "timestamp": "2024-01-15T10:05:01Z"\n}' },
 ];
 
-/* ── Helper Functions ─────────────────────────────────────────────── */
 function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
-
 function slugify(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
 
-/* ── Group Endpoints ──────────────────────────────────────────────── */
 function groupEndpoints(endpoints) {
   const groups = {};
   endpoints.forEach(ep => {
@@ -461,43 +389,39 @@ function groupEndpoints(endpoints) {
   return groups;
 }
 
-/* ── Render Sidebar ───────────────────────────────────────────────── */
 function renderSidebar(endpoints) {
   const groups = groupEndpoints(endpoints);
-  const el = document.getElementById('sidebarContent');
+  const el = document.getElementById('apiSidebarContent');
 
-  el.innerHTML = Object.entries(groups).map(([cat, eps]) => `
-    <div class="sidebar-group">
-      <div class="sidebar-group-title">${esc(cat)}</div>
-      ${eps.map(ep => `
-        <div class="sidebar-item" data-endpoint="${slugify(ep.method + '-' + ep.path)}"
-             onclick="scrollToEndpoint('${slugify(ep.method + '-' + ep.path)}')">
-          <span class="method-badge method-${ep.method}">${ep.method}</span>
-          <span style="font-family:var(--mono); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(ep.path)}</span>
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
+  el.innerHTML = Object.entries(groups).map(([cat, eps]) =>
+    '<div class="api-sidebar-group">' +
+      '<div class="api-sidebar-group-title">' + esc(cat) + '</div>' +
+      eps.map(ep =>
+        '<div class="api-sidebar-item" data-endpoint="' + slugify(ep.method + '-' + ep.path) + '" onclick="scrollToEndpoint(\'' + slugify(ep.method + '-' + ep.path) + '\')">' +
+          '<span class="method-badge method-' + ep.method + '">' + ep.method + '</span>' +
+          '<span style="font-family:var(--mono);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(ep.path) + '</span>' +
+        '</div>'
+      ).join('') +
+    '</div>'
+  ).join('');
 }
 
-/* ── Render Endpoints ─────────────────────────────────────────────── */
 function renderEndpoints(endpoints) {
   const groups = groupEndpoints(endpoints);
-  const area = document.getElementById('contentArea');
+  const area = document.getElementById('apiContentArea');
 
   if (!endpoints.length) {
-    area.innerHTML = `
-      <div class="no-results">
-        <span class="no-results-icon">&#128269;</span>
-        <span>No endpoints match your search</span>
-      </div>
-    `;
+    area.innerHTML =
+      '<div class="no-results">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+        '<span>未找到匹配的接口</span>' +
+      '</div>';
     return;
   }
 
   let html = '';
   for (const [cat, eps] of Object.entries(groups)) {
-    html += `<div class="category-header" id="cat-${slugify(cat)}">${esc(cat)}</div>`;
+    html += '<div class="category-header" id="cat-' + slugify(cat) + '">' + esc(cat) + '</div>';
     eps.forEach((ep, idx) => {
       const epId = slugify(ep.method + '-' + ep.path);
       const hasParams = ep.params && ep.params.length > 0;
@@ -505,104 +429,100 @@ function renderEndpoints(endpoints) {
       const tryId = 'try-' + epId;
       const respId = 'resp-' + epId;
 
-      html += `
-        <div class="endpoint-card" id="${epId}" style="animation-delay:${idx * 0.04}s;">
-          <div class="endpoint-header">
-            <span class="method-badge method-${ep.method} endpoint-method">${ep.method}</span>
-            <span class="endpoint-path">${esc(ep.path)}</span>
-          </div>
-          <div class="endpoint-desc">${esc(ep.description)}</div>
+      html += '<div class="endpoint-card" id="' + epId + '" style="animation-delay:' + (idx * 0.04) + 's;">';
+      html += '<div class="endpoint-header">';
+      html += '<span class="method-badge method-' + ep.method + ' endpoint-method">' + ep.method + '</span>';
+      html += '<span class="endpoint-path">' + esc(ep.path) + '</span>';
+      html += '</div>';
+      html += '<div class="endpoint-desc">' + esc(ep.description) + '</div>';
 
-          ${hasParams ? `
-          <div class="schema-section">
-            <div class="schema-label">Parameters</div>
-            <table class="params-table">
-              <thead><tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
-              <tbody>
-                ${ep.params.map(p => `
-                  <tr>
-                    <td><span class="param-name">${esc(p.name)}</span></td>
-                    <td><span class="param-type">${esc(p.type)}</span></td>
-                    <td>${p.required ? '<span class="param-required">required</span>' : '<span class="param-optional">optional</span>'}</td>
-                    <td style="color:var(--text-dim);">${esc(p.desc)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>` : ''}
+      if (hasParams) {
+        html += '<div class="schema-section">';
+        html += '<div class="schema-label">参数</div>';
+        html += '<table class="params-table"><thead><tr><th>名称</th><th>类型</th><th>必填</th><th>描述</th></tr></thead><tbody>';
+        ep.params.forEach(p => {
+          html += '<tr>';
+          html += '<td><span class="param-name">' + esc(p.name) + '</span></td>';
+          html += '<td><span class="param-type-tag">' + esc(p.type) + '</span></td>';
+          html += '<td>' + (p.required ? '<span class="param-required">必填</span>' : '<span class="param-optional">可选</span>') + '</td>';
+          html += '<td style="color:var(--text-dim);">' + esc(p.desc) + '</td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+      }
 
-          ${hasBody ? `
-          <div class="schema-section">
-            <div class="schema-label">Request Body</div>
-            <div class="schema-json">${esc(ep.body)}</div>
-          </div>` : ''}
+      if (hasBody) {
+        html += '<div class="schema-section">';
+        html += '<div class="schema-label">请求体</div>';
+        html += '<div class="schema-json">' + esc(ep.body) + '</div>';
+        html += '</div>';
+      }
 
-          <div class="schema-section">
-            <div class="schema-label">Response</div>
-            <div class="schema-json">${esc(ep.response)}</div>
-          </div>
+      html += '<div class="schema-section">';
+      html += '<div class="schema-label">响应</div>';
+      html += '<div class="schema-json">' + esc(ep.response) + '</div>';
+      html += '</div>';
 
-          ${ep.method !== 'WS' ? `
-          <div class="try-section" id="${tryId}">
-            <div class="try-header">
-              <span class="try-title">Try it</span>
-            </div>
-            <div class="try-form">
-              ${hasParams ? ep.params.map(p => `
-                <div class="try-field">
-                  <label class="try-field-label">${esc(p.name)} ${p.required ? '(required)' : ''}</label>
-                  <input class="try-field-input" data-param="${esc(p.name)}" placeholder="${esc(p.desc)}" />
-                </div>
-              `).join('') : ''}
-              ${hasBody ? `
-                <div class="try-field">
-                  <label class="try-field-label">Request Body</label>
-                  <textarea class="try-field-input" data-body="true" rows="4">${esc(ep.body)}</textarea>
-                </div>
-              ` : ''}
-              <div class="try-actions">
-                <button class="btn btn-primary btn-sm" onclick="executeEndpoint('${epId}', '${ep.method}', '${esc(ep.path)}')">Execute</button>
-                <button class="btn btn-ghost btn-sm" onclick="clearResponse('${respId}')">Clear</button>
-              </div>
-            </div>
-            <div class="try-response" id="${respId}"></div>
-          </div>` : ''}
-        </div>
-      `;
+      if (ep.method !== 'WS') {
+        html += '<div class="try-section" id="' + tryId + '">';
+        html += '<div class="try-header"><span class="try-title">试一试</span></div>';
+        html += '<div class="try-form">';
+
+        if (hasParams) {
+          ep.params.forEach(p => {
+            html += '<div class="try-field">';
+            html += '<label class="try-field-label">' + esc(p.name) + (p.required ? ' (必填)' : '') + '</label>';
+            html += '<input class="try-field-input" data-param="' + esc(p.name) + '" placeholder="' + esc(p.desc) + '" />';
+            html += '</div>';
+          });
+        }
+
+        if (hasBody) {
+          html += '<div class="try-field">';
+          html += '<label class="try-field-label">请求体</label>';
+          html += '<textarea class="try-field-input" data-body="true" rows="4">' + esc(ep.body) + '</textarea>';
+          html += '</div>';
+        }
+
+        html += '<div class="try-actions">';
+        html += '<button class="btn btn-primary btn-sm" onclick="executeEndpoint(\'' + epId + '\', \'' + ep.method + '\', \'' + esc(ep.path) + '\')">执行</button>';
+        html += '<button class="btn btn-ghost btn-sm" onclick="clearResponse(\'' + respId + '\')">清除</button>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div class="try-response" id="' + respId + '"></div>';
+        html += '</div>';
+      }
+
+      html += '</div>';
     });
   }
 
   area.innerHTML = html;
 }
 
-/* ── Scroll To Endpoint ───────────────────────────────────────────── */
 window.scrollToEndpoint = function(epId) {
   const el = document.getElementById(epId);
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // Highlight sidebar
-    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-    const sItem = document.querySelector(`.sidebar-item[data-endpoint="${epId}"]`);
+    document.querySelectorAll('.api-sidebar-item').forEach(s => s.classList.remove('active'));
+    const sItem = document.querySelector('.api-sidebar-item[data-endpoint="' + epId + '"]');
     if (sItem) sItem.classList.add('active');
   }
 };
 
-/* ── Execute Endpoint ─────────────────────────────────────────────── */
 window.executeEndpoint = async function(epId, method, path) {
   const trySection = document.getElementById('try-' + epId);
   const respEl = document.getElementById('resp-' + epId);
   if (!trySection || !respEl) return;
 
-  // Collect params
   let url = path;
   trySection.querySelectorAll('input[data-param]').forEach(input => {
     const val = input.value.trim();
     if (val) {
-      url = url.replace(`{${input.dataset.param}}`, encodeURIComponent(val));
+      url = url.replace('{' + input.dataset.param + '}', encodeURIComponent(val));
     }
   });
 
-  // Collect body
   let body = null;
   const bodyEl = trySection.querySelector('textarea[data-body]');
   if (bodyEl) {
@@ -610,11 +530,11 @@ window.executeEndpoint = async function(epId, method, path) {
   }
 
   respEl.classList.add('show');
-  respEl.innerHTML = '<div style="color:var(--text-muted);">Sending request...</div>';
+  respEl.innerHTML = '<div style="color:var(--text-muted);">发送请求中...</div>';
 
   try {
     const opts = {
-      method: method === 'GET' || method === 'DELETE' ? method : method,
+      method: method,
       headers: { 'Content-Type': 'application/json' },
     };
     if (body && method !== 'GET' && method !== 'DELETE') {
@@ -626,15 +546,13 @@ window.executeEndpoint = async function(epId, method, path) {
     let formatted = text;
     try { formatted = JSON.stringify(JSON.parse(text), null, 2); } catch {}
 
-    respEl.innerHTML = `
-      <div class="try-status ${res.ok ? 'ok' : 'error'}">${res.status} ${res.statusText}</div>
-      <div>${esc(formatted)}</div>
-    `;
+    respEl.innerHTML =
+      '<div class="try-status ' + (res.ok ? 'ok' : 'error') + '">' + res.status + ' ' + res.statusText + '</div>' +
+      '<div>' + esc(formatted) + '</div>';
   } catch (err) {
-    respEl.innerHTML = `
-      <div class="try-status error">Error</div>
-      <div>${esc(err.message)}</div>
-    `;
+    respEl.innerHTML =
+      '<div class="try-status error">错误</div>' +
+      '<div>' + esc(err.message) + '</div>';
   }
 };
 
@@ -643,7 +561,6 @@ window.clearResponse = function(respId) {
   if (el) { el.classList.remove('show'); el.innerHTML = ''; }
 };
 
-/* ── Search ───────────────────────────────────────────────────────── */
 document.getElementById('endpointSearch').addEventListener('input', function() {
   const q = this.value.toLowerCase().trim();
   const filtered = q
@@ -658,10 +575,8 @@ document.getElementById('endpointSearch').addEventListener('input', function() {
   renderEndpoints(filtered);
 });
 
-/* ── Init ─────────────────────────────────────────────────────────── */
 renderSidebar(ENDPOINTS);
 renderEndpoints(ENDPOINTS);
-
 })();
 </script>
 </body>

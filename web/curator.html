@@ -1,28 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Curator Quality Dashboard</title>
+<title>JARVIS - 策展</title>
 <style>
-/* ====================================================================
-   JARVIS Curator Quality Dashboard — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
@@ -30,50 +25,82 @@
   --red:          #ef4444;
   --purple:       #a855f7;
   --cyan:         #06b6d4;
-  --pink:         #ec4899;
+  --yellow:       #eab308;
   --radius:       8px;
   --radius-lg:    12px;
-  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
-::-webkit-scrollbar { width: 6px; }
+
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Nav ----------------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-/* -- Layout ------------------------------------------------------------ */
-.main-layout { flex: 1; display: grid; grid-template-columns: 1fr 380px; overflow: hidden; }
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow-y: auto; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
+
+/* ── Main Content Layout ────────────────────────────────── */
+.main-layout { display: grid; grid-template-columns: 1fr 380px; min-height: 100%; }
 .content-area { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
 .right-panel {
   background: var(--bg-base); border-left: 1px solid var(--border);
-  overflow-y: auto; display: flex; flex-direction: column;
+  display: flex; flex-direction: column; overflow: hidden;
 }
 
-/* -- Buttons ----------------------------------------------------------- */
+/* ── Buttons ─────────────────────────────────────────────── */
 .btn {
-  padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+  padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
   cursor: pointer; border: none; transition: var(--transition); display: inline-flex;
-  align-items: center; gap: 6px;
+  align-items: center; gap: 6px; font-family: var(--font);
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hover); }
@@ -82,10 +109,10 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* -- Stats Row --------------------------------------------------------- */
-.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+/* ── Stats Row ───────────────────────────────────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
 .stat-card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 18px; text-align: center;
 }
 .stat-number { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -96,29 +123,29 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .stat-number.purple { color: var(--purple); }
 .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 
-/* -- Verdict Badges ---------------------------------------------------- */
+/* ── Verdict Badges ──────────────────────────────────────── */
 .verdict-badge {
   display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
-  border-radius: 10px; font-size: 11px; font-weight: 600; text-transform: uppercase;
+  border-radius: 10px; font-size: 11px; font-weight: 600;
 }
 .verdict-approved { background: rgba(34,197,94,0.15); color: var(--green); }
 .verdict-needs_revision { background: rgba(245,158,11,0.15); color: var(--orange); }
 .verdict-rejected { background: rgba(239,68,68,0.15); color: var(--red); }
 .verdict-flagged { background: rgba(168,85,247,0.15); color: var(--purple); }
 
-/* -- Score Bar --------------------------------------------------------- */
+/* ── Score Bar ───────────────────────────────────────────── */
 .score-bar-container { display: flex; align-items: center; gap: 8px; }
 .score-bar-track { flex: 1; height: 8px; background: var(--bg-deep); border-radius: 4px; overflow: hidden; }
 .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
 .score-bar-value { font-size: 12px; font-weight: 600; min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
 
-/* -- Review List ------------------------------------------------------- */
+/* ── Review List ─────────────────────────────────────────── */
 .review-item {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 16px; cursor: pointer; transition: var(--transition);
   animation: fadeInUp 0.3s ease both;
 }
-.review-item:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.review-item:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
 .review-item.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .review-id { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
@@ -126,29 +153,29 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .review-request { font-size: 13px; color: var(--text); margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .review-footer { display: flex; justify-content: space-between; align-items: center; }
 
-/* -- Trend Chart ------------------------------------------------------- */
+/* ── Trend Chart ─────────────────────────────────────────── */
 .trend-container {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 20px;
 }
 .trend-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .trend-title { font-size: 15px; font-weight: 700; }
 .trend-svg { width: 100%; height: 160px; }
 
-/* -- Distribution Chart ------------------------------------------------ */
+/* ── Distribution Chart ──────────────────────────────────── */
 .distribution-container {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 20px;
 }
 .distribution-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
 .distribution-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.distribution-label { width: 100px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
+.distribution-label { width: 100px; font-size: 12px; font-weight: 500; }
 .distribution-bar-track { flex: 1; height: 20px; background: var(--bg-deep); border-radius: 4px; overflow: hidden; position: relative; }
 .distribution-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
 .distribution-bar-text { font-size: 10px; font-weight: 600; color: #fff; }
 .distribution-count { font-size: 12px; color: var(--text-muted); min-width: 40px; text-align: right; }
 
-/* -- Flagged Panel ----------------------------------------------------- */
+/* ── Flagged Panel ───────────────────────────────────────── */
 .flagged-item {
   padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
   transition: var(--transition);
@@ -158,22 +185,20 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .flagged-reason { font-size: 12px; color: var(--orange); font-weight: 500; }
 .flagged-request { font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* -- Submit Form ------------------------------------------------------- */
-.submit-section {
-  padding: 20px 16px; border-bottom: 1px solid var(--border);
-}
+/* ── Submit Form ─────────────────────────────────────────── */
+.submit-section { padding: 20px 16px; border-bottom: 1px solid var(--border); }
 .submit-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
 .form-group { margin-bottom: 12px; }
 .form-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 6px; display: block; }
 .form-input {
   width: 100%; background: var(--bg-input); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 10px 12px; color: var(--text); font-size: 13px;
-  transition: border-color var(--transition);
+  transition: border-color var(--transition); font-family: var(--font);
 }
-.form-input:focus { border-color: var(--border-focus); outline: none; }
-textarea.form-input { resize: vertical; min-height: 60px; font-family: var(--font); }
+.form-input:focus { border-color: var(--accent); outline: none; }
+textarea.form-input { resize: vertical; min-height: 60px; }
 
-/* -- Panel Tabs -------------------------------------------------------- */
+/* ── Panel Tabs ──────────────────────────────────────────── */
 .panel-tabs {
   display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
@@ -187,172 +212,200 @@ textarea.form-input { resize: vertical; min-height: 60px; font-family: var(--fon
 .panel-view { display: none; flex: 1; overflow-y: auto; }
 .panel-view.active { display: block; }
 
-/* -- Section Header ---------------------------------------------------- */
+/* ── Section Header ──────────────────────────────────────── */
 .section-header { display: flex; justify-content: space-between; align-items: center; }
 .section-title { font-size: 16px; font-weight: 700; }
 
-/* -- Empty State ------------------------------------------------------- */
+/* ── Empty State ─────────────────────────────────────────── */
 .empty-state {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 12px; padding: 60px 20px; color: var(--text-muted); text-align: center;
 }
-.empty-icon { font-size: 40px; opacity: 0.3; }
+.empty-icon { opacity: 0.3; }
+.empty-icon svg { width: 40px; height: 40px; }
 .empty-title { font-size: 15px; font-weight: 600; color: var(--text-dim); }
 
-/* -- Review Detail ----------------------------------------------------- */
+/* ── Review Detail ───────────────────────────────────────── */
 .review-detail-section { margin-bottom: 18px; }
 .review-detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
 .review-detail-text { font-size: 13px; color: var(--text); line-height: 1.6; }
-.review-detail-json {
-  background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px; font-family: var(--mono); font-size: 11px; color: var(--text-dim);
-  white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto;
-}
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 900px) {
+  .main-layout { grid-template-columns: 1fr; }
+  .right-panel { border-left: none; border-top: 1px solid var(--border); }
+}
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Curator</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html" class="active">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">策展</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Content Area -->
-  <div class="content-area">
-    <!-- Stats -->
-    <div class="stats-row" id="statsRow">
-      <!-- Populated by JS -->
-    </div>
-
-    <!-- Quality Trend Chart -->
-    <div class="trend-container">
-      <div class="trend-header">
-        <div class="trend-title">Quality Score Trend</div>
-        <button class="btn btn-ghost btn-sm" onclick="loadStats()">Refresh</button>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
       </div>
-      <svg class="trend-svg" id="trendChart"></svg>
-    </div>
-
-    <!-- Verdict Distribution -->
-    <div class="distribution-container">
-      <div class="distribution-title">Verdict Distribution</div>
-      <div id="distributionChart"></div>
-    </div>
-
-    <!-- Review History -->
-    <div>
-      <div class="section-header" style="margin-bottom:14px;">
-        <div class="section-title">Review History</div>
-        <button class="btn btn-ghost btn-sm" onclick="loadReviews()">Refresh</button>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
       </div>
-      <div id="reviewList" style="display:flex; flex-direction:column; gap:10px;">
-        <!-- Populated by JS -->
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
       </div>
-      <div class="empty-state" id="reviewListEmpty" style="display:none;">
-        <span class="empty-icon">&#128203;</span>
-        <span class="empty-title">No reviews yet</span>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item active" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
       </div>
-    </div>
-  </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
+  </aside>
 
-  <!-- Right Panel -->
-  <div class="right-panel">
-    <div class="panel-tabs">
-      <div class="panel-tab active" onclick="switchPanelTab('submit')">Submit</div>
-      <div class="panel-tab" onclick="switchPanelTab('flagged')">Flagged</div>
-      <div class="panel-tab" onclick="switchPanelTab('detail')">Detail</div>
-    </div>
+  <div class="page-content">
+    <div class="main-layout">
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Stats -->
+        <div class="stats-row" id="statsRow"></div>
 
-    <!-- Submit Tab -->
-    <div class="panel-view active" id="submitView">
-      <div class="submit-section">
-        <div class="submit-title">Submit Review</div>
-        <form id="reviewForm" onsubmit="submitReview(event)">
-          <div class="form-group">
-            <label class="form-label">Request / Prompt</label>
-            <textarea class="form-input" id="reviewRequest" placeholder="The original request or prompt..." rows="3"></textarea>
+        <!-- Quality Trend Chart -->
+        <div class="trend-container">
+          <div class="trend-header">
+            <div class="trend-title">质量分趋势</div>
+            <button class="btn btn-ghost btn-sm" onclick="loadStats()">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              刷新
+            </button>
           </div>
-          <div class="form-group">
-            <label class="form-label">Output / Response</label>
-            <textarea class="form-input" id="reviewOutput" placeholder="The agent's output or response..." rows="3"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Constraints (optional)</label>
-            <textarea class="form-input" id="reviewConstraints" placeholder="Any constraints or criteria..." rows="2"></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%;">Submit for Review</button>
-        </form>
-      </div>
-      <div id="submitResult" style="display:none; padding:16px;">
-        <!-- Shows last review result -->
-      </div>
-    </div>
+          <svg class="trend-svg" id="trendChart"></svg>
+        </div>
 
-    <!-- Flagged Tab -->
-    <div class="panel-view" id="flaggedView">
-      <div id="flaggedList">
-        <!-- Populated by JS -->
-      </div>
-      <div class="empty-state" id="flaggedEmpty">
-        <span class="empty-icon">&#9888;</span>
-        <span class="empty-title">No flagged items</span>
-      </div>
-    </div>
+        <!-- Verdict Distribution -->
+        <div class="distribution-container">
+          <div class="distribution-title">结论分布</div>
+          <div id="distributionChart"></div>
+        </div>
 
-    <!-- Detail Tab -->
-    <div class="panel-view" id="detailView">
-      <div class="empty-state" id="detailEmpty">
-        <span class="empty-icon">&#128269;</span>
-        <span class="empty-title">Select a review to see details</span>
+        <!-- Review History -->
+        <div>
+          <div class="section-header" style="margin-bottom:14px;">
+            <div class="section-title">审核历史</div>
+            <button class="btn btn-ghost btn-sm" onclick="loadReviews()">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              刷新
+            </button>
+          </div>
+          <div id="reviewList" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <div class="empty-state" id="reviewListEmpty" style="display:none;">
+            <span class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+            <span class="empty-title">暂无审核记录</span>
+          </div>
+        </div>
       </div>
-      <div id="detailContent" style="display:none; padding:20px;"></div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <div class="panel-tabs">
+          <div class="panel-tab active" onclick="switchPanelTab('submit')">提交</div>
+          <div class="panel-tab" onclick="switchPanelTab('flagged')">已标记</div>
+          <div class="panel-tab" onclick="switchPanelTab('detail')">详情</div>
+        </div>
+
+        <!-- Submit Tab -->
+        <div class="panel-view active" id="submitView">
+          <div class="submit-section">
+            <div class="submit-title">提交审核</div>
+            <form id="reviewForm" onsubmit="submitReview(event)">
+              <div class="form-group">
+                <label class="form-label">请求 / 提示词</label>
+                <textarea class="form-input" id="reviewRequest" placeholder="原始请求或提示词..." rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">输出 / 响应</label>
+                <textarea class="form-input" id="reviewOutput" placeholder="智能体的输出或响应..." rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">约束 (可选)</label>
+                <textarea class="form-input" id="reviewConstraints" placeholder="任何约束或条件..." rows="2"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%;">提交审核</button>
+            </form>
+          </div>
+          <div id="submitResult" style="display:none; padding:16px;"></div>
+        </div>
+
+        <!-- Flagged Tab -->
+        <div class="panel-view" id="flaggedView">
+          <div id="flaggedList"></div>
+          <div class="empty-state" id="flaggedEmpty">
+            <span class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+            <span class="empty-title">暂无已标记项</span>
+          </div>
+        </div>
+
+        <!-- Detail Tab -->
+        <div class="panel-view" id="detailView">
+          <div class="empty-state" id="detailEmpty">
+            <span class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <span class="empty-title">选择一条审核查看详情</span>
+          </div>
+          <div id="detailContent" style="display:none; padding:20px;"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-/* ====================================================================
-   JARVIS Curator Quality Dashboard — JavaScript
-   ==================================================================== */
 (() => {
 'use strict';
+
+/* ── Sidebar Toggle ──────────────────────────────────────── */
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
 
 const API_BASE = location.origin;
 let reviews = [];
 let selectedReviewId = null;
 let stats = {};
 
-/* ── Mock Data ────────────────────────────────────────────────────── */
+/* ── Mock Data ───────────────────────────────────────────── */
 const MOCK_REVIEWS = [
-  { id: 'rev-001', verdict: 'approved', score: 0.92, timestamp: new Date(Date.now() - 60000).toISOString(), request: 'Generate a REST API endpoint for user authentication', output: 'Created POST /auth/login with JWT token generation...', constraints: 'Must use bcrypt for password hashing', feedback: 'Clean implementation with proper error handling' },
-  { id: 'rev-002', verdict: 'needs_revision', score: 0.65, timestamp: new Date(Date.now() - 180000).toISOString(), request: 'Write unit tests for the payment service', output: 'Created 5 test cases covering basic payment flow...', constraints: 'Cover edge cases and error paths', feedback: 'Missing error path tests and edge cases for refunds' },
-  { id: 'rev-003', verdict: 'approved', score: 0.88, timestamp: new Date(Date.now() - 300000).toISOString(), request: 'Implement caching layer for database queries', output: 'Added Redis-based caching with TTL configuration...', constraints: 'Must support cache invalidation', feedback: 'Good implementation, minor improvement needed for cache warming' },
-  { id: 'rev-004', verdict: 'rejected', score: 0.31, timestamp: new Date(Date.now() - 420000).toISOString(), request: 'Deploy the application to production', output: 'Attempted direct deployment without staging...', constraints: 'Must follow CI/CD pipeline', feedback: 'Skipped staging environment and did not run integration tests' },
-  { id: 'rev-005', verdict: 'flagged', score: 0.55, timestamp: new Date(Date.now() - 600000).toISOString(), request: 'Refactor the user model to support multi-tenancy', output: 'Added tenant_id column and updated queries...', constraints: 'Backward compatible', feedback: 'Potential data migration issues, needs human review for backward compatibility', flagReason: 'Backward compatibility concern' },
-  { id: 'rev-006', verdict: 'approved', score: 0.95, timestamp: new Date(Date.now() - 900000).toISOString(), request: 'Create API documentation for the agents endpoint', output: 'Generated OpenAPI 3.0 spec with examples...', constraints: 'Include request/response examples', feedback: 'Comprehensive documentation with clear examples' },
-  { id: 'rev-007', verdict: 'needs_revision', score: 0.58, timestamp: new Date(Date.now() - 1200000).toISOString(), request: 'Optimize database queries for the dashboard', output: 'Added indexes and rewrote 3 queries...', constraints: 'Must not break existing functionality', feedback: 'Index additions are good but one query rewrite changes result ordering' },
-  { id: 'rev-008', verdict: 'flagged', score: 0.45, timestamp: new Date(Date.now() - 1500000).toISOString(), request: 'Implement rate limiting for the API', output: 'Added token bucket rate limiter...', constraints: 'Must support per-user limits', feedback: 'Implementation only supports global limits, not per-user', flagReason: 'Missing per-user rate limit support' },
+  { id: 'rev-001', verdict: 'approved', score: 0.92, timestamp: new Date(Date.now() - 60000).toISOString(), request: '生成用户认证 REST API 端点', output: '创建 POST /auth/login 使用 JWT 令牌生成...', constraints: '必须使用 bcrypt 进行密码哈希', feedback: '实现干净，错误处理妥当' },
+  { id: 'rev-002', verdict: 'needs_revision', score: 0.65, timestamp: new Date(Date.now() - 180000).toISOString(), request: '为支付服务编写单元测试', output: '创建了5个覆盖基本支付流程的测试用例...', constraints: '覆盖边界情况和错误路径', feedback: '缺少退款的错误路径测试和边界用例' },
+  { id: 'rev-003', verdict: 'approved', score: 0.88, timestamp: new Date(Date.now() - 300000).toISOString(), request: '为数据库查询实现缓存层', output: '添加基于 Redis 的缓存并配置 TTL...', constraints: '必须支持缓存失效', feedback: '实现良好，缓存预热略有改进空间' },
+  { id: 'rev-004', verdict: 'rejected', score: 0.31, timestamp: new Date(Date.now() - 420000).toISOString(), request: '将应用部署到生产环境', output: '尝试跳过预发环境直接部署...', constraints: '必须遵循 CI/CD 流水线', feedback: '跳过了预发环境且未运行集成测试' },
+  { id: 'rev-005', verdict: 'flagged', score: 0.55, timestamp: new Date(Date.now() - 600000).toISOString(), request: '重构用户模型以支持多租户', output: '添加 tenant_id 列并更新查询...', constraints: '需向后兼容', feedback: '存在数据迁移风险，需人工审核向后兼容性', flagReason: '向后兼容性风险' },
+  { id: 'rev-006', verdict: 'approved', score: 0.95, timestamp: new Date(Date.now() - 900000).toISOString(), request: '为智能体端点创建 API 文档', output: '生成 OpenAPI 3.0 规范及示例...', constraints: '包含请求/响应示例', feedback: '文档完整，示例清晰' },
+  { id: 'rev-007', verdict: 'needs_revision', score: 0.58, timestamp: new Date(Date.now() - 1200000).toISOString(), request: '优化仪表盘数据库查询', output: '添加索引并重写了3条查询...', constraints: '不得破坏现有功能', feedback: '索引添加合理，但一条查询重写改变了结果排序' },
+  { id: 'rev-008', verdict: 'flagged', score: 0.45, timestamp: new Date(Date.now() - 1500000).toISOString(), request: '为 API 实现限流', output: '添加令牌桶限流器...', constraints: '必须支持按用户限流', feedback: '仅支持全局限流，不支持按用户限流', flagReason: '缺少按用户限流支持' },
 ];
 
 const MOCK_STATS = {
@@ -365,11 +418,19 @@ const MOCK_STATS = {
   scores_over_time: [0.68, 0.72, 0.71, 0.75, 0.74, 0.78, 0.76, 0.80, 0.77, 0.82, 0.79, 0.74, 0.81, 0.83, 0.85],
 };
 
-/* ── Helper Functions ─────────────────────────────────────────────── */
+/* ── Verdict Labels (Chinese) ────────────────────────────── */
+const VERDICT_LABELS = {
+  approved: '已通过',
+  needs_revision: '需修改',
+  rejected: '已拒绝',
+  flagged: '已标记',
+};
+
+/* ── Helper Functions ────────────────────────────────────── */
 function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
 
 function formatTime(ts) {
-  try { return new Date(ts).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+  try { return new Date(ts).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); }
   catch { return '--'; }
 }
 
@@ -383,7 +444,11 @@ function verdictClass(verdict) {
   return 'verdict-' + (verdict || 'approved');
 }
 
-/* ── Load Stats ───────────────────────────────────────────────────── */
+function verdictLabel(verdict) {
+  return VERDICT_LABELS[verdict] || verdict;
+}
+
+/* ── Load Stats ──────────────────────────────────────────── */
 async function loadStats() {
   try {
     stats = await fetch(API_BASE + '/curator/stats').then(r => r.json());
@@ -399,32 +464,32 @@ function renderStats() {
   document.getElementById('statsRow').innerHTML = `
     <div class="stat-card">
       <div class="stat-number blue">${stats.total_reviews || 0}</div>
-      <div class="stat-label">Total Reviews</div>
+      <div class="stat-label">审核总数</div>
     </div>
     <div class="stat-card">
       <div class="stat-number" style="color:${scoreColor(stats.average_score || 0)}">${((stats.average_score || 0) * 100).toFixed(1)}%</div>
-      <div class="stat-label">Average Score</div>
+      <div class="stat-label">平均分</div>
     </div>
     <div class="stat-card">
       <div class="stat-number green">${stats.approved_count || 0}</div>
-      <div class="stat-label">Approved</div>
+      <div class="stat-label">已通过</div>
     </div>
     <div class="stat-card">
       <div class="stat-number orange">${stats.needs_revision_count || 0}</div>
-      <div class="stat-label">Needs Revision</div>
+      <div class="stat-label">需修改</div>
     </div>
     <div class="stat-card">
       <div class="stat-number red">${stats.rejected_count || 0}</div>
-      <div class="stat-label">Rejected</div>
+      <div class="stat-label">已拒绝</div>
     </div>
     <div class="stat-card">
       <div class="stat-number purple">${stats.flagged_count || 0}</div>
-      <div class="stat-label">Flagged</div>
+      <div class="stat-label">已标记</div>
     </div>
   `;
 }
 
-/* ── Trend Chart (SVG line chart) ─────────────────────────────────── */
+/* ── Trend Chart (SVG line chart) ────────────────────────── */
 function renderTrendChart() {
   const scores = stats.scores_over_time || [];
   if (!scores.length) return;
@@ -441,11 +506,9 @@ function renderTrendChart() {
   const scaleX = (i) => padding.left + (i / (scores.length - 1)) * chartW;
   const scaleY = (v) => padding.top + (1 - (v - minScore) / (maxScore - minScore)) * chartH;
 
-  // Build points
   const points = scores.map((s, i) => `${scaleX(i)},${scaleY(s)}`).join(' ');
   const areaPoints = points + ` ${scaleX(scores.length - 1)},${scaleY(minScore)} ${scaleX(0)},${scaleY(minScore)}`;
 
-  // Grid lines
   let gridLines = '';
   const gridSteps = 4;
   for (let i = 0; i <= gridSteps; i++) {
@@ -455,9 +518,8 @@ function renderTrendChart() {
     gridLines += `<text x="${padding.left - 8}" y="${y + 4}" fill="var(--text-muted)" font-size="10" text-anchor="end">${(v * 100).toFixed(0)}%</text>`;
   }
 
-  // Dots
   let dots = scores.map((s, i) =>
-    `<circle cx="${scaleX(i)}" cy="${scaleY(s)}" r="3" fill="var(--accent)" stroke="var(--bg-card)" stroke-width="2" />`
+    `<circle cx="${scaleX(i)}" cy="${scaleY(s)}" r="3" fill="var(--accent)" stroke="var(--bg-surface)" stroke-width="2" />`
   ).join('');
 
   svg.innerHTML = `
@@ -468,17 +530,17 @@ function renderTrendChart() {
   `;
 }
 
-/* ── Distribution Chart ───────────────────────────────────────────── */
+/* ── Distribution Chart ──────────────────────────────────── */
 function renderDistribution() {
   const total = (stats.approved_count || 0) + (stats.needs_revision_count || 0) +
                 (stats.rejected_count || 0) + (stats.flagged_count || 0);
   if (!total) return;
 
   const items = [
-    { label: 'Approved', count: stats.approved_count || 0, color: 'var(--green)' },
-    { label: 'Needs Revision', count: stats.needs_revision_count || 0, color: 'var(--orange)' },
-    { label: 'Rejected', count: stats.rejected_count || 0, color: 'var(--red)' },
-    { label: 'Flagged', count: stats.flagged_count || 0, color: 'var(--purple)' },
+    { label: '已通过', count: stats.approved_count || 0, color: 'var(--green)' },
+    { label: '需修改', count: stats.needs_revision_count || 0, color: 'var(--orange)' },
+    { label: '已拒绝', count: stats.rejected_count || 0, color: 'var(--red)' },
+    { label: '已标记', count: stats.flagged_count || 0, color: 'var(--purple)' },
   ];
 
   document.getElementById('distributionChart').innerHTML = items.map(item => {
@@ -497,7 +559,7 @@ function renderDistribution() {
   }).join('');
 }
 
-/* ── Load Reviews ─────────────────────────────────────────────────── */
+/* ── Load Reviews ────────────────────────────────────────── */
 async function loadReviews() {
   try {
     reviews = await fetch(API_BASE + '/curator/reviews').then(r => r.json());
@@ -505,6 +567,7 @@ async function loadReviews() {
     reviews = MOCK_REVIEWS;
   }
   renderReviews();
+  renderFlaggedItems();
 }
 
 function renderReviews() {
@@ -528,7 +591,7 @@ function renderReviews() {
       </div>
       <div class="review-request">${esc(r.request)}</div>
       <div class="review-footer">
-        <span class="verdict-badge ${verdictClass(r.verdict)}">${esc(r.verdict.replace(/_/g, ' '))}</span>
+        <span class="verdict-badge ${verdictClass(r.verdict)}">${esc(verdictLabel(r.verdict))}</span>
         <div class="score-bar-container" style="width:140px;">
           <div class="score-bar-track">
             <div class="score-bar-fill" style="width:${(r.score * 100).toFixed(0)}%; background:${scoreColor(r.score)};"></div>
@@ -540,7 +603,7 @@ function renderReviews() {
   `).join('');
 }
 
-/* ── Select Review ────────────────────────────────────────────────── */
+/* ── Select Review ───────────────────────────────────────── */
 window.selectReview = function(id) {
   selectedReviewId = id;
   const review = reviews.find(r => r.id === id);
@@ -556,15 +619,15 @@ function renderReviewDetail(r) {
   el.style.display = 'block';
   el.innerHTML = `
     <div class="review-detail-section">
-      <div class="review-detail-label">Review ID</div>
+      <div class="review-detail-label">审核 ID</div>
       <div style="font-family:var(--mono); font-size:12px; color:var(--text-dim);">${esc(r.id)}</div>
     </div>
     <div class="review-detail-section">
-      <div class="review-detail-label">Verdict</div>
-      <span class="verdict-badge ${verdictClass(r.verdict)}" style="font-size:13px;">${esc(r.verdict.replace(/_/g, ' '))}</span>
+      <div class="review-detail-label">结论</div>
+      <span class="verdict-badge ${verdictClass(r.verdict)}" style="font-size:13px;">${esc(verdictLabel(r.verdict))}</span>
     </div>
     <div class="review-detail-section">
-      <div class="review-detail-label">Score</div>
+      <div class="review-detail-label">分数</div>
       <div class="score-bar-container">
         <div class="score-bar-track" style="height:12px;">
           <div class="score-bar-fill" style="width:${(r.score * 100)}%; background:${scoreColor(r.score)};"></div>
@@ -573,36 +636,36 @@ function renderReviewDetail(r) {
       </div>
     </div>
     <div class="review-detail-section">
-      <div class="review-detail-label">Request</div>
+      <div class="review-detail-label">请求</div>
       <div class="review-detail-text">${esc(r.request)}</div>
     </div>
     <div class="review-detail-section">
-      <div class="review-detail-label">Output</div>
+      <div class="review-detail-label">输出</div>
       <div class="review-detail-text">${esc(r.output)}</div>
     </div>
     ${r.constraints ? `
     <div class="review-detail-section">
-      <div class="review-detail-label">Constraints</div>
+      <div class="review-detail-label">约束</div>
       <div class="review-detail-text">${esc(r.constraints)}</div>
     </div>` : ''}
     ${r.feedback ? `
     <div class="review-detail-section">
-      <div class="review-detail-label">Feedback</div>
+      <div class="review-detail-label">反馈</div>
       <div class="review-detail-text">${esc(r.feedback)}</div>
     </div>` : ''}
     ${r.flagReason ? `
     <div class="review-detail-section">
-      <div class="review-detail-label">Flag Reason</div>
+      <div class="review-detail-label">标记原因</div>
       <div style="color:var(--orange); font-size:13px;">${esc(r.flagReason)}</div>
     </div>` : ''}
     <div class="review-detail-section">
-      <div class="review-detail-label">Timestamp</div>
+      <div class="review-detail-label">日期</div>
       <div class="review-detail-text">${formatTime(r.timestamp)}</div>
     </div>
   `;
 }
 
-/* ── Submit Review ────────────────────────────────────────────────── */
+/* ── Submit Review ───────────────────────────────────────── */
 window.submitReview = async function(e) {
   e.preventDefault();
   const request = document.getElementById('reviewRequest').value.trim();
@@ -613,7 +676,7 @@ window.submitReview = async function(e) {
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  btn.textContent = 'Submitting...';
+  btn.textContent = '提交中...';
 
   try {
     const result = await fetch(API_BASE + '/curator/review', {
@@ -624,9 +687,9 @@ window.submitReview = async function(e) {
 
     document.getElementById('submitResult').style.display = 'block';
     document.getElementById('submitResult').innerHTML = `
-      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px;">
-        <div style="font-size:13px; font-weight:600; margin-bottom:8px;">Review Result</div>
-        <div style="margin-bottom:8px;"><span class="verdict-badge ${verdictClass(result.verdict)}">${esc((result.verdict || '').replace(/_/g, ' '))}</span></div>
+      <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px;">
+        <div style="font-size:13px; font-weight:600; margin-bottom:8px;">审核结果</div>
+        <div style="margin-bottom:8px;"><span class="verdict-badge ${verdictClass(result.verdict)}">${esc(verdictLabel(result.verdict || ''))}</span></div>
         <div class="score-bar-container" style="margin-bottom:8px;">
           <div class="score-bar-track"><div class="score-bar-fill" style="width:${((result.score || 0) * 100)}%; background:${scoreColor(result.score || 0)};"></div></div>
           <span class="score-bar-value" style="color:${scoreColor(result.score || 0)};">${((result.score || 0) * 100).toFixed(1)}%</span>
@@ -638,27 +701,26 @@ window.submitReview = async function(e) {
     loadReviews();
     loadStats();
   } catch (err) {
-    // Mock a result for demo
-    const mockResult = { verdict: 'approved', score: 0.82, feedback: 'Mock review: looks good overall.' };
+    const mockResult = { verdict: 'approved', score: 0.82, feedback: '模拟审核: 整体看起来不错。' };
     document.getElementById('submitResult').style.display = 'block';
     document.getElementById('submitResult').innerHTML = `
-      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px;">
-        <div style="font-size:13px; font-weight:600; margin-bottom:8px;">Review Result (demo)</div>
-        <div style="margin-bottom:8px;"><span class="verdict-badge verdict-approved">approved</span></div>
+      <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px;">
+        <div style="font-size:13px; font-weight:600; margin-bottom:8px;">审核结果 (演示)</div>
+        <div style="margin-bottom:8px;"><span class="verdict-badge verdict-approved">已通过</span></div>
         <div class="score-bar-container" style="margin-bottom:8px;">
           <div class="score-bar-track"><div class="score-bar-fill" style="width:82%; background:var(--green);"></div></div>
           <span class="score-bar-value" style="color:var(--green);">82.0%</span>
         </div>
-        <div style="font-size:12px; color:var(--text-dim);">Mock review: looks good overall.</div>
+        <div style="font-size:12px; color:var(--text-dim);">模拟审核: 整体看起来不错。</div>
       </div>
     `;
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Submit for Review';
+    btn.textContent = '提交审核';
   }
 };
 
-/* ── Flagged Items ────────────────────────────────────────────────── */
+/* ── Flagged Items ───────────────────────────────────────── */
 function renderFlaggedItems() {
   const flagged = reviews.filter(r => r.verdict === 'flagged');
   const el = document.getElementById('flaggedList');
@@ -674,16 +736,16 @@ function renderFlaggedItems() {
   el.innerHTML = flagged.map(r => `
     <div class="flagged-item" onclick="selectReview('${esc(r.id)}')">
       <div class="flagged-header">
-        <span class="verdict-badge verdict-flagged">flagged</span>
+        <span class="verdict-badge verdict-flagged">已标记</span>
         <span style="font-size:11px; color:var(--text-muted);">${formatTime(r.timestamp)}</span>
       </div>
-      <div class="flagged-reason">${esc(r.flagReason || 'Needs human review')}</div>
+      <div class="flagged-reason">${esc(r.flagReason || '需人工审核')}</div>
       <div class="flagged-request">${esc(r.request)}</div>
     </div>
   `).join('');
 }
 
-/* ── Panel Tab Switching ──────────────────────────────────────────── */
+/* ── Panel Tab Switching ─────────────────────────────────── */
 window.switchPanelTab = function(tab) {
   document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel-view').forEach(v => v.classList.remove('active'));
@@ -696,17 +758,12 @@ window.switchPanelTab = function(tab) {
   }
 };
 
-/* ── Init ─────────────────────────────────────────────────────────── */
+/* ── Init ─────────────────────────────────────────────────── */
 window.loadStats = loadStats;
 window.loadReviews = loadReviews;
 
 loadStats();
 loadReviews();
-setTimeout(renderFlaggedItems, 500);
-
-// Re-render flagged when reviews load
-const origRender = renderReviews;
-window._origRenderReviews = origRender;
 
 })();
 </script>

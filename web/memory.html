@@ -1,373 +1,442 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Memory Browser</title>
+<title>JARVIS - 记忆</title>
 <style>
-/* ====================================================================
-   JARVIS Memory Browser — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
-  --orange:       #f59e0b;
-  --red:          #ef4444;
   --purple:       #a855f7;
-  --cyan:         #06b6d4;
-  --pink:         #ec4899;
+  --yellow:       #eab308;
+  --red:          #ef4444;
   --radius:       8px;
   --radius-lg:    12px;
-  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Navigation ---------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-/* -- Layout ------------------------------------------------------------ */
-.main-layout { flex: 1; display: grid; grid-template-columns: 1fr 300px; overflow: hidden; }
-.content-area { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
-.stats-sidebar { background: var(--bg-base); border-left: 1px solid var(--border); overflow-y: auto; padding: 20px; }
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
 
-/* -- Search Bar -------------------------------------------------------- */
-.search-bar {
-  display: flex; gap: 12px; align-items: center;
-  background: var(--bg-surface); padding: 16px 20px; border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
 }
-.search-bar input {
-  flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 10px 14px; color: var(--text); font-size: 14px;
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow-y: auto; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
 }
-.search-bar input:focus { border-color: var(--border-focus); }
-.search-bar select {
+
+/* ── Memory Page Specific ─────────────────────────────────── */
+.mem-layout { display: grid; grid-template-columns: 1fr 280px; gap: 0; min-height: 100%; }
+.mem-content { padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+.mem-aside {
+  background: var(--bg-base); border-left: 1px solid var(--border);
+  overflow-y: auto; padding: 20px;
+}
+
+/* Search Bar */
+.mem-search-bar {
+  display: flex; gap: 10px; align-items: center;
+  background: var(--bg-surface); padding: 14px 18px; border-radius: var(--radius-lg);
+  border: 1px solid var(--border); flex-wrap: wrap;
+}
+.mem-search-bar input {
+  flex: 1; min-width: 160px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 9px 14px; color: var(--text); font-size: 13px; font-family: var(--font); transition: var(--transition);
+}
+.mem-search-bar input:focus { outline: none; border-color: var(--accent); }
+.mem-search-bar select {
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 10px 14px; color: var(--text); font-size: 13px; cursor: pointer;
+  padding: 9px 14px; color: var(--text); font-size: 13px; cursor: pointer; font-family: var(--font);
 }
-.search-bar select option { background: var(--bg-base); }
-.btn {
-  padding: 10px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
-  cursor: pointer; border: none; transition: var(--transition);
-}
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent-hover); }
-.btn-danger { background: var(--red); color: #fff; }
-.btn-danger:hover { opacity: 0.85; }
-.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
-.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+.mem-search-bar select option { background: var(--bg-base); }
 
-/* -- Memory Cards ------------------------------------------------------ */
-.memory-list { display: flex; flex-direction: column; gap: 12px; }
-.memory-card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 18px 20px; cursor: pointer; transition: var(--transition);
-  animation: fadeInUp 0.3s ease both;
+/* Buttons */
+.mem-btn {
+  padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; transition: var(--transition); font-family: var(--font);
+  display: inline-flex; align-items: center; gap: 6px;
 }
-.memory-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-.memory-card.expanded { border-color: var(--accent); }
-.memory-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-.memory-type-badge {
+.mem-btn-primary { background: var(--accent); color: #fff; }
+.mem-btn-primary:hover { background: var(--accent-hover); }
+.mem-btn-danger { background: var(--red); color: #fff; }
+.mem-btn-danger:hover { opacity: 0.85; }
+.mem-btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+.mem-btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+.mem-btn-ghost svg { width: 14px; height: 14px; }
+
+/* Memory Cards */
+.mem-list { display: flex; flex-direction: column; gap: 10px; }
+.mem-card {
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px 18px; cursor: pointer; transition: var(--transition);
+  animation: memFadeIn 0.3s ease both;
+}
+.mem-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+.mem-card.expanded { border-color: var(--accent); }
+.mem-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.mem-type-badge {
   display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px;
-  font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+  font-weight: 600; letter-spacing: 0.5px;
 }
-.badge-conversation { background: rgba(59,130,246,0.15); color: var(--accent); }
-.badge-fact { background: rgba(34,197,94,0.15); color: var(--green); }
-.badge-preference { background: rgba(168,85,247,0.15); color: var(--purple); }
-.badge-skill_learned { background: rgba(245,158,11,0.15); color: var(--orange); }
-.badge-spec_history { background: rgba(6,182,212,0.15); color: var(--cyan); }
-.memory-content { font-size: 14px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.6; }
-.memory-meta { display: flex; gap: 16px; align-items: center; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
-.importance-bar {
-  width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
-}
-.importance-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-.importance-low { background: var(--green); }
-.importance-med { background: var(--orange); }
-.importance-high { background: var(--red); }
-.keyword-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-.keyword-tag {
+.mem-badge-conversation { background: rgba(59,130,246,0.15); color: var(--accent); }
+.mem-badge-fact { background: rgba(34,197,94,0.15); color: var(--green); }
+.mem-badge-preference { background: rgba(168,85,247,0.15); color: var(--purple); }
+.mem-badge-skill_learned { background: rgba(234,179,8,0.15); color: var(--yellow); }
+.mem-card-text { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.6; }
+.mem-card-meta { display: flex; gap: 14px; align-items: center; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+.mem-imp-bar { width: 72px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.mem-imp-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.mem-imp-low { background: var(--green); }
+.mem-imp-med { background: var(--yellow); }
+.mem-imp-high { background: var(--red); }
+.mem-kw-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.mem-kw-tag {
   padding: 2px 8px; border-radius: 4px; font-size: 11px;
   background: rgba(99,102,241,0.15); color: #818cf8;
 }
 
-/* -- Detail Panel (expanded) ------------------------------------------ */
-.memory-detail {
+/* Detail Panel (expanded) */
+.mem-detail {
   margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
-  display: none; animation: fadeIn 0.2s ease;
+  display: none; animation: memFadeSmall 0.2s ease;
 }
-.memory-detail.show { display: block; }
-.detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.detail-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.detail-value { font-size: 13px; color: var(--text-dim); }
-.detail-full-content {
+.mem-detail.show { display: block; }
+.mem-detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.mem-detail-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.mem-detail-value { font-size: 13px; color: var(--text-dim); }
+.mem-detail-full {
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 14px; font-size: 13px; color: var(--text); line-height: 1.7; margin: 12px 0;
   max-height: 200px; overflow-y: auto; white-space: pre-wrap;
 }
-.importance-slider { width: 120px; accent-color: var(--accent); }
-.detail-actions { display: flex; gap: 8px; margin-top: 12px; }
+.mem-imp-slider { width: 120px; accent-color: var(--accent); }
+.mem-detail-actions { display: flex; gap: 8px; margin-top: 12px; }
 
-/* -- Add Memory Form --------------------------------------------------- */
-.add-form {
+/* Add Form */
+.mem-add-form {
   background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 20px; display: none;
+  padding: 18px; display: none;
 }
-.add-form.show { display: block; animation: fadeIn 0.25s ease; }
-.add-form textarea {
+.mem-add-form.show { display: block; animation: memFadeSmall 0.25s ease; }
+.mem-add-form textarea {
   width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px; color: var(--text); font-size: 14px; min-height: 100px; resize: vertical;
-  font-family: var(--font); margin-bottom: 12px;
+  padding: 12px; color: var(--text); font-size: 13px; min-height: 90px; resize: vertical;
+  font-family: var(--font); margin-bottom: 12px; transition: var(--transition);
 }
-.add-form textarea:focus { border-color: var(--border-focus); }
-.add-form-row { display: flex; gap: 12px; align-items: center; }
-.add-form-row select {
+.mem-add-form textarea:focus { outline: none; border-color: var(--accent); }
+.mem-add-form-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.mem-add-form-row select {
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 8px 14px; color: var(--text); font-size: 13px;
+  padding: 8px 14px; color: var(--text); font-size: 13px; font-family: var(--font);
 }
 
-/* -- Stats Sidebar ----------------------------------------------------- */
-.stat-card {
+/* Stats Sidebar */
+.mem-stat-card {
   background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 16px; margin-bottom: 14px;
 }
-.stat-title {
-  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--text-muted); margin-bottom: 10px;
+.mem-stat-title {
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
 }
-.stat-number { font-size: 28px; font-weight: 700; color: var(--text); }
-.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; }
-.stat-row-label { color: var(--text-dim); }
-.stat-row-value { font-weight: 600; color: var(--text); }
-.timeline-chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; margin-top: 10px; }
-.timeline-bar {
+.mem-stat-title svg { width: 12px; height: 12px; opacity: 0.6; }
+.mem-stat-number { font-size: 28px; font-weight: 700; color: var(--text); }
+.mem-stat-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; }
+.mem-stat-row-label { color: var(--text-dim); }
+.mem-stat-row-value { font-weight: 600; color: var(--text); }
+.mem-timeline { display: flex; align-items: flex-end; gap: 3px; height: 80px; margin-top: 10px; }
+.mem-timeline-bar {
   flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 4px;
   transition: height 0.4s ease; position: relative;
 }
-.timeline-bar:hover { background: var(--accent-hover); }
-.timeline-bar:hover::after {
-  content: attr(data-count); position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+.mem-timeline-bar:hover { background: var(--accent-hover); }
+.mem-timeline-bar:hover::after {
+  content: attr(data-tip); position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
   font-size: 10px; color: var(--text); background: var(--bg-base); padding: 2px 6px;
   border-radius: 4px; white-space: nowrap;
 }
 
-/* -- Section Title ----------------------------------------------------- */
-.section-header { display: flex; justify-content: space-between; align-items: center; }
-.section-title { font-size: 16px; font-weight: 700; color: var(--text); }
+/* Section Header */
+.mem-section-header { display: flex; justify-content: space-between; align-items: center; }
+.mem-section-title { font-size: 16px; font-weight: 700; color: var(--text); }
 
-/* -- Empty State ------------------------------------------------------- */
-.empty-state {
+/* Empty State */
+.mem-empty {
   text-align: center; padding: 60px 20px; color: var(--text-muted);
 }
-.empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
-.empty-state-text { font-size: 14px; }
+.mem-empty svg { width: 48px; height: 48px; opacity: 0.3; margin-bottom: 12px; }
+.mem-empty-text { font-size: 14px; }
 
-/* -- Toast ------------------------------------------------------------- */
-.toast {
+/* Toast */
+.mem-toast {
   position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
   background: var(--green); color: #fff; border-radius: var(--radius);
   font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(10px);
   transition: all 0.3s ease; z-index: 1000; pointer-events: none;
 }
-.toast.show { opacity: 1; transform: translateY(0); }
+.mem-toast.show { opacity: 1; transform: translateY(0); }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
+@keyframes memFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
+@keyframes memFadeSmall {
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* -- Responsive -------------------------------------------------------- */
 @media (max-width: 900px) {
-  .main-layout { grid-template-columns: 1fr; }
-  .stats-sidebar { display: none; }
+  .mem-layout { grid-template-columns: 1fr; }
+  .mem-aside { display: none; }
 }
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Memory Browser</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html" class="active">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">记忆</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Content Area -->
-  <div class="content-area">
-    <!-- Search Bar -->
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search memories by content, keywords..." />
-      <select id="typeFilter">
-        <option value="all">All Types</option>
-        <option value="conversation">Conversation</option>
-        <option value="fact">Fact</option>
-        <option value="preference">Preference</option>
-        <option value="skill_learned">Skill Learned</option>
-        <option value="spec_history">Spec History</option>
-      </select>
-      <button class="btn btn-primary" onclick="searchMemories()">Search</button>
-      <button class="btn btn-ghost" id="toggleAddBtn" onclick="toggleAddForm()">+ Add Memory</button>
-    </div>
-
-    <!-- Add Memory Form -->
-    <div class="add-form" id="addForm">
-      <textarea id="newContent" placeholder="Enter memory content..."></textarea>
-      <div class="add-form-row">
-        <select id="newType">
-          <option value="fact">Fact</option>
-          <option value="conversation">Conversation</option>
-          <option value="preference">Preference</option>
-          <option value="skill_learned">Skill Learned</option>
-          <option value="spec_history">Spec History</option>
-        </select>
-        <input type="range" id="newImportance" min="0" max="1" step="0.1" value="0.5"
-               style="accent-color: var(--accent); width: 140px;"
-               oninput="document.getElementById('impLabel').textContent = this.value">
-        <span id="impLabel" style="font-size: 13px; color: var(--text-dim); min-width: 30px;">0.5</span>
-        <button class="btn btn-primary" onclick="addMemory()">Save Memory</button>
-        <button class="btn btn-ghost" onclick="toggleAddForm()">Cancel</button>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
       </div>
-    </div>
-
-    <!-- Memory List -->
-    <div class="section-header">
-      <div class="section-title" id="listTitle">All Memories</div>
-      <span style="font-size: 13px; color: var(--text-muted);" id="countLabel">0 memories</span>
-    </div>
-    <div class="memory-list" id="memoryList">
-      <div class="empty-state">
-        <div class="empty-state-icon">&#129504;</div>
-        <div class="empty-state-text">Loading memories...</div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
       </div>
-    </div>
-  </div>
-
-  <!-- Stats Sidebar -->
-  <aside class="stats-sidebar">
-    <div class="stat-card">
-      <div class="stat-title">Total Memories</div>
-      <div class="stat-number" id="totalCount">0</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-title">By Type</div>
-      <div id="typeStats">
-        <div class="stat-row"><span class="stat-row-label">Conversation</span><span class="stat-row-value" id="convCount">0</span></div>
-        <div class="stat-row"><span class="stat-row-label">Fact</span><span class="stat-row-value" id="factCount">0</span></div>
-        <div class="stat-row"><span class="stat-row-label">Preference</span><span class="stat-row-value" id="prefCount">0</span></div>
-        <div class="stat-row"><span class="stat-row-label">Skill Learned</span><span class="stat-row-value" id="skillCount">0</span></div>
-        <div class="stat-row"><span class="stat-row-label">Spec History</span><span class="stat-row-value" id="specCount">0</span></div>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item active" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
       </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-title">Average Importance</div>
-      <div class="stat-number" id="avgImportance">0.0</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-title">Timeline (Last 14 Days)</div>
-      <div class="timeline-chart" id="timelineChart"></div>
-    </div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
   </aside>
+
+  <div class="page-content">
+    <div class="mem-layout">
+      <!-- Content Area -->
+      <div class="mem-content">
+        <!-- Search Bar -->
+        <div class="mem-search-bar">
+          <input type="text" id="searchInput" placeholder="搜索记忆..." />
+          <select id="typeFilter">
+            <option value="all">全部</option>
+            <option value="conversation">对话</option>
+            <option value="fact">事实</option>
+            <option value="preference">偏好</option>
+            <option value="skill_learned">已学技能</option>
+          </select>
+          <button class="mem-btn mem-btn-primary" onclick="searchMemories()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> 搜索
+          </button>
+          <button class="mem-btn mem-btn-ghost" id="toggleAddBtn" onclick="toggleAddForm()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 添加记忆
+          </button>
+        </div>
+
+        <!-- Add Form -->
+        <div class="mem-add-form" id="addForm">
+          <textarea id="newContent" placeholder="输入记忆内容..."></textarea>
+          <div class="mem-add-form-row">
+            <select id="newType">
+              <option value="fact">事实</option>
+              <option value="conversation">对话</option>
+              <option value="preference">偏好</option>
+              <option value="skill_learned">已学技能</option>
+            </select>
+            <input type="range" id="newImportance" min="0" max="1" step="0.1" value="0.5"
+                   style="accent-color: var(--accent); width: 140px;"
+                   oninput="document.getElementById('impLabel').textContent = this.value">
+            <span id="impLabel" style="font-size: 13px; color: var(--text-dim); min-width: 30px;">0.5</span>
+            <button class="mem-btn mem-btn-primary" onclick="addMemory()">保存记忆</button>
+            <button class="mem-btn mem-btn-ghost" onclick="toggleAddForm()">取消</button>
+          </div>
+        </div>
+
+        <!-- Memory List -->
+        <div class="mem-section-header">
+          <div class="mem-section-title" id="listTitle">所有记忆</div>
+          <span style="font-size: 13px; color: var(--text-muted);" id="countLabel">0 条记忆</span>
+        </div>
+        <div class="mem-list" id="memoryList">
+          <div class="mem-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            <div class="mem-empty-text">加载记忆中...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Sidebar -->
+      <aside class="mem-aside">
+        <div class="mem-stat-card">
+          <div class="mem-stat-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 记忆总数</div>
+          <div class="mem-stat-number" id="totalCount">0</div>
+        </div>
+
+        <div class="mem-stat-card">
+          <div class="mem-stat-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> 按类型统计</div>
+          <div id="typeStats">
+            <div class="mem-stat-row"><span class="mem-stat-row-label">对话</span><span class="mem-stat-row-value" id="convCount">0</span></div>
+            <div class="mem-stat-row"><span class="mem-stat-row-label">事实</span><span class="mem-stat-row-value" id="factCount">0</span></div>
+            <div class="mem-stat-row"><span class="mem-stat-row-label">偏好</span><span class="mem-stat-row-value" id="prefCount">0</span></div>
+            <div class="mem-stat-row"><span class="mem-stat-row-label">已学技能</span><span class="mem-stat-row-value" id="skillCount">0</span></div>
+          </div>
+        </div>
+
+        <div class="mem-stat-card">
+          <div class="mem-stat-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 平均重要度</div>
+          <div class="mem-stat-number" id="avgImportance">0.00</div>
+        </div>
+
+        <div class="mem-stat-card">
+          <div class="mem-stat-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 时间线 (近14天)</div>
+          <div class="mem-timeline" id="timelineChart"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<div class="mem-toast" id="toast"></div>
 
 <script>
-/* ====================================================================
-   JARVIS Memory Browser — JavaScript
-   ==================================================================== */
+(() => {
+'use strict';
 
+/* ── Sidebar Toggle ─────────────────────────────────────────── */
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
+
+/* ── Constants ──────────────────────────────────────────────── */
 const API_BASE = window.location.origin;
 let allMemories = [];
 
-// ── Demo Data ──────────────────────────────────────────────────────────
+const typeLabels = {
+  conversation: '对话',
+  fact: '事实',
+  preference: '偏好',
+  skill_learned: '已学技能',
+};
+
+/* ── Demo Data ──────────────────────────────────────────────── */
 function generateDemoMemories() {
-  const types = ['conversation', 'fact', 'preference', 'skill_learned', 'spec_history'];
+  const types = ['conversation', 'fact', 'preference', 'skill_learned'];
   const contents = [
-    'User prefers dark mode interfaces with blue accents for all JARVIS components.',
-    'The Streaming Spec architecture uses SSE for real-time updates between orchestrator and agents.',
-    'Learned: Git branching strategy follows trunk-based development with short-lived feature branches.',
-    'Conversation about implementing the knowledge graph visualization using D3.js force layout.',
-    'Spec v2.3 changed the agent routing algorithm from round-robin to capability-based scoring.',
-    'User wants all API responses to follow the envelope pattern: {data, error, meta}.',
-    'Discovered that WebSocket reconnection needs exponential backoff with max 30s delay.',
-    'The orchestrator dispatches tasks using a priority queue sorted by urgency and agent availability.',
-    'User prefers TypeScript over JavaScript for all new modules in the JARVIS codebase.',
-    'Spec history: Added delegation chain tracking to prevent circular agent delegation loops.',
-    'Fact: The system supports up to 50 concurrent agent sessions before requiring horizontal scaling.',
-    'Learned how to parse and validate YAML skill definitions using the pyyaml safe_load method.',
-    'Conversation about integrating LLM-based intent classification for natural language commands.',
-    'Preference: Log level should default to INFO in production, DEBUG in development environments.',
-    'Spec v3.0 introduced the concept of "memory decay" where old unused memories lose importance.',
+    '用户偏好深色模式界面，所有 JARVIS 组件使用蓝色强调色。',
+    '流式规格架构使用 SSE 在编排器和智能体之间进行实时更新。',
+    '已学习: Git 分支策略遵循主干开发模式，使用短生命周期的功能分支。',
+    '关于使用 D3.js 力导向布局实现知识图谱可视化的对话。',
+    '规格 v2.3 将智能体路由算法从轮询改为基于能力的评分。',
+    '用户希望所有 API 响应遵循信封模式: {data, error, meta}。',
+    '发现 WebSocket 重连需要指数退避，最大延迟 30 秒。',
+    '编排器使用按紧急度和智能体可用性排序的优先队列来分派任务。',
+    '用户偏好在 JARVIS 代码库中所有新模块使用 TypeScript 而非 JavaScript。',
+    '事实: 系统支持最多 50 个并发智能体会话，超过后需要水平扩展。',
+    '已学习如何使用 pyyaml 的 safe_load 方法解析和验证 YAML 技能定义。',
+    '关于集成基于 LLM 的意图分类以处理自然语言命令的对话。',
+    '偏好: 生产环境日志级别默认为 INFO，开发环境默认为 DEBUG。',
+    '已学习使用 Canvas API 绘制实时性能监控仪表盘的方法。',
+    '事实: 记忆系统支持按重要度衰减，未使用的旧记忆会自动降低重要度。',
+    '关于实现多智能体协作的任务分解策略的讨论。',
   ];
   const keywords = [
-    ['dark-mode', 'ui', 'theme'], ['streaming', 'sse', 'architecture'], ['git', 'branching', 'dev'],
-    ['d3', 'visualization', 'graph'], ['routing', 'algorithm', 'agents'], ['api', 'response', 'pattern'],
-    ['websocket', 'reconnect', 'network'], ['orchestrator', 'queue', 'priority'], ['typescript', 'coding', 'preference'],
-    ['delegation', 'chain', 'tracking'], ['scaling', 'performance', 'limits'], ['yaml', 'parsing', 'skills'],
-    ['llm', 'intent', 'nlp'], ['logging', 'config', 'ops'], ['memory', 'decay', 'spec'],
+    ['深色模式', '界面', '主题'], ['流式', 'SSE', '架构'], ['Git', '分支', '开发'],
+    ['D3', '可视化', '图谱'], ['路由', '算法', '智能体'], ['API', '响应', '模式'],
+    ['WebSocket', '重连', '网络'], ['编排器', '队列', '优先级'], ['TypeScript', '编码', '偏好'],
+    ['扩展', '性能', '限制'], ['YAML', '解析', '技能'], ['LLM', '意图', 'NLP'],
+    ['日志', '配置', '运维'], ['Canvas', '监控', '仪表盘'], ['记忆', '衰减', '重要度'],
+    ['协作', '分解', '多智能体'],
   ];
-  const sources = ['chat', 'system', 'user_explicit', 'auto_extract', 'spec_change'];
+  const sources = ['chat', 'system', 'user_explicit', 'auto_extract'];
   return contents.map((c, i) => ({
-    id: `mem_${String(i+1).padStart(3,'0')}`,
+    id: 'mem_' + String(i + 1).padStart(3, '0'),
     content: c,
     type: types[i % types.length],
     importance: Math.round((0.3 + Math.random() * 0.7) * 100) / 100,
@@ -377,10 +446,10 @@ function generateDemoMemories() {
   }));
 }
 
-// ── Fetch Memories ─────────────────────────────────────────────────────
+/* ── Fetch Memories ─────────────────────────────────────────── */
 async function fetchMemories() {
   try {
-    const res = await fetch(`${API_BASE}/memory`);
+    const res = await fetch(API_BASE + '/memory');
     if (!res.ok) throw new Error('API unavailable');
     allMemories = await res.json();
     if (Array.isArray(allMemories.data)) allMemories = allMemories.data;
@@ -391,73 +460,69 @@ async function fetchMemories() {
   updateStats();
 }
 
-// ── Render ─────────────────────────────────────────────────────────────
+/* ── Render ─────────────────────────────────────────────────── */
 function renderMemories(memories) {
   const list = document.getElementById('memoryList');
-  document.getElementById('countLabel').textContent = `${memories.length} memories`;
+  document.getElementById('countLabel').textContent = memories.length + ' 条记忆';
 
   if (memories.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128203;</div><div class="empty-state-text">No memories found</div></div>';
+    list.innerHTML = '<div class="mem-empty"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><div class="mem-empty-text">暂无记忆</div></div>';
     return;
   }
 
-  list.innerHTML = memories.map((m, idx) => {
-    const impClass = m.importance >= 0.7 ? 'importance-high' : m.importance >= 0.4 ? 'importance-med' : 'importance-low';
-    const preview = m.content.length > 160 ? m.content.slice(0, 160) + '...' : m.content;
-    const date = new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    const kw = (m.keywords || []).map(k => `<span class="keyword-tag">${k}</span>`).join('');
-    return `
-      <div class="memory-card" onclick="toggleDetail(${idx})" style="animation-delay: ${idx * 0.05}s">
-        <div class="memory-card-header">
-          <span class="memory-type-badge badge-${m.type}">${m.type.replace('_',' ')}</span>
-          <span style="font-size:12px; color:var(--text-muted)">${date}</span>
-        </div>
-        <div class="memory-content">${preview}</div>
-        <div class="memory-meta">
-          <span>Importance:</span>
-          <div class="importance-bar"><div class="importance-fill ${impClass}" style="width:${m.importance*100}%"></div></div>
-          <span>${m.importance.toFixed(2)}</span>
-          <span style="margin-left:8px">Source: ${m.source || 'unknown'}</span>
-        </div>
-        <div class="keyword-tags">${kw}</div>
-        <div class="memory-detail" id="detail-${idx}">
-          <div class="detail-full-content">${m.content}</div>
-          <div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">${m.id}</span></div>
-          <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${m.type}</span></div>
-          <div class="detail-row"><span class="detail-label">Source</span><span class="detail-value">${m.source || 'N/A'}</span></div>
-          <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">${m.created_at}</span></div>
-          <div class="detail-row">
-            <span class="detail-label">Importance</span>
-            <span class="detail-value">
-              <input type="range" class="importance-slider" min="0" max="1" step="0.05" value="${m.importance}"
-                     onclick="event.stopPropagation()"
-                     onchange="updateImportance('${m.id}', this.value)">
-            </span>
-          </div>
-          <div class="detail-actions">
-            <button class="btn btn-primary" onclick="event.stopPropagation(); editMemory('${m.id}')">Edit</button>
-            <button class="btn btn-danger" onclick="event.stopPropagation(); deleteMemory('${m.id}')">Delete</button>
-          </div>
-        </div>
-      </div>`;
+  list.innerHTML = memories.map(function(m, idx) {
+    var impClass = m.importance >= 0.7 ? 'mem-imp-high' : m.importance >= 0.4 ? 'mem-imp-med' : 'mem-imp-low';
+    var preview = m.content.length > 160 ? m.content.slice(0, 160) + '...' : m.content;
+    var date = new Date(m.created_at).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', year: 'numeric' });
+    var kw = (m.keywords || []).map(function(k) { return '<span class="mem-kw-tag">' + k + '</span>'; }).join('');
+    var badgeLabel = typeLabels[m.type] || m.type;
+    var sourceLabel = m.source === 'chat' ? '聊天' : m.source === 'system' ? '系统' : m.source === 'user_explicit' ? '用户手动' : m.source === 'auto_extract' ? '自动提取' : (m.source || '未知');
+    return '<div class="mem-card" onclick="toggleDetail(' + idx + ')" style="animation-delay:' + (idx * 0.04) + 's">' +
+      '<div class="mem-card-header">' +
+        '<span class="mem-type-badge mem-badge-' + m.type + '">' + badgeLabel + '</span>' +
+        '<span style="font-size:12px;color:var(--text-muted)">' + date + '</span>' +
+      '</div>' +
+      '<div class="mem-card-text">' + preview + '</div>' +
+      '<div class="mem-card-meta">' +
+        '<span>重要度:</span>' +
+        '<div class="mem-imp-bar"><div class="mem-imp-fill ' + impClass + '" style="width:' + (m.importance * 100) + '%"></div></div>' +
+        '<span>' + m.importance.toFixed(2) + '</span>' +
+        '<span style="margin-left:8px">来源: ' + sourceLabel + '</span>' +
+      '</div>' +
+      '<div class="mem-kw-tags">' + kw + '</div>' +
+      '<div class="mem-detail" id="detail-' + idx + '">' +
+        '<div class="mem-detail-full">' + m.content + '</div>' +
+        '<div class="mem-detail-row"><span class="mem-detail-label">ID</span><span class="mem-detail-value">' + m.id + '</span></div>' +
+        '<div class="mem-detail-row"><span class="mem-detail-label">类型</span><span class="mem-detail-value">' + badgeLabel + '</span></div>' +
+        '<div class="mem-detail-row"><span class="mem-detail-label">来源</span><span class="mem-detail-value">' + sourceLabel + '</span></div>' +
+        '<div class="mem-detail-row"><span class="mem-detail-label">创建时间</span><span class="mem-detail-value">' + m.created_at + '</span></div>' +
+        '<div class="mem-detail-row">' +
+          '<span class="mem-detail-label">重要度</span>' +
+          '<span class="mem-detail-value"><input type="range" class="mem-imp-slider" min="0" max="1" step="0.05" value="' + m.importance + '" onclick="event.stopPropagation()" onchange="updateImportance(\'' + m.id + '\',this.value)"></span>' +
+        '</div>' +
+        '<div class="mem-detail-actions">' +
+          '<button class="mem-btn mem-btn-primary" onclick="event.stopPropagation();editMemory(\'' + m.id + '\')">编辑</button>' +
+          '<button class="mem-btn mem-btn-danger" onclick="event.stopPropagation();deleteMemory(\'' + m.id + '\')">删除</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
-function toggleDetail(idx) {
-  const el = document.getElementById(`detail-${idx}`);
-  el.classList.toggle('show');
-}
+window.toggleDetail = function(idx) {
+  document.getElementById('detail-' + idx).classList.toggle('show');
+};
 
-// ── Stats ──────────────────────────────────────────────────────────────
+/* ── Stats ──────────────────────────────────────────────────── */
 function updateStats() {
-  const types = { conversation: 0, fact: 0, preference: 0, skill_learned: 0, spec_history: 0 };
-  let totalImp = 0;
-  const dateBuckets = {};
+  var types = { conversation: 0, fact: 0, preference: 0, skill_learned: 0 };
+  var totalImp = 0;
+  var dateBuckets = {};
 
-  allMemories.forEach(m => {
+  allMemories.forEach(function(m) {
     if (types[m.type] !== undefined) types[m.type]++;
     totalImp += m.importance || 0;
-    const d = new Date(m.created_at).toISOString().slice(0, 10);
+    var d = new Date(m.created_at).toISOString().slice(0, 10);
     dateBuckets[d] = (dateBuckets[d] || 0) + 1;
   });
 
@@ -466,79 +531,73 @@ function updateStats() {
   document.getElementById('factCount').textContent = types.fact;
   document.getElementById('prefCount').textContent = types.preference;
   document.getElementById('skillCount').textContent = types.skill_learned;
-  document.getElementById('specCount').textContent = types.spec_history;
   document.getElementById('avgImportance').textContent = allMemories.length ? (totalImp / allMemories.length).toFixed(2) : '0.00';
 
-  // Timeline chart — last 14 days
-  const chart = document.getElementById('timelineChart');
-  const days = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+  var chart = document.getElementById('timelineChart');
+  var days = [];
+  for (var i = 13; i >= 0; i--) {
+    var d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
     days.push({ date: d, count: dateBuckets[d] || 0 });
   }
-  const maxCount = Math.max(...days.map(d => d.count), 1);
-  chart.innerHTML = days.map(d =>
-    `<div class="timeline-bar" data-count="${d.count} on ${d.date.slice(5)}" style="height:${Math.max((d.count/maxCount)*100,5)}%"></div>`
-  ).join('');
+  var maxCount = Math.max.apply(null, days.map(function(d) { return d.count; }).concat([1]));
+  chart.innerHTML = days.map(function(d) {
+    return '<div class="mem-timeline-bar" data-tip="' + d.count + ' (' + d.date.slice(5) + ')" style="height:' + Math.max((d.count / maxCount) * 100, 5) + '%"></div>';
+  }).join('');
 }
 
-// ── Search ─────────────────────────────────────────────────────────────
-async function searchMemories() {
-  const query = document.getElementById('searchInput').value.trim();
-  const type = document.getElementById('typeFilter').value;
+/* ── Search ─────────────────────────────────────────────────── */
+window.searchMemories = async function() {
+  var query = document.getElementById('searchInput').value.trim();
+  var type = document.getElementById('typeFilter').value;
 
-  let filtered = allMemories;
+  var filtered = allMemories;
   if (type !== 'all') {
-    filtered = filtered.filter(m => m.type === type);
+    filtered = filtered.filter(function(m) { return m.type === type; });
   }
   if (query) {
-    const q = query.toLowerCase();
-    filtered = filtered.filter(m =>
-      m.content.toLowerCase().includes(q) ||
-      (m.keywords || []).some(k => k.toLowerCase().includes(q))
-    );
-    // Also try API search
+    var q = query.toLowerCase();
+    filtered = filtered.filter(function(m) {
+      return m.content.toLowerCase().includes(q) ||
+        (m.keywords || []).some(function(k) { return k.toLowerCase().includes(q); });
+    });
     try {
-      const res = await fetch(`${API_BASE}/memory/search`, {
+      var res = await fetch(API_BASE + '/memory/search', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, type: type !== 'all' ? type : undefined })
+        body: JSON.stringify({ query: query, type: type !== 'all' ? type : undefined })
       });
       if (res.ok) {
-        let data = await res.json();
+        var data = await res.json();
         if (Array.isArray(data.data)) data = data.data;
         if (Array.isArray(data) && data.length) filtered = data;
       }
-    } catch {}
+    } catch (e) { /* fallback to local */ }
   }
-  document.getElementById('listTitle').textContent = query || type !== 'all' ? 'Search Results' : 'All Memories';
+  document.getElementById('listTitle').textContent = query || type !== 'all' ? '搜索结果' : '所有记忆';
   renderMemories(filtered);
-}
+};
 
-// ── Add Memory ─────────────────────────────────────────────────────────
-function toggleAddForm() {
+/* ── Add Memory ─────────────────────────────────────────────── */
+window.toggleAddForm = function() {
   document.getElementById('addForm').classList.toggle('show');
-}
+};
 
-async function addMemory() {
-  const content = document.getElementById('newContent').value.trim();
-  const type = document.getElementById('newType').value;
-  const importance = parseFloat(document.getElementById('newImportance').value);
+window.addMemory = async function() {
+  var content = document.getElementById('newContent').value.trim();
+  var type = document.getElementById('newType').value;
+  var importance = parseFloat(document.getElementById('newImportance').value);
 
-  if (!content) { showToast('Please enter content', true); return; }
+  if (!content) { showToast('请输入记忆内容', true); return; }
 
-  const memory = { content, type, importance, keywords: [], source: 'user_explicit' };
+  var memory = { content: content, type: type, importance: importance, keywords: [], source: 'user_explicit' };
 
   try {
-    const res = await fetch(`${API_BASE}/memory`, {
+    var res = await fetch(API_BASE + '/memory', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(memory)
     });
-    if (res.ok) {
-      showToast('Memory saved successfully');
-    }
-  } catch {}
+    if (res.ok) { showToast('记忆已保存到服务器'); }
+  } catch (e) { /* save locally anyway */ }
 
-  // Add locally regardless
   memory.id = 'mem_' + Date.now();
   memory.created_at = new Date().toISOString();
   allMemories.unshift(memory);
@@ -546,58 +605,60 @@ async function addMemory() {
   updateStats();
   document.getElementById('newContent').value = '';
   toggleAddForm();
-  showToast('Memory added');
-}
+  showToast('记忆已添加');
+};
 
-// ── Update / Delete ────────────────────────────────────────────────────
-async function updateImportance(id, val) {
-  const mem = allMemories.find(m => m.id === id);
+/* ── Update / Delete ────────────────────────────────────────── */
+window.updateImportance = async function(id, val) {
+  var mem = allMemories.find(function(m) { return m.id === id; });
   if (mem) mem.importance = parseFloat(val);
   updateStats();
   try {
-    await fetch(`${API_BASE}/memory/${id}`, {
+    await fetch(API_BASE + '/memory/' + id, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ importance: parseFloat(val) })
     });
-  } catch {}
-}
+  } catch (e) { /* local update only */ }
+};
 
-async function deleteMemory(id) {
-  if (!confirm('Delete this memory?')) return;
-  allMemories = allMemories.filter(m => m.id !== id);
+window.deleteMemory = async function(id) {
+  if (!confirm('确定要删除此条记忆吗?')) return;
+  allMemories = allMemories.filter(function(m) { return m.id !== id; });
   renderMemories(allMemories);
   updateStats();
-  showToast('Memory deleted');
-  try { await fetch(`${API_BASE}/memory/${id}`, { method: 'DELETE' }); } catch {}
-}
+  showToast('记忆已删除');
+  try { await fetch(API_BASE + '/memory/' + id, { method: 'DELETE' }); } catch (e) { /* ok */ }
+};
 
-function editMemory(id) {
-  const mem = allMemories.find(m => m.id === id);
+window.editMemory = function(id) {
+  var mem = allMemories.find(function(m) { return m.id === id; });
   if (!mem) return;
-  const newContent = prompt('Edit memory content:', mem.content);
+  var newContent = prompt('编辑记忆内容:', mem.content);
   if (newContent !== null && newContent.trim()) {
     mem.content = newContent.trim();
     renderMemories(allMemories);
-    showToast('Memory updated');
+    showToast('记忆已更新');
   }
-}
+};
 
-// ── Toast ──────────────────────────────────────────────────────────────
+/* ── Toast ──────────────────────────────────────────────────── */
 function showToast(msg, isError) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg;
   t.style.background = isError ? 'var(--red)' : 'var(--green)';
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
 }
 
-// ── Keyboard shortcut ──────────────────────────────────────────────────
-document.getElementById('searchInput').addEventListener('keydown', e => {
+/* ── Keyboard ──────────────────────────────────────────────── */
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') searchMemories();
 });
 
-// ── Init ───────────────────────────────────────────────────────────────
+/* ── Init ──────────────────────────────────────────────────── */
 fetchMemories();
+
+})();
 </script>
 </body>
 </html>

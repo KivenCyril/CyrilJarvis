@@ -1,28 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Skill Browser</title>
+<title>JARVIS - 技能</title>
 <style>
-/* ====================================================================
-   JARVIS Skill Browser — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
@@ -31,39 +26,72 @@
   --purple:       #a855f7;
   --cyan:         #06b6d4;
   --pink:         #ec4899;
+  --yellow:       #eab308;
   --radius:       8px;
   --radius-lg:    12px;
-  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-/* -- Top Nav ----------------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
+
+/* -- Top Bar ----------------------------------------------------------- */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
 /* -- Layout ------------------------------------------------------------ */
-.main-layout { flex: 1; display: grid; grid-template-columns: 1fr 320px; overflow: hidden; }
-.content-area { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* -- Sidebar ----------------------------------------------------------- */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow-y: auto; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
+
+/* -- Content Area ------------------------------------------------------ */
+.content-wrapper { display: grid; grid-template-columns: 1fr 340px; height: 100%; overflow: hidden; }
+.content-main { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
 .detail-sidebar {
   background: var(--bg-base); border-left: 1px solid var(--border); overflow-y: auto;
   padding: 0; display: flex; flex-direction: column;
@@ -71,47 +99,70 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 
 /* -- Toolbar ----------------------------------------------------------- */
 .toolbar {
-  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
   background: var(--bg-surface); padding: 14px 20px; border-radius: var(--radius-lg);
   border: 1px solid var(--border);
 }
-.toolbar input, .toolbar select {
+.toolbar-search {
+  flex: 1; min-width: 180px; display: flex; align-items: center; gap: 8px;
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 9px 14px; color: var(--text); font-size: 13px;
+  padding: 0 12px; transition: var(--transition);
 }
-.toolbar input { flex: 1; min-width: 180px; }
-.toolbar input:focus { border-color: var(--border-focus); }
+.toolbar-search:focus-within { border-color: var(--accent); }
+.toolbar-search svg { width: 14px; height: 14px; color: var(--text-muted); flex-shrink: 0; }
+.toolbar-search input {
+  flex: 1; background: transparent; border: none; color: var(--text); font-size: 13px;
+  padding: 9px 0; outline: none; font-family: var(--font);
+}
+.toolbar-search input::placeholder { color: var(--text-muted); }
+.toolbar select {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 9px 14px; color: var(--text); font-size: 13px; font-family: var(--font);
+  cursor: pointer; transition: var(--transition);
+}
+.toolbar select:focus { border-color: var(--accent); outline: none; }
 .toolbar select option { background: var(--bg-base); }
 .btn {
-  padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
-  cursor: pointer; border: none; transition: var(--transition);
+  padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; transition: var(--transition); font-family: var(--font);
+  display: inline-flex; align-items: center; gap: 6px;
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hover); }
-.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
-.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+.btn-secondary { background: var(--bg-hover); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border-light); }
 
 /* -- Stats Row --------------------------------------------------------- */
-.stats-row { display: flex; gap: 14px; }
-.mini-stat {
-  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 14px 18px; flex: 1; text-align: center;
+.stats-bar { display: flex; gap: 20px; padding: 16px 20px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.stat-item { text-align: center; flex: 1; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* -- Domain Filter Tabs ------------------------------------------------ */
+.domain-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.domain-tab {
+  padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border); background: transparent;
+  color: var(--text-dim); transition: var(--transition); font-family: var(--font);
 }
-.mini-stat-number { font-size: 24px; font-weight: 700; }
-.mini-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+.domain-tab:hover { background: var(--bg-hover); color: var(--text); border-color: var(--border-light); }
+.domain-tab.active { background: rgba(59,130,246,0.12); color: var(--accent-hover); border-color: rgba(59,130,246,0.3); }
 
 /* -- Skill Grid -------------------------------------------------------- */
-.skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
 .skill-card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 20px; cursor: pointer; transition: var(--transition);
-  animation: fadeInUp 0.3s ease both;
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 18px; cursor: pointer; transition: var(--transition);
+  animation: fadeInUp 0.3s ease both; position: relative;
 }
-.skill-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.skill-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
 .skill-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.skill-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.skill-card.disabled { opacity: 0.5; }
+.skill-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.skill-name { font-size: 15px; font-weight: 600; }
+.skill-version { font-size: 11px; color: var(--text-muted); }
 .skill-domain {
-  display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;
+  display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 10px;
   font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
 }
 .domain-coding { background: rgba(59,130,246,0.15); color: var(--accent); }
@@ -120,31 +171,47 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .domain-system { background: rgba(245,158,11,0.15); color: var(--orange); }
 .domain-communication { background: rgba(236,72,153,0.15); color: var(--pink); }
 .domain-general { background: rgba(100,116,139,0.15); color: var(--text-muted); }
-.skill-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5; }
-.skill-meta { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); align-items: center; flex-wrap: wrap; }
-.success-bar { width: 60px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.success-fill { height: 100%; background: var(--green); border-radius: 3px; }
-.skill-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
-.skill-tag { padding: 2px 8px; background: rgba(99,102,241,0.12); color: #818cf8; border-radius: 4px; font-size: 11px; }
+.skill-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.skill-meta { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); align-items: center; flex-wrap: wrap; }
+.success-bar { width: 50px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.success-fill { height: 100%; border-radius: 2px; }
+.skill-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+.skill-tag { padding: 2px 8px; background: rgba(59,130,246,0.1); color: var(--accent-hover); border-radius: 6px; font-size: 10px; }
+
+/* -- Toggle Switch ----------------------------------------------------- */
+.toggle-switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: var(--border); border-radius: 10px;
+  cursor: pointer; transition: var(--transition);
+}
+.toggle-slider::before {
+  content: ''; position: absolute; left: 3px; top: 3px;
+  width: 14px; height: 14px; background: #fff; border-radius: 50%;
+  transition: var(--transition);
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--green); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(16px); }
 
 /* -- Detail Sidebar ---------------------------------------------------- */
 .detail-empty {
-  display: flex; align-items: center; justify-content: center; height: 100%;
-  color: var(--text-muted); font-size: 14px; padding: 20px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;
+  color: var(--text-muted); font-size: 13px; padding: 20px; text-align: center; gap: 12px;
 }
+.detail-empty svg { width: 40px; height: 40px; opacity: 0.3; }
 .detail-content { padding: 20px; }
-.detail-header { margin-bottom: 20px; }
-.detail-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.detail-header { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.detail-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
 .detail-section { margin-bottom: 18px; }
 .detail-section-title {
-  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
   color: var(--text-muted); margin-bottom: 8px;
 }
 .detail-text { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
 .prompt-block {
-  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 12px; font-size: 12px; font-family: var(--mono); color: var(--text-dim);
-  max-height: 180px; overflow-y: auto; white-space: pre-wrap; line-height: 1.6;
+  max-height: 160px; overflow-y: auto; white-space: pre-wrap; line-height: 1.5;
 }
 .steps-list { list-style: none; counter-reset: step; }
 .steps-list li {
@@ -156,356 +223,521 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   width: 22px; height: 22px; background: var(--accent); color: #fff; border-radius: 50%;
   font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
 }
-.history-chart { display: flex; align-items: flex-end; gap: 3px; height: 60px; margin-top: 8px; }
+.constraint-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.constraint-item {
+  padding: 6px 0; border-bottom: 1px solid rgba(30,45,64,0.4); font-size: 13px;
+  color: var(--text-dim); display: flex; align-items: center; gap: 8px;
+}
+.constraint-item:last-child { border-bottom: none; }
+.constraint-icon { color: var(--yellow); flex-shrink: 0; }
+.constraint-icon svg { width: 13px; height: 13px; }
+.history-chart { display: flex; align-items: flex-end; gap: 3px; height: 50px; margin-top: 8px; }
 .history-bar {
   flex: 1; border-radius: 2px 2px 0 0; min-height: 3px; transition: height 0.3s ease;
 }
 .evo-entry {
-  padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim);
+  padding: 8px 0; border-bottom: 1px solid rgba(30,45,64,0.4); font-size: 12px; color: var(--text-dim);
 }
+.evo-entry:last-child { border-bottom: none; }
 .evo-version { font-weight: 700; color: var(--accent); margin-right: 8px; }
+.detail-actions { display: flex; gap: 8px; margin-top: 16px; }
 
 /* -- Import Modal ------------------------------------------------------ */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none;
-  align-items: center; justify-content: center; z-index: 100;
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;
 }
-.modal-overlay.show { display: flex; }
+.modal-overlay.active { display: flex; }
 .modal {
   background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 24px; width: 520px; max-height: 80vh; overflow-y: auto;
+  width: 90%; max-width: 560px; max-height: 85vh; overflow-y: auto; padding: 24px;
 }
-.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 18px; font-weight: 600; }
+.modal-close {
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius); transition: var(--transition);
+}
+.modal-close:hover { background: var(--bg-hover); color: var(--text); }
 .modal textarea {
   width: 100%; min-height: 200px; background: var(--bg-input); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 12px; color: var(--text); font-family: var(--mono);
-  font-size: 12px; resize: vertical;
+  font-size: 12px; resize: vertical; line-height: 1.5;
 }
-.modal textarea:focus { border-color: var(--border-focus); }
+.modal textarea:focus { border-color: var(--accent); outline: none; }
 .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
 
 /* -- Toast ------------------------------------------------------------- */
 .toast {
   position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
   background: var(--green); color: #fff; border-radius: var(--radius);
-  font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(10px);
-  transition: all 0.3s ease; z-index: 200; pointer-events: none;
+  font-size: 13px; font-weight: 500; opacity: 0; transform: translateY(10px);
+  transition: all 0.3s ease; z-index: 2000; pointer-events: none;
+  display: flex; align-items: center; gap: 8px;
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 
+/* -- Empty State ------------------------------------------------------- */
+.empty-state {
+  grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--text-muted);
+}
+.empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.3; }
+.empty-state p { font-size: 14px; }
+
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 @media (max-width: 960px) {
-  .main-layout { grid-template-columns: 1fr; }
+  .content-wrapper { grid-template-columns: 1fr; }
   .detail-sidebar { display: none; }
+}
+@media (max-width: 768px) {
+  .skill-grid { grid-template-columns: 1fr; }
+  .stats-bar { flex-wrap: wrap; }
 }
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Skill Browser</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html" class="active">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">技能</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Content -->
-  <div class="content-area">
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="Search skills by name, tags..." onkeydown="if(event.key==='Enter')filterSkills()">
-      <select id="domainFilter" onchange="filterSkills()">
-        <option value="all">All Domains</option>
-        <option value="coding">Coding</option>
-        <option value="devops">DevOps</option>
-        <option value="research">Research</option>
-        <option value="system">System</option>
-        <option value="communication">Communication</option>
-      </select>
-      <button class="btn btn-primary" onclick="filterSkills()">Search</button>
-      <button class="btn btn-ghost" onclick="showImportModal()">Import Skill</button>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="mini-stat">
-        <div class="mini-stat-number" id="totalSkills">0</div>
-        <div class="mini-stat-label">Total Skills</div>
+<!-- Page Layout -->
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
       </div>
-      <div class="mini-stat">
-        <div class="mini-stat-number" id="domainCount">0</div>
-        <div class="mini-stat-label">Domains</div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
       </div>
-      <div class="mini-stat">
-        <div class="mini-stat-number" id="avgSuccess">0%</div>
-        <div class="mini-stat-label">Avg Success Rate</div>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item active" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
       </div>
-      <div class="mini-stat">
-        <div class="mini-stat-number" id="totalUses">0</div>
-        <div class="mini-stat-label">Total Uses</div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
       </div>
-    </div>
-
-    <!-- Grid -->
-    <div class="skill-grid" id="skillGrid"></div>
-  </div>
-
-  <!-- Detail Sidebar -->
-  <aside class="detail-sidebar">
-    <div class="detail-empty" id="detailEmpty">Select a skill to view details</div>
-    <div class="detail-content" id="detailContent" style="display:none"></div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
   </aside>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    <div class="content-wrapper">
+      <!-- Main Content -->
+      <div class="content-main">
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="搜索技能名称、标签..." onkeydown="if(event.key==='Enter')filterSkills()">
+          </div>
+          <button class="btn btn-primary" onclick="filterSkills()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            搜索
+          </button>
+          <button class="btn btn-secondary" onclick="showImportModal()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            导入技能
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+          <div class="stat-item">
+            <div class="stat-value" id="totalSkills">0</div>
+            <div class="stat-label">技能总数</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="enabledCount">0</div>
+            <div class="stat-label">已启用</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="domainCount">0</div>
+            <div class="stat-label">领域数</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="avgSuccess">0%</div>
+            <div class="stat-label">平均成功率</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="totalUses">0</div>
+            <div class="stat-label">总调用次数</div>
+          </div>
+        </div>
+
+        <!-- Domain Filter Tabs -->
+        <div class="domain-tabs" id="domainTabs">
+          <button class="domain-tab active" data-domain="all" onclick="setDomainFilter('all', this)">全部</button>
+          <button class="domain-tab" data-domain="coding" onclick="setDomainFilter('coding', this)">编程</button>
+          <button class="domain-tab" data-domain="devops" onclick="setDomainFilter('devops', this)">运维</button>
+          <button class="domain-tab" data-domain="research" onclick="setDomainFilter('research', this)">研究</button>
+          <button class="domain-tab" data-domain="system" onclick="setDomainFilter('system', this)">系统</button>
+          <button class="domain-tab" data-domain="communication" onclick="setDomainFilter('communication', this)">通信</button>
+          <button class="domain-tab" data-domain="general" onclick="setDomainFilter('general', this)">通用</button>
+        </div>
+
+        <!-- Skill Grid -->
+        <div class="skill-grid" id="skillGrid"></div>
+      </div>
+
+      <!-- Detail Sidebar -->
+      <aside class="detail-sidebar">
+        <div class="detail-empty" id="detailEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>选择技能查看详情</span>
+        </div>
+        <div class="detail-content" id="detailContent" style="display:none"></div>
+      </aside>
+    </div>
+  </div>
 </div>
 
 <!-- Import Modal -->
-<div class="modal-overlay" id="importModal">
+<div class="modal-overlay" id="importModal" onclick="if(event.target===this)hideImportModal()">
   <div class="modal">
-    <div class="modal-title">Import Skill (YAML)</div>
-    <textarea id="yamlInput" placeholder="Paste YAML skill definition here..."></textarea>
+    <div class="modal-header">
+      <div class="modal-title">导入技能</div>
+      <button class="modal-close" onclick="hideImportModal()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:14px">粘贴 YAML 格式的技能定义</p>
+    <textarea id="yamlInput" placeholder="name: my_skill&#10;domain: coding&#10;description: 技能描述...&#10;version: 1.0.0"></textarea>
     <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="hideImportModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="importSkill()">Import</button>
+      <button class="btn btn-secondary" onclick="hideImportModal()">取消</button>
+      <button class="btn btn-primary" onclick="importSkill()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        导入
+      </button>
     </div>
   </div>
 </div>
 
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-/* ====================================================================
-   JARVIS Skill Browser — JavaScript
-   ==================================================================== */
+(() => {
+'use strict';
+
+const DOMAIN_LABELS = {
+  coding: '编程', devops: '运维', research: '研究',
+  system: '系统', communication: '通信', general: '通用'
+};
 
 const API_BASE = window.location.origin;
 let allSkills = [];
 let selectedSkill = null;
+let currentDomain = 'all';
 
-// ── Demo Data ──────────────────────────────────────────────────────────
+/* -- Sidebar Toggle ---------------------------------------------------- */
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
+
+/* -- Demo Data --------------------------------------------------------- */
 function generateDemoSkills() {
   const skills = [
-    { name: 'code_review', domain: 'coding', version: '2.1.0', description: 'Automated code review with style, bug, and security checks across multiple languages.',
-      steps: ['Parse diff/PR', 'Run linters', 'Analyze patterns', 'Check security', 'Generate report'], success_rate: 0.92, use_count: 347,
-      tags: ['review', 'quality', 'lint'], system_prompt: 'You are an expert code reviewer. Analyze the provided diff for bugs, style issues, security vulnerabilities, and performance problems.',
-      constraints: ['Must complete within 30s', 'Max 500 lines per review'], },
-    { name: 'git_workflow', domain: 'devops', version: '1.4.2', description: 'Manage Git operations including branching, merging, conflict resolution, and history analysis.',
-      steps: ['Identify operation', 'Validate state', 'Execute command', 'Verify result'], success_rate: 0.97, use_count: 512,
-      tags: ['git', 'vcs', 'branch'], system_prompt: 'You manage Git workflows. Always validate repo state before operations.',
-      constraints: ['Never force-push to main', 'Require confirmation for destructive ops'], },
-    { name: 'api_test_gen', domain: 'coding', version: '1.2.0', description: 'Generate comprehensive API test suites from OpenAPI specs or endpoint documentation.',
-      steps: ['Parse API spec', 'Generate test cases', 'Add edge cases', 'Create fixtures', 'Output test file'], success_rate: 0.85, use_count: 189,
-      tags: ['testing', 'api', 'openapi'], system_prompt: 'Generate thorough API tests covering happy path, edge cases, and error scenarios.',
-      constraints: ['Support REST and GraphQL', 'Generate both unit and integration tests'], },
-    { name: 'doc_search', domain: 'research', version: '3.0.1', description: 'Deep search across documentation, wikis, and knowledge bases with semantic understanding.',
-      steps: ['Parse query', 'Embed query', 'Vector search', 'Rank results', 'Format response'], success_rate: 0.88, use_count: 623,
-      tags: ['search', 'docs', 'semantic'], system_prompt: 'Search and retrieve relevant documentation. Rank by relevance and recency.',
-      constraints: ['Max 10 results per query', 'Include source citations'], },
-    { name: 'deploy_pipeline', domain: 'devops', version: '2.0.0', description: 'Orchestrate deployment pipelines with rollback support, health checks, and notifications.',
-      steps: ['Pre-flight checks', 'Build artifacts', 'Deploy to staging', 'Run smoke tests', 'Promote to prod', 'Monitor health'], success_rate: 0.94, use_count: 156,
-      tags: ['deploy', 'ci-cd', 'pipeline'], system_prompt: 'Manage deployments with safety-first approach. Always verify health before promoting.',
-      constraints: ['Require approval for prod', 'Auto-rollback on failure'], },
-    { name: 'incident_response', domain: 'system', version: '1.1.0', description: 'Coordinate incident response with runbooks, escalation, and post-mortem generation.',
-      steps: ['Assess severity', 'Notify on-call', 'Execute runbook', 'Monitor recovery', 'Draft post-mortem'], success_rate: 0.91, use_count: 42,
-      tags: ['incident', 'ops', 'runbook'], system_prompt: 'Coordinate incident response. Prioritize service restoration over root cause analysis.',
-      constraints: ['Escalate P0/P1 within 5min', 'Always create post-mortem'], },
-    { name: 'meeting_summary', domain: 'communication', version: '1.3.0', description: 'Generate structured meeting summaries with action items, decisions, and follow-ups.',
-      steps: ['Parse transcript', 'Extract topics', 'Identify decisions', 'List action items', 'Format summary'], success_rate: 0.89, use_count: 278,
-      tags: ['meeting', 'summary', 'notes'], system_prompt: 'Summarize meetings into structured notes with clear action items and owners.',
-      constraints: ['Max 500 words', 'Include all action items with owners'], },
-    { name: 'schema_migrate', domain: 'coding', version: '1.0.3', description: 'Generate and validate database schema migrations with rollback scripts.',
-      steps: ['Diff schemas', 'Generate migration', 'Create rollback', 'Validate syntax', 'Test on replica'], success_rate: 0.82, use_count: 95,
-      tags: ['database', 'migration', 'schema'], system_prompt: 'Generate safe database migrations. Always include rollback scripts.',
-      constraints: ['No data-loss migrations without confirmation', 'Support PostgreSQL and MySQL'], },
-    { name: 'perf_analyzer', domain: 'system', version: '2.2.1', description: 'Analyze system performance metrics, identify bottlenecks, and suggest optimizations.',
-      steps: ['Collect metrics', 'Identify anomalies', 'Profile hotspots', 'Generate recommendations'], success_rate: 0.86, use_count: 167,
-      tags: ['performance', 'profiling', 'optimization'], system_prompt: 'Analyze performance data and provide actionable optimization recommendations.',
-      constraints: ['Rank suggestions by impact', 'Include estimated improvement'], },
+    { name: 'code_review', domain: 'coding', version: '2.1.0', enabled: true,
+      description: '自动化代码审查，包含风格检查、缺陷检测和安全扫描，支持多种编程语言。',
+      steps: ['解析差异或合并请求', '运行代码检查器', '分析模式匹配', '检查安全漏洞', '生成审查报告'],
+      success_rate: 0.92, use_count: 347, tags: ['审查', '质量', '检查'],
+      system_prompt: '你是一位资深代码审查专家。分析提供的代码差异，检查缺陷、风格问题、安全漏洞和性能问题。',
+      constraints: ['必须在 30 秒内完成', '每次审查最多 500 行'] },
+    { name: 'git_workflow', domain: 'devops', version: '1.4.2', enabled: true,
+      description: '管理 Git 操作，包括分支策略、合并、冲突解决和历史分析。',
+      steps: ['识别操作类型', '验证仓库状态', '执行 Git 命令', '验证执行结果'],
+      success_rate: 0.97, use_count: 512, tags: ['git', '版本控制', '分支'],
+      system_prompt: '你负责管理 Git 工作流。在执行操作前务必验证仓库状态。',
+      constraints: ['禁止强制推送到主分支', '破坏性操作需确认'] },
+    { name: 'api_test_gen', domain: 'coding', version: '1.2.0', enabled: true,
+      description: '根据 OpenAPI 规范或接口文档自动生成全面的 API 测试套件。',
+      steps: ['解析 API 规范', '生成测试用例', '添加边界用例', '创建测试夹具', '输出测试文件'],
+      success_rate: 0.85, use_count: 189, tags: ['测试', 'API', 'OpenAPI'],
+      system_prompt: '生成全面的 API 测试，覆盖正常路径、边界情况和异常场景。',
+      constraints: ['支持 REST 和 GraphQL', '同时生成单元测试和集成测试'] },
+    { name: 'doc_search', domain: 'research', version: '3.0.1', enabled: true,
+      description: '在文档、Wiki 和知识库中进行深度语义搜索，智能理解查询意图。',
+      steps: ['解析查询意图', '向量化查询', '语义搜索', '结果排序', '格式化输出'],
+      success_rate: 0.88, use_count: 623, tags: ['搜索', '文档', '语义'],
+      system_prompt: '搜索并检索相关文档。按相关性和时效性排序结果。',
+      constraints: ['每次查询最多 10 条结果', '必须包含来源引用'] },
+    { name: 'deploy_pipeline', domain: 'devops', version: '2.0.0', enabled: false,
+      description: '编排部署流水线，支持回滚机制、健康检查和通知推送。',
+      steps: ['预检查', '构建产物', '部署到预发环境', '运行冒烟测试', '升级到生产环境', '监控健康状态'],
+      success_rate: 0.94, use_count: 156, tags: ['部署', 'CI/CD', '流水线'],
+      system_prompt: '以安全优先的方式管理部署。在升级前务必验证服务健康状态。',
+      constraints: ['生产环境需审批', '失败时自动回滚'] },
+    { name: 'incident_response', domain: 'system', version: '1.1.0', enabled: true,
+      description: '协调事故响应流程，包括运行手册执行、升级通知和事后复盘生成。',
+      steps: ['评估严重级别', '通知值班人员', '执行运行手册', '监控恢复过程', '撰写事后复盘'],
+      success_rate: 0.91, use_count: 42, tags: ['事故', '运维', '手册'],
+      system_prompt: '协调事故响应。优先恢复服务，其次分析根因。',
+      constraints: ['P0/P1 在 5 分钟内升级', '必须生成事后复盘'] },
+    { name: 'meeting_summary', domain: 'communication', version: '1.3.0', enabled: true,
+      description: '生成结构化会议纪要，包含行动项、决议事项和后续跟进。',
+      steps: ['解析会议记录', '提取讨论主题', '识别决议事项', '列出行动项', '格式化纪要'],
+      success_rate: 0.89, use_count: 278, tags: ['会议', '纪要', '记录'],
+      system_prompt: '将会议内容总结为结构化笔记，包含明确的行动项和负责人。',
+      constraints: ['不超过 500 字', '包含所有行动项及其负责人'] },
+    { name: 'schema_migrate', domain: 'coding', version: '1.0.3', enabled: true,
+      description: '生成并验证数据库结构迁移脚本，自动创建回滚方案。',
+      steps: ['对比结构差异', '生成迁移脚本', '创建回滚脚本', '验证语法', '在副本上测试'],
+      success_rate: 0.82, use_count: 95, tags: ['数据库', '迁移', '结构'],
+      system_prompt: '生成安全的数据库迁移。务必包含回滚脚本。',
+      constraints: ['数据丢失类迁移需确认', '支持 PostgreSQL 和 MySQL'] },
+    { name: 'perf_analyzer', domain: 'system', version: '2.2.1', enabled: true,
+      description: '分析系统性能指标，识别瓶颈点，并给出优化建议。',
+      steps: ['收集性能指标', '识别异常模式', '定位热点', '生成优化建议'],
+      success_rate: 0.86, use_count: 167, tags: ['性能', '分析', '优化'],
+      system_prompt: '分析性能数据并提供可执行的优化建议。',
+      constraints: ['按影响程度排序建议', '包含预估改善幅度'] },
   ];
   return skills.map((s, i) => ({
-    ...s, id: `skill_${i+1}`,
+    ...s, id: 'skill_' + (i + 1),
     evolution: [
-      { version: '1.0.0', date: '2024-01-15', change: 'Initial release' },
-      { version: s.version, date: '2024-06-01', change: 'Latest improvements and bug fixes' },
+      { version: '1.0.0', date: '2024-01-15', change: '初始发布' },
+      { version: s.version, date: '2024-06-01', change: '最新改进与缺陷修复' },
     ],
-    execution_history: Array.from({length: 10}, () => Math.random() > 0.15 ? 1 : 0),
+    execution_history: Array.from({ length: 10 }, () => Math.random() > 0.15 ? 1 : 0),
   }));
 }
 
-// ── Fetch Skills ───────────────────────────────────────────────────────
+/* -- Fetch Skills ------------------------------------------------------ */
 async function fetchSkills() {
   try {
-    const res = await fetch(`${API_BASE}/skills`);
+    const res = await fetch(API_BASE + '/skills');
     if (!res.ok) throw new Error();
-    let data = await res.json();
+    const data = await res.json();
     allSkills = Array.isArray(data) ? data : (data.data || []);
+    allSkills.forEach(s => { if (s.enabled === undefined) s.enabled = true; });
   } catch {
     allSkills = generateDemoSkills();
   }
-  renderSkills(allSkills);
+  renderSkills(getFilteredSkills());
   updateStats();
 }
 
-// ── Render Grid ────────────────────────────────────────────────────────
+/* -- Filter ------------------------------------------------------------ */
+function getFilteredSkills() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  return allSkills.filter(s => {
+    const matchQ = !q || s.name.toLowerCase().includes(q) ||
+      (s.tags || []).some(t => t.toLowerCase().includes(q)) ||
+      (s.description || '').toLowerCase().includes(q);
+    const matchD = currentDomain === 'all' || s.domain === currentDomain;
+    return matchQ && matchD;
+  });
+}
+
+function filterSkills() {
+  renderSkills(getFilteredSkills());
+}
+
+function setDomainFilter(domain, btn) {
+  currentDomain = domain;
+  document.querySelectorAll('.domain-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  filterSkills();
+}
+
+/* -- Render Grid ------------------------------------------------------- */
 function renderSkills(skills) {
   const grid = document.getElementById('skillGrid');
   if (!skills.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">No skills found</div>';
+    grid.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>未找到匹配的技能</p></div>';
     return;
   }
-  grid.innerHTML = skills.map((s, i) => `
-    <div class="skill-card ${selectedSkill?.name === s.name ? 'selected' : ''}"
-         onclick="selectSkill('${s.name}')" style="animation-delay:${i*0.05}s">
-      <div class="skill-name">${s.name}</div>
-      <span class="skill-domain domain-${s.domain}">${s.domain}</span>
-      <span style="font-size:11px;color:var(--text-muted);margin-left:8px">v${s.version}</span>
-      <div class="skill-desc">${s.description}</div>
-      <div class="skill-meta">
-        <span>${s.steps?.length || 0} steps</span>
-        <span>|</span>
-        <span>Success:</span>
-        <div class="success-bar"><div class="success-fill" style="width:${(s.success_rate||0)*100}%"></div></div>
-        <span>${Math.round((s.success_rate||0)*100)}%</span>
-        <span>|</span>
-        <span>${s.use_count || 0} uses</span>
-      </div>
-      <div class="skill-tags">${(s.tags||[]).map(t => `<span class="skill-tag">${t}</span>`).join('')}</div>
-    </div>
-  `).join('');
+  grid.innerHTML = skills.map((s, i) => {
+    const sr = Math.round((s.success_rate || 0) * 100);
+    const barColor = sr >= 90 ? 'var(--green)' : sr >= 70 ? 'var(--yellow)' : 'var(--red)';
+    const domainLabel = DOMAIN_LABELS[s.domain] || s.domain;
+    return '<div class="skill-card' + (selectedSkill && selectedSkill.name === s.name ? ' selected' : '') + (s.enabled === false ? ' disabled' : '') + '" onclick="selectSkill(\'' + s.name + '\')" style="animation-delay:' + (i * 0.04) + 's">' +
+      '<div class="skill-card-header">' +
+        '<span class="skill-name">' + s.name + '</span>' +
+        '<label class="toggle-switch" onclick="event.stopPropagation()" title="' + (s.enabled !== false ? '已启用' : '已禁用') + '">' +
+          '<input type="checkbox"' + (s.enabled !== false ? ' checked' : '') + ' onchange="toggleSkill(\'' + s.name + '\', this.checked)">' +
+          '<span class="toggle-slider"></span>' +
+        '</label>' +
+      '</div>' +
+      '<span class="skill-domain domain-' + s.domain + '">' + domainLabel + '</span>' +
+      '<span class="skill-version">v' + s.version + '</span>' +
+      '<div class="skill-desc">' + (s.description || '') + '</div>' +
+      '<div class="skill-meta">' +
+        '<span>' + (s.steps ? s.steps.length : 0) + ' 步骤</span>' +
+        '<span>成功率</span>' +
+        '<div class="success-bar"><div class="success-fill" style="width:' + sr + '%;background:' + barColor + '"></div></div>' +
+        '<span>' + sr + '%</span>' +
+        '<span>' + (s.use_count || 0) + ' 次调用</span>' +
+      '</div>' +
+      '<div class="skill-tags">' + (s.tags || []).map(t => '<span class="skill-tag">' + t + '</span>').join('') + '</div>' +
+    '</div>';
+  }).join('');
 }
 
-// ── Select Skill ───────────────────────────────────────────────────────
-async function selectSkill(name) {
+/* -- Toggle Enable/Disable --------------------------------------------- */
+window.toggleSkill = function(name, enabled) {
+  const skill = allSkills.find(s => s.name === name);
+  if (!skill) return;
+  skill.enabled = enabled;
+
+  fetch(API_BASE + '/skills/' + name + '/toggle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ enabled: enabled })
+  }).catch(() => {});
+
+  renderSkills(getFilteredSkills());
+  updateStats();
+  if (selectedSkill && selectedSkill.name === name) {
+    selectedSkill.enabled = enabled;
+    showDetail(selectedSkill);
+  }
+  showToast(enabled ? '已启用: ' + name : '已禁用: ' + name);
+};
+
+/* -- Select Skill ------------------------------------------------------ */
+window.selectSkill = async function(name) {
   let skill = allSkills.find(s => s.name === name);
   try {
-    const res = await fetch(`${API_BASE}/skills/${name}`);
+    const res = await fetch(API_BASE + '/skills/' + name);
     if (res.ok) { const d = await res.json(); skill = d.data || d; }
   } catch {}
 
   selectedSkill = skill;
-  renderSkills(allSkills.filter(s => {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    const d = document.getElementById('domainFilter').value;
-    const matchQ = !q || s.name.includes(q) || (s.tags||[]).some(t => t.includes(q)) || s.description.toLowerCase().includes(q);
-    const matchD = d === 'all' || s.domain === d;
-    return matchQ && matchD;
-  }));
+  renderSkills(getFilteredSkills());
+  showDetail(skill);
+};
 
+function showDetail(skill) {
   document.getElementById('detailEmpty').style.display = 'none';
   const dc = document.getElementById('detailContent');
   dc.style.display = 'block';
 
+  const domainLabel = DOMAIN_LABELS[skill.domain] || skill.domain;
+
   const histBars = (skill.execution_history || []).map(v =>
-    `<div class="history-bar" style="height:${v ? 100 : 20}%;background:${v ? 'var(--green)' : 'var(--red)'}"></div>`
+    '<div class="history-bar" style="height:' + (v ? 100 : 20) + '%;background:' + (v ? 'var(--green)' : 'var(--red)') + '"></div>'
   ).join('');
 
   const evoHtml = (skill.evolution || []).map(e =>
-    `<div class="evo-entry"><span class="evo-version">${e.version}</span>${e.date} - ${e.change}</div>`
+    '<div class="evo-entry"><span class="evo-version">' + e.version + '</span>' + e.date + ' - ' + e.change + '</div>'
   ).join('');
 
-  dc.innerHTML = `
-    <div class="detail-header">
-      <div class="detail-title">${skill.name}</div>
-      <span class="skill-domain domain-${skill.domain}">${skill.domain}</span>
-      <span style="font-size:13px;color:var(--text-dim);margin-left:8px">v${skill.version}</span>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title">Description</div>
-      <div class="detail-text">${skill.description}</div>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title">System Prompt</div>
-      <div class="prompt-block">${skill.system_prompt || 'N/A'}</div>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title">Steps</div>
-      <ol class="steps-list">${(skill.steps||[]).map(s => `<li>${s}</li>`).join('')}</ol>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title">Constraints</div>
-      <ul style="padding-left:18px;font-size:13px;color:var(--text-dim)">${(skill.constraints||[]).map(c => `<li style="margin-bottom:4px">${c}</li>`).join('')}</ul>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title">Execution History (Last 10)</div>
-      <div class="history-chart">${histBars}</div>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title">Evolution</div>
-      ${evoHtml}
-    </div>
-  `;
+  const constraintsHtml = (skill.constraints || []).map(c =>
+    '<li class="constraint-item"><span class="constraint-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>' + c + '</li>'
+  ).join('');
+
+  dc.innerHTML =
+    '<div class="detail-header">' +
+      '<div class="detail-title">' + skill.name + '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">' +
+        '<span class="skill-domain domain-' + skill.domain + '">' + domainLabel + '</span>' +
+        '<span style="font-size:12px;color:var(--text-muted)">v' + skill.version + '</span>' +
+        '<span style="font-size:12px;color:' + (skill.enabled !== false ? 'var(--green)' : 'var(--text-muted)') + ';margin-left:auto">' +
+          (skill.enabled !== false ? '已启用' : '已禁用') +
+        '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="detail-section">' +
+      '<div class="detail-section-title">描述</div>' +
+      '<div class="detail-text">' + (skill.description || '暂无描述') + '</div>' +
+    '</div>' +
+    '<div class="detail-section">' +
+      '<div class="detail-section-title">约束条件</div>' +
+      (constraintsHtml ? '<ul class="constraint-list">' + constraintsHtml + '</ul>' : '<div class="detail-text" style="color:var(--text-muted)">暂无约束</div>') +
+    '</div>' +
+    '<div class="detail-section">' +
+      '<div class="detail-section-title">执行步骤</div>' +
+      '<ol class="steps-list">' + (skill.steps || []).map(s => '<li>' + s + '</li>').join('') + '</ol>' +
+    '</div>' +
+    '<div class="detail-section">' +
+      '<div class="detail-section-title">系统提示词</div>' +
+      '<div class="prompt-block">' + (skill.system_prompt || '暂无') + '</div>' +
+    '</div>' +
+    '<div class="detail-section">' +
+      '<div class="detail-section-title">执行历史（最近 10 次）</div>' +
+      '<div class="history-chart">' + histBars + '</div>' +
+    '</div>' +
+    '<div class="detail-section">' +
+      '<div class="detail-section-title">版本演化</div>' +
+      evoHtml +
+    '</div>';
 }
 
-// ── Filter ─────────────────────────────────────────────────────────────
-function filterSkills() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const d = document.getElementById('domainFilter').value;
-  const filtered = allSkills.filter(s => {
-    const matchQ = !q || s.name.includes(q) || (s.tags||[]).some(t => t.includes(q)) || s.description.toLowerCase().includes(q);
-    const matchD = d === 'all' || s.domain === d;
-    return matchQ && matchD;
-  });
-  renderSkills(filtered);
-}
-
-// ── Stats ──────────────────────────────────────────────────────────────
+/* -- Stats ------------------------------------------------------------- */
 function updateStats() {
   document.getElementById('totalSkills').textContent = allSkills.length;
+  document.getElementById('enabledCount').textContent = allSkills.filter(s => s.enabled !== false).length;
   const domains = new Set(allSkills.map(s => s.domain));
   document.getElementById('domainCount').textContent = domains.size;
-  const avgSr = allSkills.length ? allSkills.reduce((a,s) => a + (s.success_rate||0), 0) / allSkills.length : 0;
+  const avgSr = allSkills.length
+    ? allSkills.reduce((a, s) => a + (s.success_rate || 0), 0) / allSkills.length : 0;
   document.getElementById('avgSuccess').textContent = Math.round(avgSr * 100) + '%';
-  document.getElementById('totalUses').textContent = allSkills.reduce((a,s) => a + (s.use_count||0), 0);
+  document.getElementById('totalUses').textContent = allSkills.reduce((a, s) => a + (s.use_count || 0), 0);
 }
 
-// ── Import ─────────────────────────────────────────────────────────────
-function showImportModal() { document.getElementById('importModal').classList.add('show'); }
-function hideImportModal() { document.getElementById('importModal').classList.remove('show'); }
+/* -- Import Modal ------------------------------------------------------ */
+window.showImportModal = function() { document.getElementById('importModal').classList.add('active'); };
+window.hideImportModal = function() { document.getElementById('importModal').classList.remove('active'); };
 
-function importSkill() {
+window.importSkill = function() {
   const yaml = document.getElementById('yamlInput').value.trim();
-  if (!yaml) { showToast('Please paste YAML content', true); return; }
-  // Simple YAML-like parse for demo
+  if (!yaml) { showToast('请粘贴 YAML 内容', true); return; }
   const lines = yaml.split('\n');
-  const skill = { tags: [], steps: [], constraints: [], success_rate: 1.0, use_count: 0, version: '1.0.0',
-                  domain: 'general', execution_history: [], evolution: [] };
+  const skill = {
+    tags: [], steps: [], constraints: [], success_rate: 1.0, use_count: 0,
+    version: '1.0.0', domain: 'general', enabled: true, execution_history: [], evolution: []
+  };
   lines.forEach(line => {
     const m = line.match(/^(\w+):\s*(.+)/);
     if (m) {
-      if (m[1] === 'name') skill.name = m[2];
-      else if (m[1] === 'domain') skill.domain = m[2];
-      else if (m[1] === 'description') skill.description = m[2];
-      else if (m[1] === 'version') skill.version = m[2];
+      if (m[1] === 'name') skill.name = m[2].trim();
+      else if (m[1] === 'domain') skill.domain = m[2].trim();
+      else if (m[1] === 'description') skill.description = m[2].trim();
+      else if (m[1] === 'version') skill.version = m[2].trim();
     }
   });
   if (skill.name) {
     skill.id = 'skill_' + Date.now();
     allSkills.push(skill);
-    renderSkills(allSkills);
+    renderSkills(getFilteredSkills());
     updateStats();
     hideImportModal();
-    showToast('Skill imported: ' + skill.name);
+    document.getElementById('yamlInput').value = '';
+    showToast('技能已导入: ' + skill.name);
   } else {
-    showToast('Invalid YAML: missing "name" field', true);
+    showToast('无效 YAML: 缺少 name 字段', true);
   }
-}
+};
 
-// ── Toast ──────────────────────────────────────────────────────────────
+/* -- Toast ------------------------------------------------------------- */
 function showToast(msg, isError) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -514,8 +746,10 @@ function showToast(msg, isError) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── Init ───────────────────────────────────────────────────────────────
+/* -- Init -------------------------------------------------------------- */
 fetchSkills();
+
+})();
 </script>
 </body>
 </html>

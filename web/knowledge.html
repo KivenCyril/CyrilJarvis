@@ -1,362 +1,416 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Knowledge Graph</title>
+<title>JARVIS - 知识库</title>
 <style>
-/* ====================================================================
-   JARVIS Knowledge Graph — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
-  --orange:       #f59e0b;
-  --red:          #ef4444;
   --purple:       #a855f7;
-  --cyan:         #06b6d4;
-  --pink:         #ec4899;
+  --yellow:       #eab308;
+  --red:          #ef4444;
   --radius:       8px;
   --radius-lg:    12px;
-  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Navigation ---------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-/* -- Main Layout ------------------------------------------------------- */
-.main-layout {
-  flex: 1; display: flex; overflow: hidden;
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow: hidden; display: flex; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
 }
 
-/* -- Sidebar ----------------------------------------------------------- */
-.sidebar {
-  width: 300px; background: var(--bg-base); border-right: 1px solid var(--border);
-  display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+/* ── Knowledge Graph Specific ─────────────────────────────── */
+.kg-panel {
+  width: 280px; min-width: 280px; background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
 }
-.sidebar-section { padding: 16px; border-bottom: 1px solid var(--border); }
-.sidebar-title {
-  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--text-muted); margin-bottom: 10px;
+.kg-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.kg-section:last-child { border-bottom: none; }
+.kg-section-title {
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
 }
+.kg-section-title svg { width: 12px; height: 12px; opacity: 0.6; }
 
-/* -- Search ------------------------------------------------------------ */
-.search-box {
-  display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border);
-}
-.search-box input {
+.kg-search { display: flex; gap: 8px; }
+.kg-search input {
   flex: 1; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius); color: var(--text); font-size: 13px;
+  border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: var(--font);
+  transition: var(--transition);
 }
-.search-box input:focus { border-color: var(--border-focus); }
-.search-box button {
-  padding: 8px 16px; background: var(--accent); color: #fff; border-radius: var(--radius);
-  font-size: 13px; font-weight: 500; border: none; cursor: pointer;
+.kg-search input:focus { outline: none; border-color: var(--accent); }
+.kg-search button {
+  padding: 8px 14px; background: var(--accent); color: #fff; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; border: none; cursor: pointer; font-family: var(--font);
+  transition: var(--transition);
 }
-.search-box button:hover { background: var(--accent-hover); }
+.kg-search button:hover { background: var(--accent-hover); }
 
-/* -- Stats ------------------------------------------------------------- */
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.stat-item {
+.kg-stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.kg-stat-item {
   padding: 10px; background: var(--bg-surface); border-radius: var(--radius);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border); text-align: center;
 }
-.stat-value { font-size: 20px; font-weight: 700; color: var(--accent); }
-.stat-label { font-size: 11px; color: var(--text-muted); }
+.kg-stat-value { font-size: 20px; font-weight: 700; color: var(--accent); }
+.kg-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-/* -- Node Type Legend -------------------------------------------------- */
-.legend { display: flex; flex-direction: column; gap: 6px; }
-.legend-item {
+.kg-legend { display: flex; flex-direction: column; gap: 4px; }
+.kg-legend-item {
   display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim);
   cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: var(--transition);
 }
-.legend-item:hover { background: var(--bg-hover); }
-.legend-dot {
-  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
-}
+.kg-legend-item:hover { background: var(--bg-hover); }
+.kg-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-/* -- Add Forms --------------------------------------------------------- */
-.form-group { margin-bottom: 12px; }
-.form-group label {
+.kg-form-group { margin-bottom: 10px; }
+.kg-form-group label {
   display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px;
 }
-.form-group input, .form-group select {
+.kg-form-group input, .kg-form-group select {
   width: 100%; padding: 7px 10px; background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius); color: var(--text); font-size: 13px;
+  border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: var(--font);
+  transition: var(--transition);
 }
-.form-group input:focus, .form-group select:focus { border-color: var(--border-focus); }
-.btn-add {
+.kg-form-group input:focus, .kg-form-group select:focus { outline: none; border-color: var(--accent); }
+.kg-btn-add {
   width: 100%; padding: 8px; background: var(--accent); color: #fff; border: none;
   border-radius: var(--radius); font-size: 13px; font-weight: 500; cursor: pointer;
-  margin-top: 4px;
+  font-family: var(--font); transition: var(--transition); margin-top: 4px;
 }
-.btn-add:hover { background: var(--accent-hover); }
-.btn-secondary {
+.kg-btn-add:hover { background: var(--accent-hover); }
+.kg-btn-outline {
   width: 100%; padding: 8px; background: transparent; color: var(--accent); border: 1px solid var(--accent);
   border-radius: var(--radius); font-size: 13px; cursor: pointer; margin-top: 6px;
+  font-family: var(--font); transition: var(--transition);
 }
-.btn-secondary:hover { background: rgba(59,130,246,0.1); }
+.kg-btn-outline:hover { background: rgba(59,130,246,0.1); }
 
-/* -- Graph Canvas ------------------------------------------------------ */
-.graph-container {
-  flex: 1; position: relative; overflow: hidden; background: var(--bg-deep);
-}
-.graph-container svg { width: 100%; height: 100%; }
+/* ── Graph Canvas ─────────────────────────────────────────── */
+.kg-canvas-wrap { flex: 1; position: relative; overflow: hidden; background: var(--bg-deep); }
+.kg-canvas-wrap svg { width: 100%; height: 100%; }
 
-/* -- Node Detail Panel ------------------------------------------------- */
-.detail-panel {
+/* ── Node Detail Panel ────────────────────────────────────── */
+.kg-detail {
   position: absolute; top: 12px; right: 12px; width: 280px;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md); padding: 16px; display: none;
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4); padding: 16px; display: none;
   max-height: calc(100% - 24px); overflow-y: auto;
 }
-.detail-panel.visible { display: block; }
-.detail-panel h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; }
-.detail-panel .close-btn {
-  position: absolute; top: 10px; right: 10px; background: none; border: none;
-  color: var(--text-muted); font-size: 18px; cursor: pointer;
+.kg-detail.visible { display: block; }
+.kg-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.kg-detail-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.kg-detail-close {
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius); transition: var(--transition);
 }
-.detail-field { margin-bottom: 8px; }
-.detail-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-.detail-value { font-size: 13px; color: var(--text); }
-.detail-neighbors { margin-top: 12px; }
-.detail-neighbor {
+.kg-detail-close:hover { background: var(--bg-hover); color: var(--text); }
+.kg-detail-close svg { width: 16px; height: 16px; }
+.kg-detail-field { margin-bottom: 8px; }
+.kg-detail-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.kg-detail-value { font-size: 13px; color: var(--text); margin-top: 2px; }
+.kg-detail-neighbor {
   display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px;
-  color: var(--text-dim); cursor: pointer;
+  color: var(--text-dim); cursor: pointer; transition: var(--transition);
 }
-.detail-neighbor:hover { color: var(--accent); }
+.kg-detail-neighbor:hover { color: var(--accent); }
 
-/* -- Toolbar ----------------------------------------------------------- */
-.graph-toolbar {
+/* ── Graph Toolbar ────────────────────────────────────────── */
+.kg-toolbar {
   position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 4px; background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 4px; box-shadow: var(--shadow);
+  display: flex; gap: 2px; background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.3);
 }
-.graph-toolbar button {
-  padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 500;
+.kg-toolbar button {
+  padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 500;
   color: var(--text-dim); border: none; background: none; cursor: pointer;
+  font-family: var(--font); transition: var(--transition); display: flex; align-items: center; gap: 4px;
 }
-.graph-toolbar button:hover { background: var(--bg-hover); color: var(--text); }
+.kg-toolbar button:hover { background: var(--bg-hover); color: var(--text); }
+.kg-toolbar button svg { width: 13px; height: 13px; }
 
-/* -- Toast ------------------------------------------------------------- */
-.toast-container { position: fixed; top: 60px; right: 16px; z-index: 1000; }
-.toast {
-  padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius); font-size: 13px; margin-bottom: 8px; box-shadow: var(--shadow);
-  animation: toastIn 300ms ease;
+/* ── Toast ────────────────────────────────────────────────── */
+.kg-toast-wrap { position: fixed; top: 60px; right: 16px; z-index: 1000; }
+.kg-toast {
+  padding: 10px 16px; background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; margin-bottom: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3); animation: kgToastIn 300ms ease;
+  color: var(--text);
 }
-@keyframes toastIn {
+@keyframes kgToastIn {
   from { transform: translateX(120%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
+}
+
+@media (max-width: 900px) {
+  .kg-panel { display: none; }
 }
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Knowledge Graph</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html" class="active">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">知识库</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Left Sidebar -->
-  <aside class="sidebar">
-    <!-- Search -->
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search entities...">
-      <button onclick="searchEntity()">Find</button>
-    </div>
-
-    <!-- Stats -->
-    <div class="sidebar-section">
-      <div class="sidebar-title">Graph Statistics</div>
-      <div class="stat-grid">
-        <div class="stat-item">
-          <div class="stat-value" id="statNodes">0</div>
-          <div class="stat-label">Nodes</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="statEdges">0</div>
-          <div class="stat-label">Edges</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="statTypes">0</div>
-          <div class="stat-label">Types</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="statClusters">0</div>
-          <div class="stat-label">Clusters</div>
-        </div>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
       </div>
-    </div>
-
-    <!-- Legend -->
-    <div class="sidebar-section">
-      <div class="sidebar-title">Node Types</div>
-      <div class="legend" id="legend"></div>
-    </div>
-
-    <!-- Add Node -->
-    <div class="sidebar-section">
-      <div class="sidebar-title">Add Node</div>
-      <div class="form-group">
-        <label>Label</label>
-        <input type="text" id="addNodeLabel" placeholder="Entity name">
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
       </div>
-      <div class="form-group">
-        <label>Type</label>
-        <select id="addNodeType">
-          <option value="concept">Concept</option>
-          <option value="entity">Entity</option>
-          <option value="tool">Tool</option>
-          <option value="agent">Agent</option>
-          <option value="skill">Skill</option>
-          <option value="module">Module</option>
-          <option value="task">Task</option>
-          <option value="fact">Fact</option>
-        </select>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item active" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
       </div>
-      <button class="btn-add" onclick="addNode()">Add Node</button>
-    </div>
-
-    <!-- Add Edge -->
-    <div class="sidebar-section">
-      <div class="sidebar-title">Add Edge</div>
-      <div class="form-group">
-        <label>From Node</label>
-        <select id="edgeFrom"></select>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
       </div>
-      <div class="form-group">
-        <label>To Node</label>
-        <select id="edgeTo"></select>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
       </div>
-      <div class="form-group">
-        <label>Relation</label>
-        <input type="text" id="edgeRelation" placeholder="e.g. uses, extends">
-      </div>
-      <button class="btn-add" onclick="addEdge()">Add Edge</button>
-    </div>
-
-    <!-- Actions -->
-    <div class="sidebar-section">
-      <button class="btn-secondary" onclick="loadFromAPI()">Reload from API</button>
-      <button class="btn-secondary" onclick="exportGraph()">Export JSON</button>
-    </div>
+    </nav>
   </aside>
 
-  <!-- Graph Canvas -->
-  <div class="graph-container" id="graphContainer">
-    <svg id="graphSvg">
-      <defs>
-        <marker id="arrowhead" viewBox="0 0 10 7" refX="10" refY="3.5"
-                markerWidth="8" markerHeight="6" orient="auto-start-reverse">
-          <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-muted)" />
-        </marker>
-      </defs>
-      <g id="graphGroup">
-        <g id="edgesGroup"></g>
-        <g id="nodesGroup"></g>
-        <g id="labelsGroup"></g>
-      </g>
-    </svg>
+  <div class="page-content">
+    <!-- Graph Control Panel -->
+    <aside class="kg-panel">
+      <!-- Search -->
+      <div class="kg-section">
+        <div class="kg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> 搜索实体</div>
+        <div class="kg-search">
+          <input type="text" id="searchInput" placeholder="输入实体名称...">
+          <button onclick="searchEntity()">查找</button>
+        </div>
+      </div>
 
-    <!-- Node Detail Panel -->
-    <div class="detail-panel" id="detailPanel">
-      <button class="close-btn" onclick="closeDetail()">&times;</button>
-      <h3 id="detailTitle"></h3>
-      <div class="detail-field">
-        <div class="detail-label">Type</div>
-        <div class="detail-value" id="detailType"></div>
+      <!-- Stats -->
+      <div class="kg-section">
+        <div class="kg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 图统计</div>
+        <div class="kg-stat-grid">
+          <div class="kg-stat-item">
+            <div class="kg-stat-value" id="statNodes">0</div>
+            <div class="kg-stat-label">节点</div>
+          </div>
+          <div class="kg-stat-item">
+            <div class="kg-stat-value" id="statEdges">0</div>
+            <div class="kg-stat-label">边</div>
+          </div>
+          <div class="kg-stat-item">
+            <div class="kg-stat-value" id="statClusters">0</div>
+            <div class="kg-stat-label">聚类</div>
+          </div>
+        </div>
       </div>
-      <div class="detail-field">
-        <div class="detail-label">Properties</div>
-        <div class="detail-value" id="detailProps"></div>
-      </div>
-      <div class="detail-neighbors">
-        <div class="detail-label">Neighbors</div>
-        <div id="detailNeighbors"></div>
-      </div>
-    </div>
 
-    <!-- Toolbar -->
-    <div class="graph-toolbar">
-      <button onclick="zoomIn()">Zoom +</button>
-      <button onclick="zoomOut()">Zoom -</button>
-      <button onclick="resetView()">Reset</button>
-      <button onclick="togglePhysics()">Pause</button>
-      <button onclick="layoutCircular()">Circular</button>
+      <!-- Legend -->
+      <div class="kg-section">
+        <div class="kg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 节点类型</div>
+        <div class="kg-legend" id="legend"></div>
+      </div>
+
+      <!-- Add Node -->
+      <div class="kg-section">
+        <div class="kg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> 添加节点</div>
+        <div class="kg-form-group">
+          <label>标签</label>
+          <input type="text" id="addNodeLabel" placeholder="实体名称">
+        </div>
+        <div class="kg-form-group">
+          <label>类型</label>
+          <select id="addNodeType">
+            <option value="concept">概念</option>
+            <option value="entity">实体</option>
+            <option value="tool">工具</option>
+            <option value="agent">智能体</option>
+            <option value="skill">技能</option>
+            <option value="module">模块</option>
+            <option value="task">任务</option>
+            <option value="fact">事实</option>
+          </select>
+        </div>
+        <button class="kg-btn-add" onclick="addNode()">添加节点</button>
+      </div>
+
+      <!-- Add Edge -->
+      <div class="kg-section">
+        <div class="kg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> 添加边</div>
+        <div class="kg-form-group">
+          <label>起始节点</label>
+          <select id="edgeFrom"></select>
+        </div>
+        <div class="kg-form-group">
+          <label>目标节点</label>
+          <select id="edgeTo"></select>
+        </div>
+        <div class="kg-form-group">
+          <label>关系</label>
+          <input type="text" id="edgeRelation" placeholder="例如: uses, extends">
+        </div>
+        <button class="kg-btn-add" onclick="addEdge()">添加边</button>
+      </div>
+
+      <!-- Actions -->
+      <div class="kg-section">
+        <button class="kg-btn-outline" onclick="loadFromAPI()">从接口重载</button>
+        <button class="kg-btn-outline" onclick="exportGraph()">导出 JSON</button>
+      </div>
+    </aside>
+
+    <!-- Graph Canvas -->
+    <div class="kg-canvas-wrap" id="graphContainer">
+      <svg id="graphSvg">
+        <defs>
+          <marker id="arrowhead" viewBox="0 0 10 7" refX="10" refY="3.5"
+                  markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-muted)" />
+          </marker>
+        </defs>
+        <g id="graphGroup">
+          <g id="edgesGroup"></g>
+          <g id="nodesGroup"></g>
+          <g id="labelsGroup"></g>
+        </g>
+      </svg>
+
+      <!-- Node Detail Panel -->
+      <div class="kg-detail" id="detailPanel">
+        <div class="kg-detail-header">
+          <span class="kg-detail-title" id="detailTitle"></span>
+          <button class="kg-detail-close" onclick="closeDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="kg-detail-field">
+          <div class="kg-detail-label">类型</div>
+          <div class="kg-detail-value" id="detailType"></div>
+        </div>
+        <div class="kg-detail-field">
+          <div class="kg-detail-label">属性</div>
+          <div class="kg-detail-value" id="detailProps"></div>
+        </div>
+        <div style="margin-top: 12px;">
+          <div class="kg-detail-label">邻居</div>
+          <div id="detailNeighbors"></div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="kg-toolbar">
+        <button onclick="zoomIn()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg> 放大</button>
+        <button onclick="zoomOut()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg> 缩小</button>
+        <button onclick="resetView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> 重置</button>
+        <button onclick="togglePhysics()" id="physicsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> 暂停</button>
+        <button onclick="layoutCircular()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg> 环形</button>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="toast-container" id="toasts"></div>
+<div class="kg-toast-wrap" id="toasts"></div>
 
 <script>
-/* ====================================================================
-   JARVIS Knowledge Graph — Force-Directed Visualization
-   ==================================================================== */
+(() => {
+'use strict';
 
+/* ── Sidebar Toggle ─────────────────────────────────────────── */
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
+
+/* ── Constants ──────────────────────────────────────────────── */
 const API_BASE = window.location.origin;
-
-// -- Graph data --------------------------------------------------------
 
 const nodeTypeColors = {
   concept:  '#3b82f6',
   entity:   '#22c55e',
-  tool:     '#f59e0b',
+  tool:     '#eab308',
   agent:    '#a855f7',
   skill:    '#06b6d4',
   module:   '#ec4899',
@@ -364,14 +418,21 @@ const nodeTypeColors = {
   fact:     '#64748b',
 };
 
+const nodeTypeLabels = {
+  concept: '概念', entity: '实体', tool: '工具', agent: '智能体',
+  skill: '技能', module: '模块', task: '任务', fact: '事实',
+};
+
 let nodes = [];
 let edges = [];
 let selectedNode = null;
 let physicsRunning = true;
 let transform = { x: 0, y: 0, scale: 1 };
+let nodeCounter = 100;
+let simInterval = null;
+let dragNode = null;
 
-// -- Initialization ----------------------------------------------------
-
+/* ── Initialization ─────────────────────────────────────────── */
 function init() {
   loadDemoData();
   renderLegend();
@@ -383,7 +444,7 @@ function init() {
 }
 
 function loadDemoData() {
-  const demoNodes = [
+  nodes = [
     { id: 'n1', label: 'JARVIS', type: 'entity', x: 400, y: 300, vx: 0, vy: 0, properties: { version: '0.2.0' } },
     { id: 'n2', label: 'StreamingSpec', type: 'concept', x: 300, y: 200, vx: 0, vy: 0, properties: {} },
     { id: 'n3', label: 'Orchestrator', type: 'module', x: 500, y: 200, vx: 0, vy: 0, properties: {} },
@@ -395,7 +456,7 @@ function loadDemoData() {
     { id: 'n9', label: 'LLMRouter', type: 'module', x: 450, y: 150, vx: 0, vy: 0, properties: {} },
     { id: 'n10', label: 'Curator', type: 'module', x: 500, y: 400, vx: 0, vy: 0, properties: {} },
   ];
-  const demoEdges = [
+  edges = [
     { source: 'n1', target: 'n2', relation: 'uses' },
     { source: 'n1', target: 'n3', relation: 'contains' },
     { source: 'n3', target: 'n4', relation: 'manages' },
@@ -406,19 +467,16 @@ function loadDemoData() {
     { source: 'n3', target: 'n9', relation: 'uses' },
     { source: 'n1', target: 'n10', relation: 'contains' },
   ];
-  nodes = demoNodes;
-  edges = demoEdges;
 }
 
-// -- Legend -------------------------------------------------------------
-
+/* ── Legend ──────────────────────────────────────────────────── */
 function renderLegend() {
   const container = document.getElementById('legend');
   container.innerHTML = '';
   for (const [type, color] of Object.entries(nodeTypeColors)) {
     const el = document.createElement('div');
-    el.className = 'legend-item';
-    el.innerHTML = `<span class="legend-dot" style="background:${color}"></span>${type}`;
+    el.className = 'kg-legend-item';
+    el.innerHTML = '<span class="kg-legend-dot" style="background:' + color + '"></span>' + (nodeTypeLabels[type] || type);
     el.onclick = () => highlightType(type);
     container.appendChild(el);
   }
@@ -430,13 +488,10 @@ function highlightType(type) {
   setTimeout(() => { nodes.forEach(n => n._highlighted = false); renderGraph(); }, 2000);
 }
 
-// -- Stats --------------------------------------------------------------
-
+/* ── Stats ───────────────────────────────────────────────────── */
 function updateStats() {
   document.getElementById('statNodes').textContent = nodes.length;
   document.getElementById('statEdges').textContent = edges.length;
-  const types = new Set(nodes.map(n => n.type));
-  document.getElementById('statTypes').textContent = types.size;
   document.getElementById('statClusters').textContent = countClusters();
 }
 
@@ -449,18 +504,16 @@ function countClusters() {
   return new Set(nodes.map(n => find(n.id))).size;
 }
 
-// -- Node selectors for edge form --------------------------------------
-
+/* ── Node Selectors ─────────────────────────────────────────── */
 function updateNodeSelectors() {
   const fromSel = document.getElementById('edgeFrom');
   const toSel = document.getElementById('edgeTo');
-  const opts = nodes.map(n => `<option value="${n.id}">${n.label}</option>`).join('');
+  const opts = nodes.map(n => '<option value="' + n.id + '">' + n.label + '</option>').join('');
   fromSel.innerHTML = opts;
   toSel.innerHTML = opts;
 }
 
-// -- SVG Interactions (pan/zoom) ----------------------------------------
-
+/* ── SVG Pan / Zoom ─────────────────────────────────────────── */
 function setupSVGInteractions() {
   const svg = document.getElementById('graphSvg');
   let isPanning = false, startX = 0, startY = 0;
@@ -490,18 +543,15 @@ function setupSVGInteractions() {
 }
 
 function applyTransform() {
-  const g = document.getElementById('graphGroup');
-  g.setAttribute('transform', `translate(${transform.x},${transform.y}) scale(${transform.scale})`);
+  document.getElementById('graphGroup').setAttribute('transform',
+    'translate(' + transform.x + ',' + transform.y + ') scale(' + transform.scale + ')');
 }
 
 function zoomIn() { transform.scale = Math.min(5, transform.scale * 1.2); applyTransform(); }
 function zoomOut() { transform.scale = Math.max(0.1, transform.scale * 0.8); applyTransform(); }
 function resetView() { transform = { x: 0, y: 0, scale: 1 }; applyTransform(); }
 
-// -- Physics Simulation ------------------------------------------------
-
-let simInterval = null;
-
+/* ── Physics Simulation ─────────────────────────────────────── */
 function startSimulation() {
   if (simInterval) clearInterval(simInterval);
   simInterval = setInterval(simulate, 16);
@@ -509,7 +559,10 @@ function startSimulation() {
 
 function togglePhysics() {
   physicsRunning = !physicsRunning;
-  showToast(physicsRunning ? 'Physics resumed' : 'Physics paused');
+  document.getElementById('physicsBtn').innerHTML = physicsRunning
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> 暂停'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> 继续';
+  showToast(physicsRunning ? '物理模拟已恢复' : '物理模拟已暂停');
 }
 
 function simulate() {
@@ -523,7 +576,6 @@ function simulate() {
   const cx = (svg.clientWidth || 800) / 2;
   const cy = (svg.clientHeight || 600) / 2;
 
-  // Repulsion between nodes
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
       const dx = nodes[j].x - nodes[i].x;
@@ -532,14 +584,11 @@ function simulate() {
       const force = repulsion / (dist * dist);
       const fx = (dx / dist) * force;
       const fy = (dy / dist) * force;
-      nodes[i].vx -= fx;
-      nodes[i].vy -= fy;
-      nodes[j].vx += fx;
-      nodes[j].vy += fy;
+      nodes[i].vx -= fx; nodes[i].vy -= fy;
+      nodes[j].vx += fx; nodes[j].vy += fy;
     }
   }
 
-  // Attraction along edges
   for (const edge of edges) {
     const src = nodes.find(n => n.id === edge.source);
     const tgt = nodes.find(n => n.id === edge.target);
@@ -550,38 +599,30 @@ function simulate() {
     const force = dist * attraction;
     const fx = (dx / Math.max(dist, 1)) * force;
     const fy = (dy / Math.max(dist, 1)) * force;
-    src.vx += fx;
-    src.vy += fy;
-    tgt.vx -= fx;
-    tgt.vy -= fy;
+    src.vx += fx; src.vy += fy;
+    tgt.vx -= fx; tgt.vy -= fy;
   }
 
-  // Center gravity
   for (const node of nodes) {
     node.vx += (cx - node.x) * centerForce;
     node.vy += (cy - node.y) * centerForce;
   }
 
-  // Apply velocity
   for (const node of nodes) {
     if (node._dragging) continue;
-    node.vx *= damping;
-    node.vy *= damping;
-    node.x += node.vx;
-    node.y += node.vy;
+    node.vx *= damping; node.vy *= damping;
+    node.x += node.vx; node.y += node.vy;
   }
 
   renderGraph();
 }
 
-// -- Rendering ---------------------------------------------------------
-
+/* ── Rendering ──────────────────────────────────────────────── */
 function renderGraph() {
   const edgesGroup = document.getElementById('edgesGroup');
   const nodesGroup = document.getElementById('nodesGroup');
   const labelsGroup = document.getElementById('labelsGroup');
 
-  // Edges
   let edgeHtml = '';
   for (const edge of edges) {
     const src = nodes.find(n => n.id === edge.source);
@@ -589,45 +630,32 @@ function renderGraph() {
     if (!src || !tgt) continue;
     const mx = (src.x + tgt.x) / 2;
     const my = (src.y + tgt.y) / 2;
-    edgeHtml += `<line x1="${src.x}" y1="${src.y}" x2="${tgt.x}" y2="${tgt.y}"
-      stroke="var(--border)" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.6"/>`;
+    edgeHtml += '<line x1="' + src.x + '" y1="' + src.y + '" x2="' + tgt.x + '" y2="' + tgt.y + '" stroke="var(--border-light)" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.6"/>';
     if (edge.relation) {
-      edgeHtml += `<text x="${mx}" y="${my - 6}" text-anchor="middle" fill="var(--text-muted)"
-        font-size="9" font-family="var(--font)">${edge.relation}</text>`;
+      edgeHtml += '<text x="' + mx + '" y="' + (my - 6) + '" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="var(--font)">' + edge.relation + '</text>';
     }
   }
   edgesGroup.innerHTML = edgeHtml;
 
-  // Nodes
   let nodeHtml = '';
   for (const node of nodes) {
     const color = nodeTypeColors[node.type] || '#64748b';
     const r = node._highlighted ? 18 : (selectedNode === node.id ? 16 : 12);
     const opacity = node._highlighted === false ? 0.3 : 1;
-    nodeHtml += `<circle cx="${node.x}" cy="${node.y}" r="${r}" fill="${color}"
-      stroke="${selectedNode === node.id ? '#fff' : 'transparent'}" stroke-width="2"
-      style="cursor:pointer;opacity:${opacity}"
-      onmousedown="startDrag(event,'${node.id}')"
-      onclick="selectNode('${node.id}')"/>`;
+    nodeHtml += '<circle cx="' + node.x + '" cy="' + node.y + '" r="' + r + '" fill="' + color + '" stroke="' + (selectedNode === node.id ? '#fff' : 'transparent') + '" stroke-width="2" style="cursor:pointer;opacity:' + opacity + '" onmousedown="startDrag(event,\'' + node.id + '\')" onclick="selectNode(\'' + node.id + '\')"/>';
   }
   nodesGroup.innerHTML = nodeHtml;
 
-  // Labels
   let labelHtml = '';
   for (const node of nodes) {
     const opacity = node._highlighted === false ? 0.3 : 1;
-    labelHtml += `<text x="${node.x}" y="${node.y + 22}" text-anchor="middle"
-      fill="var(--text-dim)" font-size="11" font-family="var(--font)"
-      style="pointer-events:none;opacity:${opacity}">${node.label}</text>`;
+    labelHtml += '<text x="' + node.x + '" y="' + (node.y + 22) + '" text-anchor="middle" fill="var(--text-dim)" font-size="11" font-family="var(--font)" style="pointer-events:none;opacity:' + opacity + '">' + node.label + '</text>';
   }
   labelsGroup.innerHTML = labelHtml;
 }
 
-// -- Node Dragging -----------------------------------------------------
-
-let dragNode = null;
-
-function startDrag(event, nodeId) {
+/* ── Node Dragging ──────────────────────────────────────────── */
+window.startDrag = function(event, nodeId) {
   event.stopPropagation();
   dragNode = nodes.find(n => n.id === nodeId);
   if (!dragNode) return;
@@ -638,8 +666,7 @@ function startDrag(event, nodeId) {
     const rect = svg.getBoundingClientRect();
     dragNode.x = (e.clientX - rect.left - transform.x) / transform.scale;
     dragNode.y = (e.clientY - rect.top - transform.y) / transform.scale;
-    dragNode.vx = 0;
-    dragNode.vy = 0;
+    dragNode.vx = 0; dragNode.vy = 0;
   }
   function onUp() {
     if (dragNode) dragNode._dragging = false;
@@ -649,11 +676,10 @@ function startDrag(event, nodeId) {
   }
   svg.addEventListener('mousemove', onMove);
   svg.addEventListener('mouseup', onUp);
-}
+};
 
-// -- Node Selection ----------------------------------------------------
-
-function selectNode(nodeId) {
+/* ── Node Selection ─────────────────────────────────────────── */
+window.selectNode = function(nodeId) {
   selectedNode = nodeId;
   const node = nodes.find(n => n.id === nodeId);
   if (!node) return;
@@ -661,13 +687,12 @@ function selectNode(nodeId) {
   const panel = document.getElementById('detailPanel');
   panel.classList.add('visible');
   document.getElementById('detailTitle').textContent = node.label;
-  document.getElementById('detailType').textContent = node.type;
+  document.getElementById('detailType').textContent = nodeTypeLabels[node.type] || node.type;
   document.getElementById('detailProps').textContent =
     Object.keys(node.properties || {}).length > 0
       ? JSON.stringify(node.properties, null, 2)
-      : 'None';
+      : '无';
 
-  // Find neighbors
   const neighbors = [];
   for (const edge of edges) {
     if (edge.source === nodeId) {
@@ -680,93 +705,80 @@ function selectNode(nodeId) {
     }
   }
 
-  const neighborsEl = document.getElementById('detailNeighbors');
-  neighborsEl.innerHTML = neighbors.map(n => {
+  document.getElementById('detailNeighbors').innerHTML = neighbors.map(n => {
     const arrow = n.direction === 'out' ? '&rarr;' : '&larr;';
     const color = nodeTypeColors[n.node.type] || '#64748b';
-    return `<div class="detail-neighbor" onclick="selectNode('${n.node.id}')">
-      <span class="legend-dot" style="background:${color};width:8px;height:8px"></span>
-      ${arrow} ${n.node.label} <span style="color:var(--text-muted)">(${n.relation})</span>
-    </div>`;
+    return '<div class="kg-detail-neighbor" onclick="selectNode(\'' + n.node.id + '\')">' +
+      '<span class="kg-legend-dot" style="background:' + color + ';width:8px;height:8px"></span> ' +
+      arrow + ' ' + n.node.label + ' <span style="color:var(--text-muted)">(' + n.relation + ')</span></div>';
   }).join('');
 
   renderGraph();
-}
+};
 
-function closeDetail() {
+window.closeDetail = function() {
   selectedNode = null;
   document.getElementById('detailPanel').classList.remove('visible');
   renderGraph();
-}
+};
 
-// -- Search -------------------------------------------------------------
-
-function searchEntity() {
+/* ── Search ─────────────────────────────────────────────────── */
+window.searchEntity = function() {
   const query = document.getElementById('searchInput').value.trim().toLowerCase();
   if (!query) return;
   const found = nodes.find(n => n.label.toLowerCase().includes(query));
   if (found) {
     selectNode(found.id);
-    // Center on node
     const svg = document.getElementById('graphSvg');
     transform.x = (svg.clientWidth || 800) / 2 - found.x * transform.scale;
     transform.y = (svg.clientHeight || 600) / 2 - found.y * transform.scale;
     applyTransform();
-    showToast(`Found: ${found.label}`);
+    showToast('已找到: ' + found.label);
   } else {
-    showToast('No matching entity found');
+    showToast('未找到匹配的实体');
   }
-}
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('searchInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') searchEntity();
-  });
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchEntity();
 });
 
-// -- Add Node / Edge ---------------------------------------------------
-
-let nodeCounter = 100;
-
-function addNode() {
+/* ── Add Node / Edge ────────────────────────────────────────── */
+window.addNode = function() {
   const label = document.getElementById('addNodeLabel').value.trim();
   const type = document.getElementById('addNodeType').value;
-  if (!label) { showToast('Label is required'); return; }
+  if (!label) { showToast('请输入标签名称'); return; }
 
   const svg = document.getElementById('graphSvg');
   const cx = (svg.clientWidth || 800) / 2;
   const cy = (svg.clientHeight || 600) / 2;
 
   nodes.push({
-    id: `n${++nodeCounter}`,
-    label, type,
-    x: cx + (Math.random() - 0.5) * 100,
-    y: cy + (Math.random() - 0.5) * 100,
-    vx: 0, vy: 0,
-    properties: {},
+    id: 'n' + (++nodeCounter), label: label, type: type,
+    x: cx + (Math.random() - 0.5) * 100, y: cy + (Math.random() - 0.5) * 100,
+    vx: 0, vy: 0, properties: {},
   });
 
   document.getElementById('addNodeLabel').value = '';
   updateNodeSelectors();
   updateStats();
-  showToast(`Node "${label}" added`);
-}
+  showToast('已添加节点: ' + label);
+};
 
-function addEdge() {
+window.addEdge = function() {
   const from = document.getElementById('edgeFrom').value;
   const to = document.getElementById('edgeTo').value;
   const relation = document.getElementById('edgeRelation').value.trim() || 'related';
-  if (from === to) { showToast('Cannot link a node to itself'); return; }
+  if (from === to) { showToast('不能将节点连接到自身'); return; }
 
-  edges.push({ source: from, target: to, relation });
+  edges.push({ source: from, target: to, relation: relation });
   document.getElementById('edgeRelation').value = '';
   updateStats();
-  showToast('Edge added');
-}
+  showToast('已添加边');
+};
 
-// -- Circular Layout ---------------------------------------------------
-
-function layoutCircular() {
+/* ── Circular Layout ────────────────────────────────────────── */
+window.layoutCircular = function() {
   const svg = document.getElementById('graphSvg');
   const cx = (svg.clientWidth || 800) / 2;
   const cy = (svg.clientHeight || 600) / 2;
@@ -776,23 +788,21 @@ function layoutCircular() {
     const angle = (2 * Math.PI * i) / nodes.length;
     n.x = cx + radius * Math.cos(angle);
     n.y = cy + radius * Math.sin(angle);
-    n.vx = 0;
-    n.vy = 0;
+    n.vx = 0; n.vy = 0;
   });
-}
+};
 
-// -- API ----------------------------------------------------------------
-
-async function loadFromAPI() {
+/* ── API ────────────────────────────────────────────────────── */
+window.loadFromAPI = async function() {
   try {
-    const res = await fetch(`${API_BASE}/knowledge/graph`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetch(API_BASE + '/knowledge/graph');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data.nodes && data.nodes.length > 0) {
       const svg = document.getElementById('graphSvg');
       const cx = (svg.clientWidth || 800) / 2;
       const cy = (svg.clientHeight || 600) / 2;
-      nodes = data.nodes.map((n, i) => ({
+      nodes = data.nodes.map(n => ({
         id: n.id, label: n.label, type: n.type || 'entity',
         x: n.x || cx + (Math.random() - 0.5) * 300,
         y: n.y || cy + (Math.random() - 0.5) * 300,
@@ -803,39 +813,39 @@ async function loadFromAPI() {
       }));
       updateNodeSelectors();
       updateStats();
-      showToast(`Loaded ${nodes.length} nodes from API`);
+      renderLegend();
+      showToast('已从接口加载 ' + nodes.length + ' 个节点');
     }
   } catch (err) {
-    // Keep demo data on error
-    console.log('API not available, using demo data:', err.message);
+    console.log('接口不可用，使用演示数据:', err.message);
   }
-}
+};
 
-function exportGraph() {
-  const data = { nodes, edges };
+window.exportGraph = function() {
+  const data = { nodes: nodes, edges: edges };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'jarvis-knowledge-graph.json';
   a.click();
   URL.revokeObjectURL(a.href);
-  showToast('Graph exported');
-}
+  showToast('图谱已导出');
+};
 
-// -- Toast --------------------------------------------------------------
-
+/* ── Toast ──────────────────────────────────────────────────── */
 function showToast(message) {
   const container = document.getElementById('toasts');
   const toast = document.createElement('div');
-  toast.className = 'toast';
+  toast.className = 'kg-toast';
   toast.textContent = message;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
 }
 
-// -- Start --------------------------------------------------------------
-
+/* ── Start ──────────────────────────────────────────────────── */
 init();
+
+})();
 </script>
 </body>
 </html>

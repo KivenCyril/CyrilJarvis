@@ -1,75 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Tool Explorer</title>
+<title>JARVIS - 工具</title>
 <style>
-/* ====================================================================
-   JARVIS Tool Explorer — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
-  --orange:       #f59e0b;
-  --red:          #ef4444;
   --purple:       #a855f7;
-  --cyan:         #06b6d4;
-  --pink:         #ec4899;
+  --yellow:       #eab308;
+  --red:          #ef4444;
   --radius:       8px;
   --radius-lg:    12px;
-  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
-::-webkit-scrollbar { width: 6px; }
+
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Nav ----------------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-/* -- Layout ------------------------------------------------------------ */
-.main-layout { flex: 1; display: grid; grid-template-columns: 1fr 420px; overflow: hidden; }
-.content-area { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
-.detail-panel {
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow-y: auto; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
+
+/* ── Tools Layout ───────────────────────────────────────── */
+.tools-layout { display: grid; grid-template-columns: 1fr 420px; height: 100%; overflow: hidden; }
+.tools-content { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.tools-detail {
   background: var(--bg-base); border-left: 1px solid var(--border);
   overflow-y: auto; display: flex; flex-direction: column;
 }
 
-/* -- Toolbar ----------------------------------------------------------- */
+/* ── Toolbar ─────────────────────────────────────────────── */
 .toolbar {
   display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
   background: var(--bg-surface); padding: 14px 20px; border-radius: var(--radius-lg);
@@ -78,27 +103,28 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .toolbar input {
   flex: 1; min-width: 180px; background: var(--bg-input); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 9px 14px; color: var(--text); font-size: 13px;
+  font-family: var(--font); transition: var(--transition); outline: none;
 }
-.toolbar input:focus { border-color: var(--border-focus); }
+.toolbar input:focus { border-color: var(--accent); }
+
+/* ── Buttons ─────────────────────────────────────────────── */
 .btn {
   padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
-  cursor: pointer; border: none; transition: var(--transition);
+  cursor: pointer; border: none; transition: var(--transition); font-family: var(--font);
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hover); }
-.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
-.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
 
-/* -- Stats Row --------------------------------------------------------- */
+/* ── Stats Row ───────────────────────────────────────────── */
 .stats-row { display: flex; gap: 14px; }
 .mini-stat {
   background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 14px 18px; flex: 1; text-align: center;
 }
-.mini-stat-number { font-size: 24px; font-weight: 700; }
-.mini-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+.mini-stat-number { font-size: 22px; font-weight: 700; color: var(--accent); }
+.mini-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-/* -- Category Tabs ----------------------------------------------------- */
+/* ── Category Tabs ───────────────────────────────────────── */
 .category-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 .cat-tab {
   padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
@@ -112,27 +138,29 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   padding: 0 6px; border-radius: 10px; font-size: 10px;
 }
 
-/* -- Tool Grid --------------------------------------------------------- */
+/* ── Tool Grid ───────────────────────────────────────────── */
 .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 .tool-card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 18px; cursor: pointer; transition: var(--transition);
   animation: fadeInUp 0.3s ease both;
 }
-.tool-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.tool-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
 .tool-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .tool-name { font-size: 15px; font-weight: 700; font-family: var(--mono); margin-bottom: 6px; color: var(--accent); }
 .tool-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
 .tool-params-count {
-  font-size: 11px; color: var(--text-muted); background: var(--bg-surface);
+  font-size: 11px; color: var(--text-muted); background: var(--bg-deep);
   display: inline-block; padding: 2px 8px; border-radius: 4px;
 }
 
-/* -- Detail Panel ------------------------------------------------------ */
+/* ── Detail Panel ────────────────────────────────────────── */
 .detail-empty {
   flex: 1; display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: 14px; padding: 20px; text-align: center;
+  flex-direction: column; gap: 12px;
 }
+.detail-empty svg { width: 40px; height: 40px; opacity: 0.3; }
 .detail-content { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
 .detail-title { font-size: 20px; font-weight: 700; font-family: var(--mono); color: var(--accent); }
 .detail-desc { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
@@ -141,21 +169,23 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   color: var(--text-muted); margin-bottom: 8px;
 }
 
-/* -- Parameter Form ---------------------------------------------------- */
+/* ── Param Form ──────────────────────────────────────────── */
 .param-form { display: flex; flex-direction: column; gap: 12px; }
 .param-field { display: flex; flex-direction: column; gap: 4px; }
 .param-label { font-size: 12px; font-weight: 600; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
-.param-required { color: var(--red); font-size: 10px; }
+.param-required { color: var(--red); font-size: 10px; font-weight: 600; }
+.param-optional-tag { color: var(--text-muted); font-size: 10px; }
 .param-type { font-size: 10px; color: var(--text-muted); background: var(--bg-surface); padding: 1px 6px; border-radius: 3px; }
 .param-input {
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 9px 12px; color: var(--text); font-size: 13px; font-family: var(--mono);
+  outline: none; transition: var(--transition);
 }
-.param-input:focus { border-color: var(--border-focus); }
+.param-input:focus { border-color: var(--accent); }
 .param-input-bool { display: flex; gap: 8px; align-items: center; }
 .param-hint { font-size: 11px; color: var(--text-muted); }
 
-/* -- Output Display ---------------------------------------------------- */
+/* ── Output Display ──────────────────────────────────────── */
 .output-section { margin-top: 4px; }
 .output-display {
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius);
@@ -166,7 +196,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .output-display.error { color: var(--red); }
 .output-display.loading { color: var(--text-muted); }
 
-/* -- Toast ------------------------------------------------------------- */
+/* ── Toast ───────────────────────────────────────────────── */
 .toast {
   position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
   background: var(--green); color: #fff; border-radius: var(--radius);
@@ -179,157 +209,191 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 @media (max-width: 960px) {
-  .main-layout { grid-template-columns: 1fr; }
-  .detail-panel { display: none; }
+  .tools-layout { grid-template-columns: 1fr; }
+  .tools-detail { display: none; }
+}
+@media (max-width: 768px) {
+  .stats-row { flex-wrap: wrap; }
 }
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Tool Explorer</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html" class="active">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">工具</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Content -->
-  <div class="content-area">
-    <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="Search tools by name, description..." onkeydown="if(event.key==='Enter')filterTools()">
-      <button class="btn btn-primary" onclick="filterTools()">Search</button>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item active" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+    <div class="tools-layout">
+      <div class="tools-content">
+        <div class="toolbar">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="搜索工具..." onkeydown="if(event.key==='Enter')filterTools()">
+          <button class="btn btn-primary" onclick="filterTools()">搜索工具</button>
+        </div>
+
+        <div class="stats-row">
+          <div class="mini-stat">
+            <div class="mini-stat-number" id="totalTools">0</div>
+            <div class="mini-stat-label">工具总数</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-number" id="categoryCount">0</div>
+            <div class="mini-stat-label">分类数</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-number" id="totalParams">0</div>
+            <div class="mini-stat-label">参数总数</div>
+          </div>
+        </div>
+
+        <div class="category-tabs" id="categoryTabs"></div>
+        <div class="tool-grid" id="toolGrid"></div>
+      </div>
+
+      <div class="tools-detail">
+        <div class="detail-empty" id="detailEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          选择工具查看详情并试用
+        </div>
+        <div class="detail-content" id="detailContent" style="display:none"></div>
+      </div>
     </div>
 
-    <div class="stats-row">
-      <div class="mini-stat">
-        <div class="mini-stat-number" id="totalTools">0</div>
-        <div class="mini-stat-label">Total Tools</div>
-      </div>
-      <div class="mini-stat">
-        <div class="mini-stat-number" id="categoryCount">0</div>
-        <div class="mini-stat-label">Categories</div>
-      </div>
-      <div class="mini-stat">
-        <div class="mini-stat-number" id="totalParams">0</div>
-        <div class="mini-stat-label">Total Parameters</div>
-      </div>
-    </div>
-
-    <div class="category-tabs" id="categoryTabs"></div>
-    <div class="tool-grid" id="toolGrid"></div>
-  </div>
-
-  <!-- Detail Panel -->
-  <div class="detail-panel">
-    <div class="detail-empty" id="detailEmpty">Select a tool to view details and try it</div>
-    <div class="detail-content" id="detailContent" style="display:none"></div>
+    <div class="toast" id="toast"></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-/* ====================================================================
-   JARVIS Tool Explorer — JavaScript
-   ==================================================================== */
+(() => {
+'use strict';
+
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
 
 const API_BASE = window.location.origin;
 let allTools = [];
 let selectedTool = null;
 let activeCategory = 'all';
 
-// ── Demo Data ──────────────────────────────────────────────────────────
 function generateDemoTools() {
   return [
-    { name: 'shell.exec', description: 'Execute a shell command and return stdout, stderr, and exit code.',
+    { name: 'shell.exec', description: '执行 Shell 命令并返回标准输出、标准错误和退出码。',
       parameters: { type: 'object', properties: {
-        command: { type: 'string', description: 'The shell command to execute' },
-        timeout: { type: 'integer', description: 'Timeout in seconds (default 30)' },
-        cwd: { type: 'string', description: 'Working directory path' },
+        command: { type: 'string', description: '要执行的 Shell 命令' },
+        timeout: { type: 'integer', description: '超时时间（秒），默认 30' },
+        cwd: { type: 'string', description: '工作目录路径' },
       }, required: ['command'] }},
-    { name: 'shell.read_file', description: 'Read the contents of a file at the given path.',
+    { name: 'shell.read_file', description: '读取指定路径文件的内容。',
       parameters: { type: 'object', properties: {
-        path: { type: 'string', description: 'Absolute file path' },
-        encoding: { type: 'string', description: 'File encoding (default utf-8)' },
+        path: { type: 'string', description: '文件绝对路径' },
+        encoding: { type: 'string', description: '文件编码，默认 utf-8' },
       }, required: ['path'] }},
-    { name: 'git.status', description: 'Get the current Git repository status including staged, unstaged, and untracked files.',
+    { name: 'git.status', description: '获取当前 Git 仓库状态，包括暂存区、未暂存和未跟踪文件。',
       parameters: { type: 'object', properties: {
-        repo_path: { type: 'string', description: 'Path to Git repository' },
+        repo_path: { type: 'string', description: 'Git 仓库路径' },
       }, required: [] }},
-    { name: 'git.diff', description: 'Show the diff between commits, branches, or working tree changes.',
+    { name: 'git.diff', description: '显示提交、分支或工作区变更之间的差异。',
       parameters: { type: 'object', properties: {
-        ref: { type: 'string', description: 'Git ref to diff against (default HEAD)' },
-        staged: { type: 'boolean', description: 'Show staged changes only' },
-        path: { type: 'string', description: 'Limit diff to specific path' },
+        ref: { type: 'string', description: '对比的 Git 引用，默认 HEAD' },
+        staged: { type: 'boolean', description: '仅显示暂存区变更' },
+        path: { type: 'string', description: '限定路径范围' },
       }, required: [] }},
-    { name: 'git.log', description: 'Show commit history with configurable format and filters.',
+    { name: 'git.log', description: '显示提交历史，支持格式化和过滤。',
       parameters: { type: 'object', properties: {
-        count: { type: 'integer', description: 'Number of commits to show' },
-        author: { type: 'string', description: 'Filter by author' },
-        since: { type: 'string', description: 'Show commits since date' },
+        count: { type: 'integer', description: '显示的提交数量' },
+        author: { type: 'string', description: '按作者过滤' },
+        since: { type: 'string', description: '显示指定日期之后的提交' },
       }, required: [] }},
-    { name: 'http.get', description: 'Send an HTTP GET request and return the response.',
+    { name: 'http.get', description: '发送 HTTP GET 请求并返回响应。',
       parameters: { type: 'object', properties: {
-        url: { type: 'string', description: 'Target URL' },
-        headers: { type: 'string', description: 'JSON string of headers' },
-        timeout: { type: 'integer', description: 'Request timeout in seconds' },
+        url: { type: 'string', description: '目标 URL' },
+        headers: { type: 'string', description: '请求头 JSON 字符串' },
+        timeout: { type: 'integer', description: '请求超时时间（秒）' },
       }, required: ['url'] }},
-    { name: 'http.post', description: 'Send an HTTP POST request with a JSON body.',
+    { name: 'http.post', description: '发送带有 JSON 请求体的 HTTP POST 请求。',
       parameters: { type: 'object', properties: {
-        url: { type: 'string', description: 'Target URL' },
-        body: { type: 'string', description: 'JSON request body' },
-        headers: { type: 'string', description: 'JSON string of headers' },
+        url: { type: 'string', description: '目标 URL' },
+        body: { type: 'string', description: 'JSON 请求体' },
+        headers: { type: 'string', description: '请求头 JSON 字符串' },
       }, required: ['url'] }},
-    { name: 'json.parse', description: 'Parse a JSON string and return the structured data.',
+    { name: 'json.parse', description: '解析 JSON 字符串并返回结构化数据。',
       parameters: { type: 'object', properties: {
-        input: { type: 'string', description: 'JSON string to parse' },
-        path: { type: 'string', description: 'JSONPath expression to extract (optional)' },
+        input: { type: 'string', description: '要解析的 JSON 字符串' },
+        path: { type: 'string', description: 'JSONPath 表达式（可选）' },
       }, required: ['input'] }},
-    { name: 'json.format', description: 'Pretty-print a JSON string with configurable indentation.',
+    { name: 'json.format', description: '美化输出 JSON 字符串，支持配置缩进。',
       parameters: { type: 'object', properties: {
-        input: { type: 'string', description: 'JSON string to format' },
-        indent: { type: 'integer', description: 'Indentation spaces (default 2)' },
+        input: { type: 'string', description: '要格式化的 JSON 字符串' },
+        indent: { type: 'integer', description: '缩进空格数，默认 2' },
       }, required: ['input'] }},
-    { name: 'text.search', description: 'Search for a pattern in text or files using regex.',
+    { name: 'text.search', description: '使用正则表达式在文本或文件中搜索。',
       parameters: { type: 'object', properties: {
-        pattern: { type: 'string', description: 'Regex pattern to search for' },
-        input: { type: 'string', description: 'Text to search in' },
-        path: { type: 'string', description: 'File path to search (alternative to input)' },
-        case_sensitive: { type: 'boolean', description: 'Case-sensitive search (default true)' },
+        pattern: { type: 'string', description: '正则表达式模式' },
+        input: { type: 'string', description: '要搜索的文本' },
+        path: { type: 'string', description: '搜索的文件路径（替代 input）' },
+        case_sensitive: { type: 'boolean', description: '区分大小写，默认 true' },
       }, required: ['pattern'] }},
-    { name: 'text.replace', description: 'Find and replace text using regex patterns.',
+    { name: 'text.replace', description: '使用正则表达式进行查找替换。',
       parameters: { type: 'object', properties: {
-        pattern: { type: 'string', description: 'Regex pattern to find' },
-        replacement: { type: 'string', description: 'Replacement string' },
-        input: { type: 'string', description: 'Text to process' },
+        pattern: { type: 'string', description: '正则表达式模式' },
+        replacement: { type: 'string', description: '替换字符串' },
+        input: { type: 'string', description: '要处理的文本' },
       }, required: ['pattern', 'replacement', 'input'] }},
-    { name: 'text.summarize', description: 'Generate a concise summary of the provided text using LLM.',
+    { name: 'text.summarize', description: '使用 LLM 生成文本的简洁摘要。',
       parameters: { type: 'object', properties: {
-        input: { type: 'string', description: 'Text to summarize' },
-        max_length: { type: 'integer', description: 'Maximum summary length in words' },
+        input: { type: 'string', description: '要总结的文本' },
+        max_length: { type: 'integer', description: '摘要最大字数' },
       }, required: ['input'] }},
   ];
 }
 
-// ── Fetch Tools ────────────────────────────────────────────────────────
 async function fetchTools() {
   try {
-    const res = await fetch(`${API_BASE}/tools`);
+    const res = await fetch(API_BASE + '/tools');
     if (!res.ok) throw new Error();
     let data = await res.json();
     allTools = Array.isArray(data) ? data : (data.data || data.tools || []);
@@ -341,10 +405,8 @@ async function fetchTools() {
   updateStats();
 }
 
-// ── Categories ─────────────────────────────────────────────────────────
 function getCategory(name) {
-  const prefix = name.split('.')[0];
-  return prefix || 'other';
+  return name.split('.')[0] || 'other';
 }
 
 function renderCategoryTabs() {
@@ -353,39 +415,34 @@ function renderCategoryTabs() {
     const c = getCategory(t.name);
     cats[c] = (cats[c] || 0) + 1;
   });
-  const tabsEl = document.getElementById('categoryTabs');
-  tabsEl.innerHTML = Object.entries(cats).map(([cat, count]) =>
-    `<div class="cat-tab ${activeCategory === cat ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}<span class="cat-count">${count}</span></div>`
+  document.getElementById('categoryTabs').innerHTML = Object.entries(cats).map(([cat, count]) =>
+    '<div class="cat-tab ' + (activeCategory === cat ? 'active' : '') + '" onclick="setCategory(\'' + cat + '\')">' + cat + '<span class="cat-count">' + count + '</span></div>'
   ).join('');
 }
 
-function setCategory(cat) {
+window.setCategory = function(cat) {
   activeCategory = cat;
   renderCategoryTabs();
   filterTools();
-}
+};
 
-// ── Render Grid ────────────────────────────────────────────────────────
 function renderTools(tools) {
   const grid = document.getElementById('toolGrid');
   if (!tools.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">No tools found</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">未找到工具</div>';
     return;
   }
   grid.innerHTML = tools.map((t, i) => {
     const paramCount = Object.keys(t.parameters?.properties || {}).length;
-    return `
-      <div class="tool-card ${selectedTool?.name === t.name ? 'selected' : ''}"
-           onclick="selectTool('${t.name}')" style="animation-delay:${i*0.04}s">
-        <div class="tool-name">${t.name}</div>
-        <div class="tool-desc">${t.description}</div>
-        <div class="tool-params-count">${paramCount} parameter${paramCount !== 1 ? 's' : ''}</div>
-      </div>`;
+    return '<div class="tool-card ' + (selectedTool?.name === t.name ? 'selected' : '') + '" onclick="selectTool(\'' + t.name + '\')" style="animation-delay:' + (i * 0.04) + 's">' +
+      '<div class="tool-name">' + t.name + '</div>' +
+      '<div class="tool-desc">' + t.description + '</div>' +
+      '<div class="tool-params-count">' + paramCount + ' 个参数</div>' +
+    '</div>';
   }).join('');
 }
 
-// ── Filter ─────────────────────────────────────────────────────────────
-function filterTools() {
+window.filterTools = function() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const filtered = allTools.filter(t => {
     const matchQ = !q || t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q);
@@ -393,10 +450,9 @@ function filterTools() {
     return matchQ && matchCat;
   });
   renderTools(filtered);
-}
+};
 
-// ── Select Tool ────────────────────────────────────────────────────────
-function selectTool(name) {
+window.selectTool = function(name) {
   selectedTool = allTools.find(t => t.name === name);
   if (!selectedTool) return;
   filterTools();
@@ -410,63 +466,57 @@ function selectTool(name) {
 
   const formFields = Object.entries(props).map(([key, schema]) => {
     const isReq = required.includes(key);
-    const inputId = `param_${key}`;
-
+    const inputId = 'param_' + key;
     let inputHtml;
+
     if (schema.type === 'boolean') {
-      inputHtml = `
-        <div class="param-input-bool">
-          <input type="checkbox" id="${inputId}">
-          <label for="${inputId}" style="font-size:13px;color:var(--text-dim)">Enable</label>
-        </div>`;
+      inputHtml = '<div class="param-input-bool"><input type="checkbox" id="' + inputId + '"><label for="' + inputId + '" style="font-size:13px;color:var(--text-dim)">启用</label></div>';
     } else if (schema.type === 'integer' || schema.type === 'number') {
-      inputHtml = `<input type="number" class="param-input" id="${inputId}" placeholder="${schema.description || ''}">`;
+      inputHtml = '<input type="number" class="param-input" id="' + inputId + '" placeholder="' + (schema.description || '') + '">';
     } else {
-      inputHtml = `<input type="text" class="param-input" id="${inputId}" placeholder="${schema.description || ''}">`;
+      inputHtml = '<input type="text" class="param-input" id="' + inputId + '" placeholder="' + (schema.description || '') + '">';
     }
 
-    return `
-      <div class="param-field">
-        <div class="param-label">
-          ${key}
-          <span class="param-type">${schema.type}</span>
-          ${isReq ? '<span class="param-required">REQUIRED</span>' : ''}
-        </div>
-        ${inputHtml}
-        ${schema.description ? `<div class="param-hint">${schema.description}</div>` : ''}
-      </div>`;
+    return '<div class="param-field">' +
+      '<div class="param-label">' + key +
+        ' <span class="param-type">' + schema.type + '</span>' +
+        (isReq ? ' <span class="param-required">必填</span>' : ' <span class="param-optional-tag">可选</span>') +
+      '</div>' +
+      inputHtml +
+      (schema.description ? '<div class="param-hint">' + schema.description + '</div>' : '') +
+    '</div>';
   }).join('');
 
-  dc.innerHTML = `
-    <div>
-      <div class="detail-title">${selectedTool.name}</div>
-      <div class="detail-desc">${selectedTool.description}</div>
-    </div>
-    <div>
-      <div class="section-title">Parameters</div>
-      <div class="param-form">${formFields || '<div style="font-size:13px;color:var(--text-muted)">No parameters</div>'}</div>
-    </div>
-    <div>
-      <button class="btn btn-primary" onclick="executeTool()" style="width:100%">Try It</button>
-    </div>
-    <div class="output-section">
-      <div class="section-title">Output</div>
-      <div class="output-display loading" id="outputDisplay">Output will appear here after execution...</div>
-    </div>
-  `;
-}
+  dc.innerHTML =
+    '<div>' +
+      '<div class="detail-title">' + selectedTool.name + '</div>' +
+      '<div class="detail-desc">' + selectedTool.description + '</div>' +
+    '</div>' +
+    '<div>' +
+      '<div class="section-title">参数</div>' +
+      '<div class="param-form">' + (formFields || '<div style="font-size:13px;color:var(--text-muted)">无参数</div>') + '</div>' +
+    '</div>' +
+    '<div>' +
+      '<button class="btn btn-primary" id="executeBtn" onclick="executeTool()" style="width:100%">执行</button>' +
+    '</div>' +
+    '<div class="output-section">' +
+      '<div class="section-title">输出</div>' +
+      '<div class="output-display loading" id="outputDisplay">执行后输出将显示在这里...</div>' +
+    '</div>';
+};
 
-// ── Execute Tool ───────────────────────────────────────────────────────
-async function executeTool() {
+window.executeTool = async function() {
   if (!selectedTool) return;
   const output = document.getElementById('outputDisplay');
+  const execBtn = document.getElementById('executeBtn');
   output.className = 'output-display loading';
-  output.textContent = 'Executing...';
+  output.textContent = '执行中...';
+  if (execBtn) { execBtn.disabled = true; execBtn.textContent = '执行中...'; }
 
   const props = selectedTool.parameters?.properties || {};
   const params = {};
   Object.entries(props).forEach(([key, schema]) => {
-    const el = document.getElementById(`param_${key}`);
+    const el = document.getElementById('param_' + key);
     if (!el) return;
     if (schema.type === 'boolean') {
       params[key] = el.checked;
@@ -480,7 +530,7 @@ async function executeTool() {
   });
 
   try {
-    const res = await fetch(`${API_BASE}/tools/${selectedTool.name}/execute`, {
+    const res = await fetch(API_BASE + '/tools/' + selectedTool.name + '/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
@@ -488,21 +538,21 @@ async function executeTool() {
     const data = await res.json();
     output.className = 'output-display';
     output.textContent = JSON.stringify(data, null, 2);
-  } catch (err) {
-    // Demo fallback
+  } catch {
     output.className = 'output-display';
     const demo = {
       tool: selectedTool.name,
       parameters: params,
-      result: `[Demo] Tool "${selectedTool.name}" executed successfully with ${Object.keys(params).length} parameters.`,
+      result: '[Demo] "' + selectedTool.name + '" executed successfully with ' + Object.keys(params).length + ' parameters.',
       timestamp: new Date().toISOString(),
     };
     output.textContent = JSON.stringify(demo, null, 2);
-    showToast('Executed in demo mode');
+    showToast('已在演示模式下执行');
+  } finally {
+    if (execBtn) { execBtn.disabled = false; execBtn.textContent = '执行'; }
   }
-}
+};
 
-// ── Stats ──────────────────────────────────────────────────────────────
 function updateStats() {
   document.getElementById('totalTools').textContent = allTools.length;
   const cats = new Set(allTools.map(t => getCategory(t.name)));
@@ -511,7 +561,6 @@ function updateStats() {
   document.getElementById('totalParams').textContent = tp;
 }
 
-// ── Toast ──────────────────────────────────────────────────────────────
 function showToast(msg, isError) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -520,8 +569,8 @@ function showToast(msg, isError) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── Init ───────────────────────────────────────────────────────────────
 fetchTools();
+})();
 </script>
 </body>
 </html>

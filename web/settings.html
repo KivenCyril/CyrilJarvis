@@ -1,28 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Settings</title>
+<title>JARVIS - 设置</title>
 <style>
-/* ====================================================================
-   JARVIS Settings — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --border-focus: #6366f1;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
@@ -32,39 +28,81 @@
   --red:          #ef4444;
   --red-bg:       rgba(239,68,68,0.12);
   --purple:       #a855f7;
+  --purple-bg:    rgba(168,85,247,0.12);
   --cyan:         #06b6d4;
+  --cyan-bg:      rgba(6,182,212,0.12);
+  --yellow:       #eab308;
   --radius:       8px;
   --radius-lg:    12px;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
   --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Navigation ---------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-/* -- Main Container ---------------------------------------------------- */
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow-y: auto; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
+@media (max-width: 768px) {
+  .page-sidebar {
+    position: fixed; left: 0; top: 50px; bottom: 0; z-index: 100; width: 248px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+}
+
+/* ── Settings Content ────────────────────────────────────── */
 .settings-main {
   flex: 1; overflow-y: auto; padding: 24px 32px; max-width: 900px; margin: 0 auto; width: 100%;
 }
@@ -72,25 +110,28 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .settings-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
 .settings-header p { font-size: 14px; color: var(--text-dim); }
 
-/* -- Action Bar -------------------------------------------------------- */
+/* ── Action Bar ──────────────────────────────────────────── */
 .action-bar {
   display: flex; gap: 8px; margin-bottom: 20px; position: sticky; top: 0;
   background: var(--bg-deep); padding: 10px 0; z-index: 10;
 }
 .action-bar button {
+  display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
-  border: none; cursor: pointer;
+  border: none; cursor: pointer; transition: var(--transition); font-family: var(--font);
 }
 .btn-save { background: var(--accent); color: #fff; }
 .btn-save:hover { background: var(--accent-hover); }
 .btn-reset { background: var(--bg-surface); color: var(--text-dim); border: 1px solid var(--border); }
-.btn-reset:hover { color: var(--text); }
+.btn-reset:hover { color: var(--text); background: var(--bg-hover); }
 .btn-export { background: var(--bg-surface); color: var(--text-dim); border: 1px solid var(--border); }
+.btn-export:hover { color: var(--text); background: var(--bg-hover); }
 .btn-import { background: var(--bg-surface); color: var(--text-dim); border: 1px solid var(--border); }
+.btn-import:hover { color: var(--text); background: var(--bg-hover); }
 
-/* -- Collapsible Panel ------------------------------------------------- */
+/* ── Collapsible Panel ───────────────────────────────────── */
 .config-panel {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   margin-bottom: 12px; overflow: hidden;
 }
 .panel-header {
@@ -98,45 +139,42 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   cursor: pointer; transition: var(--transition);
 }
 .panel-header:hover { background: var(--bg-hover); }
-.panel-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.panel-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
 .panel-icon {
   width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center;
-  justify-content: center; font-size: 14px;
+  justify-content: center;
 }
-.panel-chevron {
-  transition: transform 200ms; font-size: 12px; color: var(--text-muted);
-}
+.panel-icon svg { width: 15px; height: 15px; }
+.panel-chevron { transition: transform 200ms; color: var(--text-muted); display: flex; align-items: center; }
+.panel-chevron svg { width: 14px; height: 14px; }
 .panel-header.open .panel-chevron { transform: rotate(90deg); }
 .panel-body {
   display: none; padding: 0 18px 18px; border-top: 1px solid var(--border);
 }
 .panel-body.open { display: block; padding-top: 16px; }
 
-/* -- Form Elements ----------------------------------------------------- */
+/* ── Form Elements ───────────────────────────────────────── */
 .form-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 0; border-bottom: 1px solid rgba(51,65,85,0.5);
+  padding: 10px 0; border-bottom: 1px solid rgba(30,45,64,0.5);
 }
 .form-row:last-child { border-bottom: none; }
 .form-label { font-size: 13px; color: var(--text); max-width: 50%; }
 .form-label small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.form-control {
-  display: flex; align-items: center; gap: 8px;
-}
+.form-control { display: flex; align-items: center; gap: 8px; }
 
 input[type="text"], input[type="password"], input[type="number"], select {
   padding: 7px 10px; background: var(--bg-input); border: 1px solid var(--border);
   border-radius: var(--radius); color: var(--text); font-size: 13px; min-width: 200px;
+  font-family: var(--font); transition: var(--transition);
 }
 input:focus, select:focus { border-color: var(--border-focus); outline: none; }
 
 /* Toggle Switch */
-.toggle {
-  position: relative; width: 40px; height: 22px; cursor: pointer;
-}
+.toggle { position: relative; width: 40px; height: 22px; cursor: pointer; }
 .toggle input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
-  position: absolute; inset: 0; background: var(--bg-surface); border: 1px solid var(--border);
+  position: absolute; inset: 0; background: var(--bg-base); border: 1px solid var(--border);
   border-radius: 11px; transition: var(--transition);
 }
 .toggle-slider::before {
@@ -146,28 +184,30 @@ input:focus, select:focus { border-color: var(--border-focus); outline: none; }
 .toggle input:checked + .toggle-slider { background: var(--accent); border-color: var(--accent); }
 .toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: #fff; }
 
-/* -- Tag List (for channels, servers) ---------------------------------- */
+/* ── Tag List ────────────────────────────────────────────── */
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .tag {
   display: flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px;
-  background: var(--bg-surface); border: 1px solid var(--border); font-size: 12px; color: var(--text-dim);
+  background: var(--bg-base); border: 1px solid var(--border); font-size: 12px; color: var(--text-dim);
 }
 .tag-remove {
   background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px;
-  padding: 0 2px;
+  padding: 0 2px; display: flex; align-items: center;
 }
 .tag-remove:hover { color: var(--red); }
+.tag-remove svg { width: 12px; height: 12px; }
 
-/* -- API Key Field ----------------------------------------------------- */
+/* ── API Key Field ───────────────────────────────────────── */
 .api-key-field { display: flex; gap: 6px; }
 .api-key-field input { flex: 1; font-family: var(--mono); font-size: 12px; }
-.btn-reveal {
-  padding: 6px 10px; background: var(--bg-surface); border: 1px solid var(--border);
+.btn-sm {
+  padding: 6px 10px; background: var(--bg-base); border: 1px solid var(--border);
   border-radius: var(--radius); color: var(--text-dim); cursor: pointer; font-size: 11px;
+  transition: var(--transition); font-family: var(--font);
 }
-.btn-reveal:hover { color: var(--text); }
+.btn-sm:hover { color: var(--text); background: var(--bg-hover); }
 
-/* -- Theme Preview ----------------------------------------------------- */
+/* ── Theme Preview ───────────────────────────────────────── */
 .theme-options { display: flex; gap: 10px; }
 .theme-option {
   width: 80px; height: 50px; border-radius: var(--radius); border: 2px solid var(--border);
@@ -180,22 +220,23 @@ input:focus, select:focus { border-color: var(--border-focus); outline: none; }
 .theme-light { background: #f8fafc; color: #1e293b; }
 .theme-auto { background: linear-gradient(135deg, #0f172a 50%, #f8fafc 50%); color: #e2e8f0; }
 
-/* -- Agent List -------------------------------------------------------- */
+/* ── Agent List ──────────────────────────────────────────── */
 .agent-row {
   display: flex; align-items: center; gap: 12px; padding: 10px 0;
-  border-bottom: 1px solid rgba(51,65,85,0.5);
+  border-bottom: 1px solid rgba(30,45,64,0.5);
 }
 .agent-row:last-child { border-bottom: none; }
 .agent-name { font-size: 13px; font-weight: 500; flex: 1; }
 .agent-domain { font-size: 11px; color: var(--text-muted); }
 
-/* -- Toast ------------------------------------------------------------- */
+/* ── Toast ───────────────────────────────────────────────── */
 .toast-container { position: fixed; top: 60px; right: 16px; z-index: 1000; }
 .toast {
-  padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border);
+  padding: 10px 16px; background: var(--bg-surface); border: 1px solid var(--border);
   border-radius: var(--radius); font-size: 13px; margin-bottom: 8px; box-shadow: var(--shadow);
-  animation: toastIn 300ms ease;
+  animation: toastIn 300ms ease; display: flex; align-items: center; gap: 8px;
 }
+.toast svg { width: 14px; height: 14px; flex-shrink: 0; }
 @keyframes toastIn {
   from { transform: translateX(120%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -204,430 +245,480 @@ input:focus, select:focus { border-color: var(--border-focus); outline: none; }
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Settings</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html" class="active">Settings</a>
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">设置</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="settings-main">
-  <div class="settings-header">
-    <h1>Settings</h1>
-    <p>Configure JARVIS components, providers, and preferences</p>
-  </div>
-
-  <div class="action-bar">
-    <button class="btn-save" onclick="saveAll()">Save Changes</button>
-    <button class="btn-reset" onclick="resetDefaults()">Reset Defaults</button>
-    <button class="btn-export" onclick="exportConfig()">Export</button>
-    <button class="btn-import" onclick="document.getElementById('importFile').click()">Import</button>
-    <input type="file" id="importFile" accept=".json,.yaml,.yml" style="display:none" onchange="importConfig(event)">
-  </div>
-
-  <!-- LLM Provider -->
-  <div class="config-panel">
-    <div class="panel-header open" onclick="togglePanel(this)">
-      <h3>
-        <span class="panel-icon" style="background:var(--purple-bg);color:var(--purple)">&#9733;</span>
-        LLM Providers
-      </h3>
-      <span class="panel-chevron">&#9654;</span>
-    </div>
-    <div class="panel-body open">
-      <div class="form-row">
-        <div class="form-label">
-          Primary Provider
-          <small>LLM provider for main tasks</small>
-        </div>
-        <div class="form-control">
-          <select id="llmProvider">
-            <option value="openai">OpenAI</option>
-            <option value="anthropic" selected>Anthropic</option>
-            <option value="google">Google (Gemini)</option>
-            <option value="ollama">Ollama (Local)</option>
-            <option value="openrouter">OpenRouter</option>
-          </select>
-        </div>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
       </div>
-      <div class="form-row">
-        <div class="form-label">
-          Model
-          <small>Specific model to use</small>
-        </div>
-        <div class="form-control">
-          <select id="llmModel">
-            <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
-            <option value="claude-opus-4-20250514" selected>Claude Opus 4</option>
-            <option value="gpt-4o">GPT-4o</option>
-            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-          </select>
-        </div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
       </div>
-      <div class="form-row">
-        <div class="form-label">
-          API Key
-          <small>Stored locally, never sent to JARVIS servers</small>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item active" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+    <div class="settings-main">
+      <div class="settings-header">
+        <h1>设置</h1>
+        <p>配置 JARVIS 组件、提供商和偏好选项</p>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn-save" onclick="saveAll()">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          保存更改
+        </button>
+        <button class="btn-reset" onclick="resetDefaults()">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          恢复默认
+        </button>
+        <button class="btn-export" onclick="exportConfig()">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          导出
+        </button>
+        <button class="btn-import" onclick="document.getElementById('importFile').click()">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          导入
+        </button>
+        <input type="file" id="importFile" accept=".json,.yaml,.yml" style="display:none" onchange="importConfig(event)">
+      </div>
+
+      <!-- 通用设置 -->
+      <div class="config-panel">
+        <div class="panel-header open" onclick="togglePanel(this)">
+          <h3>
+            <span class="panel-icon" style="background:rgba(59,130,246,0.15);color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+            通用设置
+          </h3>
+          <span class="panel-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
-        <div class="form-control">
-          <div class="api-key-field">
-            <input type="password" id="apiKey" value="sk-ant-xxxxxxxx" placeholder="API key">
-            <button class="btn-reveal" onclick="toggleApiKey()">Show</button>
+        <div class="panel-body open">
+          <div class="form-row">
+            <div class="form-label">
+              语言
+              <small>界面显示语言</small>
+            </div>
+            <div class="form-control">
+              <select id="language">
+                <option value="zh" selected>中文</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              沙箱模式
+              <small>在隔离环境中运行工具</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="sandboxMode" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              自动批准工具调用
+              <small>跳过受信任工具的确认步骤</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="autoApprove">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              文件系统访问
+              <small>允许智能体读写文件</small>
+            </div>
+            <div class="form-control">
+              <select id="fsAccess">
+                <option value="none">无</option>
+                <option value="read">只读</option>
+                <option value="readwrite" selected>读写</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              网络访问
+              <small>允许发出网络请求</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="networkAccess" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-label">
-          Temperature
-          <small>Sampling temperature (0-2)</small>
-        </div>
-        <div class="form-control">
-          <input type="number" id="temperature" value="0.7" min="0" max="2" step="0.1" style="min-width:80px">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Max Tokens
-          <small>Maximum tokens per response</small>
-        </div>
-        <div class="form-control">
-          <input type="number" id="maxTokens" value="4096" min="256" max="32768" step="256" style="min-width:100px">
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Agents -->
-  <div class="config-panel">
-    <div class="panel-header" onclick="togglePanel(this)">
-      <h3>
-        <span class="panel-icon" style="background:var(--green-bg);color:var(--green)">&#9881;</span>
-        Agents
-      </h3>
-      <span class="panel-chevron">&#9654;</span>
-    </div>
-    <div class="panel-body">
-      <div id="agentList">
-        <!-- Populated by JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Security -->
-  <div class="config-panel">
-    <div class="panel-header" onclick="togglePanel(this)">
-      <h3>
-        <span class="panel-icon" style="background:var(--red-bg);color:var(--red)">&#9888;</span>
-        Security
-      </h3>
-      <span class="panel-chevron">&#9654;</span>
-    </div>
-    <div class="panel-body">
-      <div class="form-row">
-        <div class="form-label">
-          Sandbox Mode
-          <small>Run tools in a sandboxed environment</small>
+      <!-- 大模型配置 -->
+      <div class="config-panel">
+        <div class="panel-header open" onclick="togglePanel(this)">
+          <h3>
+            <span class="panel-icon" style="background:var(--purple-bg);color:var(--purple)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </span>
+            大模型配置
+          </h3>
+          <span class="panel-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" id="sandboxMode" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Auto-approve tool calls
-          <small>Skip confirmation for trusted tools</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" id="autoApprove">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          File system access
-          <small>Allow agents to read/write files</small>
-        </div>
-        <div class="form-control">
-          <select id="fsAccess">
-            <option value="none">None</option>
-            <option value="read">Read Only</option>
-            <option value="readwrite" selected>Read/Write</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Network access
-          <small>Allow outgoing network requests</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" id="networkAccess" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Allowed domains
-          <small>Restrict network access to these domains</small>
-        </div>
-        <div class="form-control" style="flex-direction:column;align-items:flex-end">
-          <div style="display:flex;gap:6px">
-            <input type="text" id="newDomain" placeholder="example.com" style="min-width:150px">
-            <button class="btn-reveal" onclick="addDomain()">Add</button>
+        <div class="panel-body open">
+          <div class="form-row">
+            <div class="form-label">
+              提供商
+              <small>主要任务的大模型提供商</small>
+            </div>
+            <div class="form-control">
+              <select id="llmProvider">
+                <option value="openai">OpenAI</option>
+                <option value="anthropic" selected>Anthropic</option>
+                <option value="google">Google (Gemini)</option>
+                <option value="ollama">Ollama (本地)</option>
+                <option value="openrouter">OpenRouter</option>
+              </select>
+            </div>
           </div>
-          <div class="tag-list" id="domainTags">
-            <span class="tag">api.openai.com <button class="tag-remove" onclick="removeDomain(this)">&times;</button></span>
-            <span class="tag">api.anthropic.com <button class="tag-remove" onclick="removeDomain(this)">&times;</button></span>
-            <span class="tag">github.com <button class="tag-remove" onclick="removeDomain(this)">&times;</button></span>
+          <div class="form-row">
+            <div class="form-label">
+              模型
+              <small>指定使用的模型</small>
+            </div>
+            <div class="form-control">
+              <select id="llmModel">
+                <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                <option value="claude-opus-4-20250514" selected>Claude Opus 4</option>
+                <option value="gpt-4o">GPT-4o</option>
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              温度
+              <small>采样温度 (0-2)</small>
+            </div>
+            <div class="form-control">
+              <input type="number" id="temperature" value="0.7" min="0" max="2" step="0.1" style="min-width:80px">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              最大令牌数
+              <small>每次响应的最大令牌数</small>
+            </div>
+            <div class="form-control">
+              <input type="number" id="maxTokens" value="4096" min="256" max="32768" step="256" style="min-width:100px">
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Gateway & Channels -->
-  <div class="config-panel">
-    <div class="panel-header" onclick="togglePanel(this)">
-      <h3>
-        <span class="panel-icon" style="background:rgba(6,182,212,0.12);color:var(--cyan)">&#9729;</span>
-        Gateway Channels
-      </h3>
-      <span class="panel-chevron">&#9654;</span>
-    </div>
-    <div class="panel-body">
-      <div class="form-row">
-        <div class="form-label">
-          CLI
-          <small>Command-line interface</small>
+      <!-- API 密钥管理 -->
+      <div class="config-panel">
+        <div class="panel-header" onclick="togglePanel(this)">
+          <h3>
+            <span class="panel-icon" style="background:var(--red-bg);color:var(--red)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            </span>
+            API 密钥管理
+          </h3>
+          <span class="panel-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Web UI
-          <small>Browser-based dashboard</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Slack
-          <small>Slack bot integration</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Telegram
-          <small>Telegram bot integration</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Discord
-          <small>Discord bot integration</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MCP Servers -->
-  <div class="config-panel">
-    <div class="panel-header" onclick="togglePanel(this)">
-      <h3>
-        <span class="panel-icon" style="background:var(--orange-bg);color:var(--orange)">&#9889;</span>
-        MCP Servers
-      </h3>
-      <span class="panel-chevron">&#9654;</span>
-    </div>
-    <div class="panel-body">
-      <div id="mcpServerList">
-        <!-- Populated by JS -->
-      </div>
-      <div style="margin-top:12px;display:flex;gap:6px">
-        <input type="text" id="newMcpName" placeholder="Server name" style="flex:1">
-        <input type="text" id="newMcpUrl" placeholder="URL or command" style="flex:2">
-        <button class="btn-reveal" onclick="addMcpServer()">Add</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Theme -->
-  <div class="config-panel">
-    <div class="panel-header" onclick="togglePanel(this)">
-      <h3>
-        <span class="panel-icon" style="background:rgba(168,85,247,0.12);color:var(--purple)">&#9790;</span>
-        Appearance
-      </h3>
-      <span class="panel-chevron">&#9654;</span>
-    </div>
-    <div class="panel-body">
-      <div class="form-row">
-        <div class="form-label">
-          Theme
-          <small>Color scheme for the UI</small>
-        </div>
-        <div class="form-control">
-          <div class="theme-options">
-            <div class="theme-option theme-dark active" onclick="setTheme('dark', this)">Dark</div>
-            <div class="theme-option theme-light" onclick="setTheme('light', this)">Light</div>
-            <div class="theme-option theme-auto" onclick="setTheme('auto', this)">Auto</div>
+        <div class="panel-body">
+          <div class="form-row">
+            <div class="form-label">
+              OpenAI API 密钥
+              <small>仅存储在本地，不会发送到服务器</small>
+            </div>
+            <div class="form-control">
+              <div class="api-key-field">
+                <input type="password" id="apiKeyOpenai" placeholder="sk-..." style="min-width:220px">
+                <button class="btn-sm" onclick="toggleKeyVisibility('apiKeyOpenai', this)">显示</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              Anthropic API 密钥
+              <small>仅存储在本地，不会发送到服务器</small>
+            </div>
+            <div class="form-control">
+              <div class="api-key-field">
+                <input type="password" id="apiKeyAnthropic" value="sk-ant-xxxxxxxx" placeholder="sk-ant-..." style="min-width:220px">
+                <button class="btn-sm" onclick="toggleKeyVisibility('apiKeyAnthropic', this)">显示</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              Google API 密钥
+              <small>用于 Gemini 模型</small>
+            </div>
+            <div class="form-control">
+              <div class="api-key-field">
+                <input type="password" id="apiKeyGoogle" placeholder="AIza..." style="min-width:220px">
+                <button class="btn-sm" onclick="toggleKeyVisibility('apiKeyGoogle', this)">显示</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              允许的域名
+              <small>限制网络访问到这些域名</small>
+            </div>
+            <div class="form-control" style="flex-direction:column;align-items:flex-end">
+              <div style="display:flex;gap:6px">
+                <input type="text" id="newDomain" placeholder="example.com" style="min-width:150px">
+                <button class="btn-sm" onclick="addDomain()">添加</button>
+              </div>
+              <div class="tag-list" id="domainTags">
+                <span class="tag">api.openai.com <button class="tag-remove" onclick="removeDomain(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>
+                <span class="tag">api.anthropic.com <button class="tag-remove" onclick="removeDomain(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>
+                <span class="tag">github.com <button class="tag-remove" onclick="removeDomain(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-label">
-          Font Size
-          <small>Base font size (px)</small>
-        </div>
-        <div class="form-control">
-          <input type="number" id="fontSize" value="14" min="10" max="20" style="min-width:80px">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Show animations
-          <small>UI transition animations</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Notifications -->
-  <div class="config-panel">
-    <div class="panel-header" onclick="togglePanel(this)">
-      <h3>
-        <span class="panel-icon" style="background:rgba(59,130,246,0.15);color:var(--accent)">&#9993;</span>
-        Notifications
-      </h3>
-      <span class="panel-chevron">&#9654;</span>
-    </div>
-    <div class="panel-body">
-      <div class="form-row">
-        <div class="form-label">
-          Desktop notifications
-          <small>Browser push notifications</small>
+      <!-- 通知设置 -->
+      <div class="config-panel">
+        <div class="panel-header" onclick="togglePanel(this)">
+          <h3>
+            <span class="panel-icon" style="background:var(--orange-bg);color:var(--orange)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </span>
+            通知设置
+          </h3>
+          <span class="panel-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" checked>
-            <span class="toggle-slider"></span>
-          </label>
+        <div class="panel-body">
+          <div class="form-row">
+            <div class="form-label">
+              桌面通知
+              <small>浏览器推送通知</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="desktopNotify" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              通知声音
+              <small>播放通知提示音</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="soundNotify">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              任务完成通知
+              <small>当任务执行完成时通知</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="taskCompleteNotify" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              错误通知
+              <small>当智能体遇到错误时通知</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="errorNotify" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-label">
-          Sound
-          <small>Play notification sounds</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Notify on task complete
-          <small>When a spec finishes executing</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">
-          Notify on error
-          <small>When an agent encounters an error</small>
-        </div>
-        <div class="form-control">
-          <label class="toggle">
-            <input type="checkbox" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-    </div>
-  </div>
 
+      <!-- 外观 -->
+      <div class="config-panel">
+        <div class="panel-header" onclick="togglePanel(this)">
+          <h3>
+            <span class="panel-icon" style="background:var(--purple-bg);color:var(--purple)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </span>
+            外观
+          </h3>
+          <span class="panel-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="panel-body">
+          <div class="form-row">
+            <div class="form-label">
+              主题
+              <small>界面配色方案</small>
+            </div>
+            <div class="form-control">
+              <div class="theme-options">
+                <div class="theme-option theme-dark active" onclick="setTheme('dark', this)">深色</div>
+                <div class="theme-option theme-light" onclick="setTheme('light', this)">浅色</div>
+                <div class="theme-option theme-auto" onclick="setTheme('auto', this)">自动</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              字号
+              <small>基础字号 (px)</small>
+            </div>
+            <div class="form-control">
+              <input type="number" id="fontSize" value="14" min="10" max="20" style="min-width:80px">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              显示动画
+              <small>界面过渡动画效果</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="showAnimations" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 高级设置 -->
+      <div class="config-panel">
+        <div class="panel-header" onclick="togglePanel(this)">
+          <h3>
+            <span class="panel-icon" style="background:var(--cyan-bg);color:var(--cyan)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </span>
+            高级设置
+          </h3>
+          <span class="panel-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="panel-body">
+          <div class="form-row">
+            <div class="form-label">
+              调试模式
+              <small>在控制台输出详细日志</small>
+            </div>
+            <div class="form-control">
+              <label class="toggle">
+                <input type="checkbox" id="debugMode">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              请求超时
+              <small>API 请求超时时间 (秒)</small>
+            </div>
+            <div class="form-control">
+              <input type="number" id="requestTimeout" value="30" min="5" max="300" step="5" style="min-width:80px">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              最大重试次数
+              <small>请求失败后的最大重试次数</small>
+            </div>
+            <div class="form-control">
+              <input type="number" id="maxRetries" value="3" min="0" max="10" step="1" style="min-width:80px">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">
+              MCP 服务器
+              <small>管理模型上下文协议服务器</small>
+            </div>
+            <div class="form-control" style="flex-direction:column;align-items:flex-end;gap:10px;width:100%">
+              <div id="mcpServerList"></div>
+              <div style="display:flex;gap:6px;width:100%;justify-content:flex-end">
+                <input type="text" id="newMcpName" placeholder="服务器名称" style="min-width:120px">
+                <input type="text" id="newMcpUrl" placeholder="URL 或命令" style="min-width:200px">
+                <button class="btn-sm" onclick="addMcpServer()">添加</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="toast-container" id="toasts"></div>
+  </div>
 </div>
 
-<div class="toast-container" id="toasts"></div>
-
 <script>
-/* ====================================================================
-   JARVIS Settings Page
-   ==================================================================== */
+(() => {
+'use strict';
 
 const API_BASE = window.location.origin;
 
-// -- Panel toggling ----------------------------------------------------
+/* ── Sidebar Toggle ───────────────────────────────────────── */
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
 
+/* ── Panel Toggling ───────────────────────────────────────── */
 function togglePanel(header) {
   header.classList.toggle('open');
   const body = header.nextElementSibling;
   body.classList.toggle('open');
 }
 
-// -- Theme -------------------------------------------------------------
-
+/* ── Theme ────────────────────────────────────────────────── */
 function setTheme(theme, el) {
   document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
   el.classList.add('active');
@@ -636,34 +727,30 @@ function setTheme(theme, el) {
   } else if (theme === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
   }
-  showToast(`Theme: ${theme}`);
+  showToast('主题已切换: ' + (theme === 'dark' ? '深色' : theme === 'light' ? '浅色' : '自动'));
 }
 
-// -- API Key visibility ------------------------------------------------
-
-function toggleApiKey() {
-  const input = document.getElementById('apiKey');
-  const btn = input.nextElementSibling;
+/* ── API Key Visibility ───────────────────────────────────── */
+function toggleKeyVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
   if (input.type === 'password') {
     input.type = 'text';
-    btn.textContent = 'Hide';
+    btn.textContent = '隐藏';
   } else {
     input.type = 'password';
-    btn.textContent = 'Show';
+    btn.textContent = '显示';
   }
 }
 
-// -- Domain management -------------------------------------------------
-
+/* ── Domain Management ────────────────────────────────────── */
 function addDomain() {
   const input = document.getElementById('newDomain');
   const domain = input.value.trim();
   if (!domain) return;
-
   const container = document.getElementById('domainTags');
   const tag = document.createElement('span');
   tag.className = 'tag';
-  tag.innerHTML = `${domain} <button class="tag-remove" onclick="removeDomain(this)">&times;</button>`;
+  tag.innerHTML = domain + ' <button class="tag-remove" onclick="removeDomain(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
   container.appendChild(tag);
   input.value = '';
 }
@@ -672,49 +759,7 @@ function removeDomain(btn) {
   btn.parentElement.remove();
 }
 
-// -- Agents list -------------------------------------------------------
-
-function loadAgents() {
-  const agents = [
-    { name: 'CodeAgent', domain: 'coding', enabled: true },
-    { name: 'SearchAgent', domain: 'search', enabled: true },
-    { name: 'ShellAgent', domain: 'system', enabled: true },
-    { name: 'WriterAgent', domain: 'writing', enabled: true },
-    { name: 'DataAgent', domain: 'data', enabled: false },
-    { name: 'PlannerAgent', domain: 'planning', enabled: true },
-  ];
-
-  const container = document.getElementById('agentList');
-  container.innerHTML = agents.map(a => `
-    <div class="agent-row">
-      <span class="agent-name">${a.name}</span>
-      <span class="agent-domain">${a.domain}</span>
-      <label class="toggle">
-        <input type="checkbox" ${a.enabled ? 'checked' : ''}>
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-  `).join('');
-
-  // Also try API
-  fetch(`${API_BASE}/agents`).then(r => r.json()).then(data => {
-    if (data.length > 0) {
-      container.innerHTML = data.map(a => `
-        <div class="agent-row">
-          <span class="agent-name">${a.name}</span>
-          <span class="agent-domain">${a.domain || ''}</span>
-          <label class="toggle">
-            <input type="checkbox" ${a.status === 'active' ? 'checked' : ''}>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      `).join('');
-    }
-  }).catch(() => {});
-}
-
-// -- MCP Servers -------------------------------------------------------
-
+/* ── MCP Servers ──────────────────────────────────────────── */
 let mcpServers = [
   { name: 'filesystem', url: 'npx @modelcontextprotocol/server-filesystem', enabled: true },
   { name: 'github', url: 'npx @modelcontextprotocol/server-github', enabled: true },
@@ -722,43 +767,34 @@ let mcpServers = [
 
 function renderMcpServers() {
   const container = document.getElementById('mcpServerList');
-  container.innerHTML = mcpServers.map((s, i) => `
-    <div class="form-row">
-      <div class="form-label">
-        ${s.name}
-        <small>${s.url}</small>
-      </div>
-      <div class="form-control" style="gap:8px">
-        <label class="toggle">
-          <input type="checkbox" ${s.enabled ? 'checked' : ''} onchange="mcpServers[${i}].enabled=this.checked">
-          <span class="toggle-slider"></span>
-        </label>
-        <button class="tag-remove" onclick="removeMcpServer(${i})">&times;</button>
-      </div>
-    </div>
-  `).join('');
+  container.innerHTML = mcpServers.map((s, i) => '<div class="form-row" style="padding:6px 0">' +
+    '<div class="form-label"><span style="font-weight:500">' + s.name + '</span><small>' + s.url + '</small></div>' +
+    '<div class="form-control" style="gap:8px">' +
+      '<label class="toggle"><input type="checkbox" ' + (s.enabled ? 'checked' : '') + ' onchange="mcpServers[' + i + '].enabled=this.checked"><span class="toggle-slider"></span></label>' +
+      '<button class="tag-remove" onclick="removeMcpServer(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+    '</div></div>'
+  ).join('');
 }
 
 function addMcpServer() {
   const name = document.getElementById('newMcpName').value.trim();
   const url = document.getElementById('newMcpUrl').value.trim();
-  if (!name || !url) { showToast('Name and URL are required'); return; }
+  if (!name || !url) { showToast('名称和地址不能为空'); return; }
   mcpServers.push({ name, url, enabled: true });
   renderMcpServers();
   document.getElementById('newMcpName').value = '';
   document.getElementById('newMcpUrl').value = '';
-  showToast(`MCP server "${name}" added`);
+  showToast('MCP 服务器 "' + name + '" 已添加');
 }
 
 function removeMcpServer(idx) {
   const name = mcpServers[idx].name;
   mcpServers.splice(idx, 1);
   renderMcpServers();
-  showToast(`MCP server "${name}" removed`);
+  showToast('MCP 服务器 "' + name + '" 已移除');
 }
 
-// -- Save / Load / Export / Import ------------------------------------
-
+/* ── Save / Load / Export / Import ─────────────────────────── */
 function gatherConfig() {
   return {
     llm: {
@@ -767,27 +803,44 @@ function gatherConfig() {
       temperature: parseFloat(document.getElementById('temperature').value),
       max_tokens: parseInt(document.getElementById('maxTokens').value),
     },
+    api_keys: {
+      openai: document.getElementById('apiKeyOpenai').value,
+      anthropic: document.getElementById('apiKeyAnthropic').value,
+      google: document.getElementById('apiKeyGoogle').value,
+    },
     security: {
       sandbox: document.getElementById('sandboxMode').checked,
       auto_approve: document.getElementById('autoApprove').checked,
       fs_access: document.getElementById('fsAccess').value,
       network_access: document.getElementById('networkAccess').checked,
     },
-    mcp_servers: mcpServers,
+    notifications: {
+      desktop: document.getElementById('desktopNotify').checked,
+      sound: document.getElementById('soundNotify').checked,
+      task_complete: document.getElementById('taskCompleteNotify').checked,
+      error: document.getElementById('errorNotify').checked,
+    },
     appearance: {
       font_size: parseInt(document.getElementById('fontSize').value),
+      animations: document.getElementById('showAnimations').checked,
     },
+    advanced: {
+      debug: document.getElementById('debugMode').checked,
+      timeout: parseInt(document.getElementById('requestTimeout').value),
+      max_retries: parseInt(document.getElementById('maxRetries').value),
+    },
+    mcp_servers: mcpServers,
   };
 }
 
 function saveAll() {
   const config = gatherConfig();
   localStorage.setItem('jarvis_config', JSON.stringify(config));
-  showToast('Settings saved');
+  showToast('设置已保存');
 }
 
 function resetDefaults() {
-  if (!confirm('Reset all settings to defaults?')) return;
+  if (!confirm('确定要将所有设置恢复为默认值吗？')) return;
   localStorage.removeItem('jarvis_config');
   location.reload();
 }
@@ -800,21 +853,21 @@ function exportConfig() {
   a.download = 'jarvis-settings.json';
   a.click();
   URL.revokeObjectURL(a.href);
-  showToast('Settings exported');
+  showToast('设置已导出');
 }
 
 function importConfig(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = function(e) {
     try {
       const config = JSON.parse(e.target.result);
       localStorage.setItem('jarvis_config', JSON.stringify(config));
-      showToast('Settings imported. Reloading...');
+      showToast('设置已导入，正在刷新...');
       setTimeout(() => location.reload(), 1000);
     } catch (err) {
-      showToast('Invalid config file');
+      showToast('配置文件格式无效');
     }
   };
   reader.readAsText(file);
@@ -831,39 +884,69 @@ function loadSavedConfig() {
       if (config.llm.temperature != null) document.getElementById('temperature').value = config.llm.temperature;
       if (config.llm.max_tokens) document.getElementById('maxTokens').value = config.llm.max_tokens;
     }
+    if (config.api_keys) {
+      if (config.api_keys.openai) document.getElementById('apiKeyOpenai').value = config.api_keys.openai;
+      if (config.api_keys.anthropic) document.getElementById('apiKeyAnthropic').value = config.api_keys.anthropic;
+      if (config.api_keys.google) document.getElementById('apiKeyGoogle').value = config.api_keys.google;
+    }
     if (config.security) {
       document.getElementById('sandboxMode').checked = !!config.security.sandbox;
       document.getElementById('autoApprove').checked = !!config.security.auto_approve;
       if (config.security.fs_access) document.getElementById('fsAccess').value = config.security.fs_access;
       document.getElementById('networkAccess').checked = !!config.security.network_access;
     }
-    if (config.mcp_servers) {
-      mcpServers = config.mcp_servers;
+    if (config.notifications) {
+      document.getElementById('desktopNotify').checked = !!config.notifications.desktop;
+      document.getElementById('soundNotify').checked = !!config.notifications.sound;
+      document.getElementById('taskCompleteNotify').checked = !!config.notifications.task_complete;
+      document.getElementById('errorNotify').checked = !!config.notifications.error;
     }
     if (config.appearance) {
       if (config.appearance.font_size) document.getElementById('fontSize').value = config.appearance.font_size;
+      if (config.appearance.animations != null) document.getElementById('showAnimations').checked = config.appearance.animations;
+    }
+    if (config.advanced) {
+      if (config.advanced.debug != null) document.getElementById('debugMode').checked = config.advanced.debug;
+      if (config.advanced.timeout) document.getElementById('requestTimeout').value = config.advanced.timeout;
+      if (config.advanced.max_retries != null) document.getElementById('maxRetries').value = config.advanced.max_retries;
+    }
+    if (config.mcp_servers) {
+      mcpServers = config.mcp_servers;
     }
   } catch (err) {
-    console.error('Failed to load saved config:', err);
+    console.error('加载保存的配置失败:', err);
   }
 }
 
-// -- Toast --------------------------------------------------------------
-
+/* ── Toast ─────────────────────────────────────────────────── */
 function showToast(message) {
   const container = document.getElementById('toasts');
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.textContent = message;
+  toast.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' + message;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
 }
 
-// -- Init ---------------------------------------------------------------
+/* ── Expose to onclick handlers ────────────────────────────── */
+window.togglePanel = togglePanel;
+window.setTheme = setTheme;
+window.toggleKeyVisibility = toggleKeyVisibility;
+window.addDomain = addDomain;
+window.removeDomain = removeDomain;
+window.mcpServers = mcpServers;
+window.addMcpServer = addMcpServer;
+window.removeMcpServer = removeMcpServer;
+window.saveAll = saveAll;
+window.resetDefaults = resetDefaults;
+window.exportConfig = exportConfig;
+window.importConfig = importConfig;
 
+/* ── Init ──────────────────────────────────────────────────── */
 loadSavedConfig();
-loadAgents();
 renderMcpServers();
+
+})();
 </script>
 </body>
 </html>

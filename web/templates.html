@@ -1,746 +1,341 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS - Templates</title>
-  <style>
-    :root {
-      --bg-primary: #0f172a;
-      --bg-secondary: #1e293b;
-      --bg-card: #1e293b;
-      --bg-card-hover: #334155;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent-blue: #3b82f6;
-      --accent-green: #22c55e;
-      --accent-red: #ef4444;
-      --accent-yellow: #eab308;
-      --accent-purple: #a855f7;
-      --border: #334155;
-      --radius: 12px;
-      --transition: all 0.3s ease;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - 模板</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg-deep:      #0a0f1e;
+  --bg-base:      #0f172a;
+  --bg-surface:   #1e293b;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
+  --text:         #e2e8f0;
+  --text-dim:     #94a3b8;
+  --text-muted:   #5a6d82;
+  --accent:       #3b82f6;
+  --accent-hover: #60a5fa;
+  --green:        #22c55e;
+  --purple:       #a855f7;
+  --yellow:       #eab308;
+  --red:          #ef4444;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+}
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-    }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { display: flex; flex-direction: column; overflow: hidden; }
 
-    .header {
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-    .header .title { font-size: 1.25rem; font-weight: 600; }
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
+}
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-    .header .nav-links {
-      display: flex;
-      gap: 1rem;
-    }
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
 
-    .header .nav-links a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.85rem;
-      padding: 0.3rem 0.7rem;
-      border-radius: 6px;
-      transition: var(--transition);
-    }
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
 
-    .header .nav-links a:hover,
-    .header .nav-links a.active {
-      color: var(--text-primary);
-      background: var(--bg-card-hover);
-    }
+.page-content { overflow-y: auto; }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
 
-    .tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: 2rem;
-    }
+/* ── Content ─────────────────────────────────────────────── */
+.container { max-width: 1100px; margin: 0 auto; padding: 24px; }
 
-    .tab {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      background: none;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      transition: var(--transition);
-    }
+.stats-bar { display: flex; gap: 20px; margin-bottom: 24px; padding: 16px 20px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.stat-item { text-align: center; flex: 1; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    .tab:hover { color: var(--text-primary); }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.tab { padding: 10px 20px; border: none; background: none; color: var(--text-dim); font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: var(--transition); font-family: var(--font); }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
-    .tab.active {
-      color: var(--accent-blue);
-      border-bottom-color: var(--accent-blue);
-    }
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+.tpl-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; transition: var(--transition); cursor: pointer; }
+.tpl-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+.tpl-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.tpl-name { font-size: 15px; font-weight: 600; }
+.tpl-type { font-size: 10px; padding: 2px 8px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.tpl-type.spec { background: rgba(59,130,246,0.15); color: var(--accent); }
+.tpl-type.prompt { background: rgba(168,85,247,0.15); color: var(--purple); }
+.tpl-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.5; }
+.tpl-meta { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+.tpl-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tpl-tag { font-size: 10px; padding: 2px 8px; border-radius: 6px; background: rgba(100,116,139,0.15); color: var(--text-dim); }
+.tpl-preview { background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; font-family: var(--mono); font-size: 12px; color: var(--green); margin-top: 10px; max-height: 60px; overflow: hidden; position: relative; line-height: 1.5; }
+.tpl-preview::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 24px; background: linear-gradient(transparent, var(--bg-deep)); }
 
-    .template-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 1.5rem;
-    }
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 90%; max-width: 640px; max-height: 85vh; overflow-y: auto; padding: 24px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 18px; font-weight: 600; }
+.modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); transition: var(--transition); }
+.modal-close:hover { background: var(--bg-hover); color: var(--text); }
+.modal-section { margin-bottom: 20px; }
+.modal-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
+.var-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.var-item { display: flex; align-items: center; gap: 10px; }
+.var-name { font-family: var(--mono); font-size: 12px; color: var(--accent); background: rgba(59,130,246,0.1); padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
+.var-input { flex: 1; padding: 8px 10px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; font-family: var(--font); transition: var(--transition); }
+.var-input:focus { outline: none; border-color: var(--accent); }
+.constraint-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.constraint-item { padding: 6px 0; border-bottom: 1px solid rgba(30,45,64,0.4); font-size: 13px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+.constraint-item:last-child { border-bottom: none; }
+.constraint-icon { color: var(--yellow); font-size: 12px; font-weight: 700; }
+.rendered-output { background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; font-family: var(--mono); font-size: 12px; color: var(--green); white-space: pre-wrap; min-height: 60px; line-height: 1.5; }
+.btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+.btn { padding: 8px 16px; border: none; border-radius: var(--radius); font-size: 13px; font-weight: 500; cursor: pointer; transition: var(--transition); font-family: var(--font); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--bg-hover); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border-light); }
 
-    .template-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      transition: var(--transition);
-      cursor: pointer;
-    }
-
-    .template-card:hover {
-      border-color: var(--accent-blue);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    }
-
-    .template-card .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-
-    .template-name {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .template-type {
-      font-size: 0.7rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .template-type.spec {
-      background: rgba(59, 130, 246, 0.15);
-      color: var(--accent-blue);
-    }
-
-    .template-type.prompt {
-      background: rgba(168, 85, 247, 0.15);
-      color: var(--accent-purple);
-    }
-
-    .template-desc {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-bottom: 1rem;
-      line-height: 1.5;
-    }
-
-    .template-meta {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-
-    .meta-item {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .template-tags {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-    }
-
-    .tag {
-      font-size: 0.7rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 8px;
-      background: rgba(100, 116, 139, 0.2);
-      color: var(--text-secondary);
-    }
-
-    .template-preview {
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem;
-      font-family: 'SF Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--accent-green);
-      margin-top: 0.75rem;
-      max-height: 100px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .template-preview::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 30px;
-      background: linear-gradient(transparent, var(--bg-primary));
-    }
-
-    /* --- Detail modal --- */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      width: 90%;
-      max-width: 700px;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 2rem;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-    }
-
-    .modal-close {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.5rem;
-      cursor: pointer;
-      padding: 0.25rem 0.5rem;
-    }
-
-    .modal-close:hover { color: var(--text-primary); }
-
-    .modal-section {
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-section-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-    }
-
-    .variable-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .variable-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .variable-name {
-      font-family: 'SF Mono', monospace;
-      font-size: 0.85rem;
-      color: var(--accent-blue);
-      background: rgba(59, 130, 246, 0.1);
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-    }
-
-    .variable-input {
-      flex: 1;
-      padding: 0.5rem 0.75rem;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text-primary);
-      font-size: 0.85rem;
-    }
-
-    .variable-input:focus {
-      outline: none;
-      border-color: var(--accent-blue);
-    }
-
-    .rendered-output {
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      font-family: 'SF Mono', monospace;
-      font-size: 0.85rem;
-      color: var(--accent-green);
-      white-space: pre-wrap;
-      min-height: 80px;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-    }
-
-    .btn {
-      padding: 0.6rem 1.25rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .btn-primary { background: var(--accent-blue); color: white; }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-secondary { background: var(--bg-card-hover); color: var(--text-primary); }
-    .btn-secondary:hover { background: var(--border); }
-    .btn-success { background: var(--accent-green); color: white; }
-    .btn-success:hover { opacity: 0.9; }
-
-    .constraint-list {
-      list-style: none;
-    }
-
-    .constraint-item {
-      padding: 0.4rem 0;
-      border-bottom: 1px solid rgba(51, 65, 85, 0.3);
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .constraint-icon {
-      color: var(--accent-yellow);
-      font-size: 0.9rem;
-    }
-
-    .stats-bar {
-      display: flex;
-      gap: 2rem;
-      margin-bottom: 1.5rem;
-      padding: 1rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent-blue);
-    }
-
-    .stat-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-    }
-
-    @media (max-width: 768px) {
-      .template-grid { grid-template-columns: 1fr; }
-      .stats-bar { flex-wrap: wrap; gap: 1rem; }
-    }
-  </style>
+@media (max-width: 768px) { .tpl-grid { grid-template-columns: 1fr; } .stats-bar { flex-wrap: wrap; } }
+</style>
 </head>
 <body>
 
-  <header class="header">
-    <div class="title">Templates</div>
-    <nav class="nav-links">
-      <a href="index.html">Dashboard</a>
-      <a href="agents.html">Agents</a>
-      <a href="workflows.html">Workflows</a>
-      <a href="templates.html" class="active">Templates</a>
-      <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">模板</span>
+  </div>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
+
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item active" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
     </nav>
-  </header>
+  </aside>
 
-  <div class="container">
+  <div class="page-content">
+    <div class="container">
+      <div class="stats-bar">
+        <div class="stat-item"><div class="stat-value" id="spec-count">5</div><div class="stat-label">规格模板</div></div>
+        <div class="stat-item"><div class="stat-value" id="prompt-count">4</div><div class="stat-label">提示词模板</div></div>
+        <div class="stat-item"><div class="stat-value" id="total-vars">12</div><div class="stat-label">变量总数</div></div>
+        <div class="stat-item"><div class="stat-value" id="total-constraints">6</div><div class="stat-label">默认约束</div></div>
+      </div>
 
-    <!-- Stats -->
-    <div class="stats-bar">
-      <div class="stat-item">
-        <div class="stat-value" id="spec-count">5</div>
-        <div class="stat-label">Spec Templates</div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('specs', this)">规格模板</button>
+        <button class="tab" onclick="switchTab('prompts', this)">提示词模板</button>
       </div>
-      <div class="stat-item">
-        <div class="stat-value" id="prompt-count">4</div>
-        <div class="stat-label">Prompt Templates</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="total-vars">12</div>
-        <div class="stat-label">Total Variables</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="total-constraints">6</div>
-        <div class="stat-label">Default Constraints</div>
-      </div>
-    </div>
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('specs')">Spec Templates</button>
-      <button class="tab" onclick="switchTab('prompts')">Prompt Templates</button>
-    </div>
-
-    <!-- Spec Templates -->
-    <div class="tab-content active" id="tab-specs">
-      <div class="template-grid" id="spec-templates">
-        <!-- Populated by JS -->
+      <div class="tab-content active" id="tab-specs">
+        <div class="tpl-grid" id="spec-templates"></div>
+      </div>
+      <div class="tab-content" id="tab-prompts">
+        <div class="tpl-grid" id="prompt-templates"></div>
       </div>
     </div>
 
-    <!-- Prompt Templates -->
-    <div class="tab-content" id="tab-prompts">
-      <div class="template-grid" id="prompt-templates">
-        <!-- Populated by JS -->
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Detail Modal -->
-  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-    <div class="modal" id="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title" id="modal-title">Template Detail</div>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
-      </div>
-      <div id="modal-body">
-        <!-- Populated by JS -->
+    <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title" id="modalTitle">模板详情</div>
+          <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div id="modalBody"></div>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    const API_BASE = 'http://127.0.0.1:8000';
+<script>
+(() => {
+'use strict';
 
-    const MOCK_SPEC_TEMPLATES = [
-      {
-        name: 'code_review',
-        description: 'Review code changes for quality and correctness',
-        intent_template: 'Review the following code changes: {changes}',
-        variables: ['changes'],
-        tags: ['code', 'review'],
-        constraints: ['Focus on correctness', 'Check for security issues'],
-      },
-      {
-        name: 'bug_fix',
-        description: 'Diagnose and fix a reported bug',
-        intent_template: 'Fix the bug: {description}. Affected component: {component}',
-        variables: ['description', 'component'],
-        tags: ['bug', 'fix'],
-        constraints: ['Write tests for the fix', 'Document root cause'],
-      },
-      {
-        name: 'feature_implementation',
-        description: 'Implement a new feature end-to-end',
-        intent_template: 'Implement feature: {feature_name}. Requirements: {requirements}',
-        variables: ['feature_name', 'requirements'],
-        tags: ['feature', 'implementation'],
-        constraints: ['Follow existing patterns', 'Add documentation'],
-      },
-      {
-        name: 'data_analysis',
-        description: 'Analyze data and produce a report',
-        intent_template: 'Analyze {dataset} and report on {metrics}',
-        variables: ['dataset', 'metrics'],
-        tags: ['data', 'analysis'],
-        constraints: ['Include visualizations', 'Cite data sources'],
-      },
-      {
-        name: 'documentation',
-        description: 'Generate or update documentation',
-        intent_template: 'Document {target} with focus on {audience}',
-        variables: ['target', 'audience'],
-        tags: ['docs', 'documentation'],
-        constraints: ['Use clear language', 'Include examples'],
-      },
-    ];
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
 
-    const MOCK_PROMPT_TEMPLATES = [
-      {
-        name: 'system_prompt',
-        description: 'Base system prompt for JARVIS agents',
-        template: 'You are {agent_name}, a specialist in {domain}. {extra_instructions}',
-        variables: ['agent_name', 'domain', 'extra_instructions'],
-      },
-      {
-        name: 'task_decomposition',
-        description: 'Decompose a complex task into subtasks',
-        template: 'Break down the following task into 3-7 concrete steps: {task}',
-        variables: ['task'],
-      },
-      {
-        name: 'code_generation',
-        description: 'Generate code from requirements',
-        template: 'Generate {language} code that: {requirements}\nConstraints: {constraints}',
-        variables: ['language', 'requirements', 'constraints'],
-      },
-      {
-        name: 'summarization',
-        description: 'Summarize text content',
-        template: 'Summarize the following in {max_words} words or fewer:\n{content}',
-        variables: ['max_words', 'content'],
-      },
-    ];
+const SPEC_TEMPLATES = [
+  { name: 'code_review', label: '代码审查', desc: '审查代码变更的质量和正确性', intent: '审查以下代码变更: {changes}', vars: ['changes'], tags: ['code', 'review'], constraints: ['关注正确性', '检查安全问题'] },
+  { name: 'bug_fix', label: 'Bug 修复', desc: '诊断并修复报告的 Bug', intent: '修复 Bug: {description}，受影响组件: {component}', vars: ['description', 'component'], tags: ['bug', 'fix'], constraints: ['为修复编写测试', '记录根本原因'] },
+  { name: 'feature_impl', label: '功能实现', desc: '端到端实现新功能', intent: '实现功能: {feature_name}，需求: {requirements}', vars: ['feature_name', 'requirements'], tags: ['feature'], constraints: ['遵循现有模式', '添加文档'] },
+  { name: 'data_analysis', label: '数据分析', desc: '分析数据并生成报告', intent: '分析 {dataset} 并报告 {metrics}', vars: ['dataset', 'metrics'], tags: ['data', 'analysis'], constraints: ['包含可视化', '引用数据来源'] },
+  { name: 'documentation', label: '文档生成', desc: '生成或更新文档', intent: '记录 {target}，重点面向 {audience}', vars: ['target', 'audience'], tags: ['docs'], constraints: ['使用清晰语言', '包含示例'] },
+];
 
-    function switchTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById(`tab-${tab}`).classList.add('active');
-    }
+const PROMPT_TEMPLATES = [
+  { name: 'system_prompt', label: '系统提示词', desc: 'JARVIS 智能体基础系统提示词', template: '你是 {agent_name}，专长于 {domain}。{extra_instructions}', vars: ['agent_name', 'domain', 'extra_instructions'] },
+  { name: 'task_decomposition', label: '任务分解', desc: '将复杂任务分解为子任务', template: '将以下任务分解为3-7个具体步骤: {task}', vars: ['task'] },
+  { name: 'code_generation', label: '代码生成', desc: '根据需求生成代码', template: '生成 {language} 代码: {requirements}\n约束: {constraints}', vars: ['language', 'requirements', 'constraints'] },
+  { name: 'summarization', label: '内容总结', desc: '总结文本内容', template: '用不超过 {max_words} 个字总结以下内容:\n{content}', vars: ['max_words', 'content'] },
+];
 
-    function renderSpecTemplates() {
-      const grid = document.getElementById('spec-templates');
-      grid.innerHTML = MOCK_SPEC_TEMPLATES.map(t => `
-        <div class="template-card" onclick="openSpecDetail('${t.name}')">
-          <div class="card-header">
-            <span class="template-name">${t.name.replace(/_/g, ' ')}</span>
-            <span class="template-type spec">Spec</span>
-          </div>
-          <div class="template-desc">${t.description}</div>
-          <div class="template-meta">
-            <span class="meta-item">${t.variables.length} variable${t.variables.length !== 1 ? 's' : ''}</span>
-            <span class="meta-item">${(t.constraints || []).length} constraint${(t.constraints || []).length !== 1 ? 's' : ''}</span>
-          </div>
-          <div class="template-tags">
-            ${t.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-          </div>
-          <div class="template-preview">${t.intent_template}</div>
-        </div>
-      `).join('');
-    }
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
 
-    function renderPromptTemplates() {
-      const grid = document.getElementById('prompt-templates');
-      grid.innerHTML = MOCK_PROMPT_TEMPLATES.map(t => `
-        <div class="template-card" onclick="openPromptDetail('${t.name}')">
-          <div class="card-header">
-            <span class="template-name">${t.name.replace(/_/g, ' ')}</span>
-            <span class="template-type prompt">Prompt</span>
-          </div>
-          <div class="template-desc">${t.description}</div>
-          <div class="template-meta">
-            <span class="meta-item">${t.variables.length} variable${t.variables.length !== 1 ? 's' : ''}</span>
-          </div>
-          <div class="template-preview">${t.template}</div>
-        </div>
-      `).join('');
-    }
+function renderCards() {
+  document.getElementById('spec-templates').innerHTML = SPEC_TEMPLATES.map(t => `
+    <div class="tpl-card" onclick="openSpec('${t.name}')">
+      <div class="tpl-card-header"><span class="tpl-name">${t.label}</span><span class="tpl-type spec">规格</span></div>
+      <div class="tpl-desc">${t.desc}</div>
+      <div class="tpl-meta"><span>${t.vars.length} 个变量</span><span>${(t.constraints||[]).length} 个约束</span></div>
+      <div class="tpl-tags">${t.tags.map(g => '<span class="tpl-tag">'+g+'</span>').join('')}</div>
+      <div class="tpl-preview">${t.intent}</div>
+    </div>`).join('');
 
-    function openSpecDetail(name) {
-      const t = MOCK_SPEC_TEMPLATES.find(t => t.name === name);
-      if (!t) return;
+  document.getElementById('prompt-templates').innerHTML = PROMPT_TEMPLATES.map(t => `
+    <div class="tpl-card" onclick="openPrompt('${t.name}')">
+      <div class="tpl-card-header"><span class="tpl-name">${t.label}</span><span class="tpl-type prompt">提示词</span></div>
+      <div class="tpl-desc">${t.desc}</div>
+      <div class="tpl-meta"><span>${t.vars.length} 个变量</span></div>
+      <div class="tpl-preview">${t.template}</div>
+    </div>`).join('');
+}
 
-      document.getElementById('modal-title').textContent = t.name.replace(/_/g, ' ');
-      document.getElementById('modal-body').innerHTML = `
-        <div class="modal-section">
-          <div class="modal-section-title">Description</div>
-          <p style="color: var(--text-secondary); font-size: 0.9rem;">${t.description}</p>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-title">Intent Template</div>
-          <div class="rendered-output">${t.intent_template}</div>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-title">Variables</div>
-          <ul class="variable-list">
-            ${t.variables.map(v => `
-              <li class="variable-item">
-                <span class="variable-name">{${v}}</span>
-                <input type="text" class="variable-input" placeholder="Enter ${v}..." id="var-${v}" oninput="updatePreview('${name}')">
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-        ${t.constraints && t.constraints.length > 0 ? `
-        <div class="modal-section">
-          <div class="modal-section-title">Default Constraints</div>
-          <ul class="constraint-list">
-            ${t.constraints.map(c => `
-              <li class="constraint-item">
-                <span class="constraint-icon">!</span>
-                ${c}
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-        ` : ''}
-        <div class="modal-section">
-          <div class="modal-section-title">Preview</div>
-          <div class="rendered-output" id="render-preview">${t.intent_template}</div>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-          <button class="btn btn-primary" onclick="renderTemplate('${name}', 'spec')">Render & Use</button>
-        </div>
-      `;
-      document.getElementById('modal-overlay').classList.add('active');
-    }
+window.openSpec = function(name) {
+  const t = SPEC_TEMPLATES.find(x => x.name === name);
+  if (!t) return;
+  document.getElementById('modalTitle').textContent = t.label;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-section"><div class="modal-section-label">描述</div><p style="color:var(--text-dim);font-size:13px">${t.desc}</p></div>
+    <div class="modal-section"><div class="modal-section-label">意图模板</div><div class="rendered-output">${t.intent}</div></div>
+    <div class="modal-section"><div class="modal-section-label">变量</div>
+      <ul class="var-list">${t.vars.map(v => '<li class="var-item"><span class="var-name">{'+v+'}</span><input type="text" class="var-input" placeholder="输入 '+v+'..." id="var-'+v+'" oninput="updateSpecPreview(\''+name+'\')"></li>').join('')}</ul>
+    </div>
+    ${t.constraints && t.constraints.length ? '<div class="modal-section"><div class="modal-section-label">默认约束</div><ul class="constraint-list">'+t.constraints.map(c => '<li class="constraint-item"><span class="constraint-icon">!</span>'+c+'</li>').join('')+'</ul></div>' : ''}
+    <div class="modal-section"><div class="modal-section-label">预览</div><div class="rendered-output" id="renderPreview">${t.intent}</div></div>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">关闭</button><button class="btn btn-primary" onclick="renderAndUse('${name}','spec')">渲染并使用</button></div>`;
+  document.getElementById('modalOverlay').classList.add('active');
+};
 
-    function openPromptDetail(name) {
-      const t = MOCK_PROMPT_TEMPLATES.find(t => t.name === name);
-      if (!t) return;
+window.openPrompt = function(name) {
+  const t = PROMPT_TEMPLATES.find(x => x.name === name);
+  if (!t) return;
+  document.getElementById('modalTitle').textContent = t.label;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-section"><div class="modal-section-label">描述</div><p style="color:var(--text-dim);font-size:13px">${t.desc}</p></div>
+    <div class="modal-section"><div class="modal-section-label">模板</div><div class="rendered-output">${t.template}</div></div>
+    <div class="modal-section"><div class="modal-section-label">变量</div>
+      <ul class="var-list">${t.vars.map(v => '<li class="var-item"><span class="var-name">{'+v+'}</span><input type="text" class="var-input" placeholder="输入 '+v+'..." id="var-'+v+'" oninput="updatePromptPreview(\''+name+'\')"></li>').join('')}</ul>
+    </div>
+    <div class="modal-section"><div class="modal-section-label">预览</div><div class="rendered-output" id="renderPreview">${t.template}</div></div>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">关闭</button><button class="btn btn-primary" onclick="renderAndUse('${name}','prompt')">渲染</button></div>`;
+  document.getElementById('modalOverlay').classList.add('active');
+};
 
-      document.getElementById('modal-title').textContent = t.name.replace(/_/g, ' ');
-      document.getElementById('modal-body').innerHTML = `
-        <div class="modal-section">
-          <div class="modal-section-title">Description</div>
-          <p style="color: var(--text-secondary); font-size: 0.9rem;">${t.description}</p>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-title">Template</div>
-          <div class="rendered-output">${t.template}</div>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-title">Variables</div>
-          <ul class="variable-list">
-            ${t.variables.map(v => `
-              <li class="variable-item">
-                <span class="variable-name">{${v}}</span>
-                <input type="text" class="variable-input" placeholder="Enter ${v}..." id="var-${v}" oninput="updatePromptPreview('${name}')">
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-title">Preview</div>
-          <div class="rendered-output" id="render-preview">${t.template}</div>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-          <button class="btn btn-primary" onclick="renderTemplate('${name}', 'prompt')">Render</button>
-        </div>
-      `;
-      document.getElementById('modal-overlay').classList.add('active');
-    }
+window.updateSpecPreview = function(name) {
+  const t = SPEC_TEMPLATES.find(x => x.name === name);
+  if (!t) return;
+  let r = t.intent;
+  t.vars.forEach(v => { const el = document.getElementById('var-'+v); if (el && el.value) r = r.replace('{'+v+'}', el.value); });
+  document.getElementById('renderPreview').textContent = r;
+};
 
-    function updatePreview(name) {
-      const t = MOCK_SPEC_TEMPLATES.find(t => t.name === name);
-      if (!t) return;
-      let rendered = t.intent_template;
-      t.variables.forEach(v => {
-        const input = document.getElementById(`var-${v}`);
-        if (input && input.value) {
-          rendered = rendered.replace(`{${v}}`, input.value);
-        }
-      });
-      document.getElementById('render-preview').textContent = rendered;
-    }
+window.updatePromptPreview = function(name) {
+  const t = PROMPT_TEMPLATES.find(x => x.name === name);
+  if (!t) return;
+  let r = t.template;
+  t.vars.forEach(v => { const el = document.getElementById('var-'+v); if (el && el.value) r = r.replace('{'+v+'}', el.value); });
+  document.getElementById('renderPreview').textContent = r;
+};
 
-    function updatePromptPreview(name) {
-      const t = MOCK_PROMPT_TEMPLATES.find(t => t.name === name);
-      if (!t) return;
-      let rendered = t.template;
-      t.variables.forEach(v => {
-        const input = document.getElementById(`var-${v}`);
-        if (input && input.value) {
-          rendered = rendered.replace(`{${v}}`, input.value);
-        }
-      });
-      document.getElementById('render-preview').textContent = rendered;
-    }
+window.renderAndUse = function(name, type) {
+  const templates = type === 'spec' ? SPEC_TEMPLATES : PROMPT_TEMPLATES;
+  const t = templates.find(x => x.name === name);
+  if (!t) return;
+  let r = type === 'spec' ? t.intent : t.template;
+  t.vars.forEach(v => { const el = document.getElementById('var-'+v); if (el && el.value) r = r.replace('{'+v+'}', el.value); });
+  document.getElementById('renderPreview').textContent = r;
+};
 
-    async function renderTemplate(name, type) {
-      const templates = type === 'spec' ? MOCK_SPEC_TEMPLATES : MOCK_PROMPT_TEMPLATES;
-      const t = templates.find(t => t.name === name);
-      if (!t) return;
+window.closeModal = function() { document.getElementById('modalOverlay').classList.remove('active'); };
 
-      const variables = {};
-      t.variables.forEach(v => {
-        const input = document.getElementById(`var-${v}`);
-        if (input && input.value) {
-          variables[v] = input.value;
-        }
-      });
-
-      try {
-        const endpoint = type === 'spec' ? 'specs' : 'prompts';
-        const resp = await fetch(`${API_BASE}/templates/${endpoint}/${name}/render`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ variables }),
-        });
-        const data = await resp.json();
-        const rendered = data.rendered_intent || data.rendered || 'Rendering failed';
-        document.getElementById('render-preview').textContent = rendered;
-      } catch (e) {
-        // Render locally if server is down
-        let rendered = type === 'spec' ? t.intent_template : t.template;
-        Object.entries(variables).forEach(([k, v]) => {
-          rendered = rendered.replace(`{${k}}`, v);
-        });
-        document.getElementById('render-preview').textContent = rendered;
-      }
-    }
-
-    function closeModal(event) {
-      if (event && event.target !== event.currentTarget) return;
-      document.getElementById('modal-overlay').classList.remove('active');
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      renderSpecTemplates();
-      renderPromptTemplates();
-    });
-  </script>
-
+renderCards();
+})();
+</script>
 </body>
 </html>

@@ -1,28 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Session Manager</title>
+<title>JARVIS - 会话管理</title>
 <style>
-/* ====================================================================
-   JARVIS Session Manager — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
@@ -31,45 +26,79 @@
   --purple:       #a855f7;
   --cyan:         #06b6d4;
   --pink:         #ec4899;
+  --yellow:       #eab308;
   --radius:       8px;
   --radius-lg:    12px;
-  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
-::-webkit-scrollbar { width: 6px; }
+
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Nav ----------------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-/* -- Layout ------------------------------------------------------------ */
-.main-layout { flex: 1; display: grid; grid-template-columns: 400px 1fr; overflow: hidden; }
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow-y: auto; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
+
+/* ── Session Main Layout ─────────────────────────────────── */
+.main-layout { display: grid; grid-template-columns: 340px 1fr; height: 100%; min-height: 0; overflow: hidden; }
+
 .session-list-panel {
   background: var(--bg-base); border-right: 1px solid var(--border);
   display: flex; flex-direction: column; overflow: hidden;
 }
 .session-detail-panel { overflow-y: auto; padding: 0; display: flex; flex-direction: column; }
 
-/* -- List Panel -------------------------------------------------------- */
+/* ── List Header ─────────────────────────────────────────── */
 .list-header {
   padding: 16px 20px; border-bottom: 1px solid var(--border);
   display: flex; gap: 8px; align-items: center;
@@ -77,30 +106,37 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .list-header input {
   flex: 1; background: var(--bg-input); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-size: 13px;
+  font-family: var(--font); transition: var(--transition);
 }
-.list-header input:focus { border-color: var(--border-focus); }
+.list-header input::placeholder { color: var(--text-muted); }
+.list-header input:focus { outline: none; border-color: var(--accent); }
+
 .btn {
-  padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
-  cursor: pointer; border: none; transition: var(--transition);
+  padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; transition: var(--transition); font-family: var(--font);
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hover); }
 .btn-danger { background: var(--red); color: #fff; }
 .btn-danger:hover { opacity: 0.85; }
 .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
-.btn-ghost:hover { background: var(--bg-hover); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
 
+/* ── Session List ────────────────────────────────────────── */
 .session-list { flex: 1; overflow-y: auto; }
+
 .session-item {
   padding: 14px 20px; border-bottom: 1px solid var(--border); cursor: pointer;
   transition: var(--transition); animation: fadeIn 0.2s ease both;
 }
 .session-item:hover { background: var(--bg-hover); }
 .session-item.selected { background: var(--bg-hover); border-left: 3px solid var(--accent); }
+
 .session-id { font-size: 13px; font-family: var(--mono); color: var(--accent); margin-bottom: 4px; }
 .session-row { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+
 .badge {
-  display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px;
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 10px;
   font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .badge-active { background: rgba(34,197,94,0.15); color: var(--green); }
@@ -110,7 +146,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .badge-web { background: rgba(168,85,247,0.15); color: var(--purple); }
 .badge-api { background: rgba(6,182,212,0.15); color: var(--cyan); }
 
-/* -- Metrics Panel ----------------------------------------------------- */
+/* ── Metrics Bar ─────────────────────────────────────────── */
 .metrics-bar {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
   padding: 20px; border-bottom: 1px solid var(--border); background: var(--bg-base);
@@ -119,11 +155,20 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 14px; text-align: center;
 }
+.metric-icon { margin-bottom: 4px; display: flex; justify-content: center; }
+.metric-icon svg { width: 18px; height: 18px; color: var(--text-muted); }
 .metric-number { font-size: 24px; font-weight: 700; }
 .metric-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 
-/* -- Agent Usage Chart ------------------------------------------------- */
-.usage-chart { display: flex; gap: 6px; align-items: flex-end; height: 100px; padding: 0 20px; }
+/* ── Agent Usage Chart ───────────────────────────────────── */
+.usage-section { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.usage-section-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.usage-section-title svg { width: 14px; height: 14px; }
+
+.usage-chart { display: flex; gap: 6px; align-items: flex-end; height: 100px; }
 .usage-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; }
 .usage-bar {
   width: 100%; border-radius: 4px 4px 0 0; min-height: 4px;
@@ -131,18 +176,22 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 }
 .usage-bar-label { font-size: 10px; color: var(--text-muted); margin-top: 4px; writing-mode: vertical-lr; text-orientation: mixed; }
 
-/* -- Detail Panel ------------------------------------------------------ */
+/* ── Detail Panel ────────────────────────────────────────── */
 .detail-empty {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  color: var(--text-muted); font-size: 14px;
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 14px; gap: 12px;
 }
+.detail-empty svg { width: 48px; height: 48px; opacity: 0.3; }
 .detail-header {
   padding: 20px; border-bottom: 1px solid var(--border); background: var(--bg-base);
 }
-.detail-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.detail-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.detail-title svg { width: 18px; height: 18px; color: var(--accent); }
 .detail-meta { display: flex; gap: 16px; font-size: 13px; color: var(--text-dim); flex-wrap: wrap; }
+.detail-meta-item { display: flex; align-items: center; gap: 4px; }
+.detail-meta-item svg { width: 13px; height: 13px; opacity: 0.6; }
 
-/* -- Chat View --------------------------------------------------------- */
+/* ── Chat View ───────────────────────────────────────────── */
 .chat-container {
   flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px;
 }
@@ -153,21 +202,28 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .chat-msg.agent { align-self: flex-start; }
 .chat-avatar {
   width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
-  justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0;
+  justify-content: center; flex-shrink: 0;
 }
-.chat-avatar.user-avatar { background: var(--accent); color: #fff; }
-.chat-avatar.agent-avatar { background: var(--purple); color: #fff; }
+.chat-avatar.user-avatar { background: var(--accent); }
+.chat-avatar.user-avatar svg { width: 16px; height: 16px; color: #fff; }
+.chat-avatar.agent-avatar { background: var(--purple); }
+.chat-avatar.agent-avatar svg { width: 16px; height: 16px; color: #fff; }
 .chat-bubble {
   padding: 10px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5;
 }
 .chat-msg.user .chat-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
 .chat-msg.agent .chat-bubble { background: var(--bg-surface); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 .chat-timestamp { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
-.chat-agent-label { font-size: 11px; color: var(--purple); font-weight: 600; margin-bottom: 2px; }
+.chat-agent-label { font-size: 11px; color: var(--purple); font-weight: 600; margin-bottom: 2px; display: flex; align-items: center; gap: 4px; }
+.chat-agent-label svg { width: 12px; height: 12px; }
 
-/* -- Timeline ---------------------------------------------------------- */
+/* ── Timeline ────────────────────────────────────────────── */
 .timeline { padding: 20px; border-top: 1px solid var(--border); }
-.timeline-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.timeline-title {
+  font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.timeline-title svg { width: 14px; height: 14px; }
 .timeline-event {
   display: flex; gap: 12px; padding: 8px 0; font-size: 13px; color: var(--text-dim);
   border-left: 2px solid var(--border); padding-left: 16px; margin-left: 6px; position: relative;
@@ -178,111 +234,186 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 }
 .timeline-event-time { color: var(--text-muted); font-size: 11px; min-width: 70px; }
 
-/* -- Actions Bar ------------------------------------------------------- */
+/* ── Actions Bar ─────────────────────────────────────────── */
 .actions-bar {
   padding: 14px 20px; border-top: 1px solid var(--border); background: var(--bg-base);
   display: flex; gap: 8px; justify-content: flex-end;
 }
+.actions-bar .btn { display: inline-flex; align-items: center; gap: 6px; }
+.actions-bar .btn svg { width: 14px; height: 14px; }
 
+/* ── Toast ────────────────────────────────────────────────── */
 .toast {
   position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
   background: var(--green); color: #fff; border-radius: var(--radius);
   font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(10px);
   transition: all 0.3s ease; z-index: 200; pointer-events: none;
+  display: flex; align-items: center; gap: 8px;
 }
+.toast svg { width: 16px; height: 16px; }
 .toast.show { opacity: 1; transform: translateY(0); }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 @media (max-width: 900px) {
   .main-layout { grid-template-columns: 1fr; }
   .session-detail-panel { display: none; }
   .metrics-bar { grid-template-columns: repeat(2, 1fr); }
 }
+
+@media (max-width: 768px) {
+  .page-sidebar {
+    position: fixed; left: 0; top: 50px; bottom: 0; z-index: 100; width: 248px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+}
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Session Manager</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html" class="active">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">会话管理</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Session List Panel -->
-  <div class="session-list-panel">
-    <div class="list-header">
-      <input type="text" id="searchInput" placeholder="Search sessions..." onkeydown="if(event.key==='Enter')filterSessions()">
-      <button class="btn btn-danger" onclick="expireOld()" title="Expire idle sessions">Expire Old</button>
-    </div>
-
-    <!-- Metrics -->
-    <div class="metrics-bar">
-      <div class="metric-card">
-        <div class="metric-number" id="totalSessions">0</div>
-        <div class="metric-label">Total</div>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item active" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
       </div>
-      <div class="metric-card">
-        <div class="metric-number" style="color:var(--green)" id="activeSessions">0</div>
-        <div class="metric-label">Active</div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
       </div>
-      <div class="metric-card">
-        <div class="metric-number" id="avgDuration">0m</div>
-        <div class="metric-label">Avg Duration</div>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
       </div>
-      <div class="metric-card">
-        <div class="metric-number" id="totalMessages">0</div>
-        <div class="metric-label">Messages</div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+    <div class="main-layout">
+      <!-- Session List Panel -->
+      <div class="session-list-panel">
+        <div class="list-header">
+          <input type="text" id="searchInput" placeholder="搜索会话..." onkeydown="if(event.key==='Enter')filterSessions()">
+          <button class="btn btn-danger" onclick="expireOld()" title="过期空闲会话">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            过期旧会话
+          </button>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-bar">
+          <div class="metric-card">
+            <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="metric-number" id="totalSessions">0</div>
+            <div class="metric-label">总计</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div class="metric-number" style="color:var(--green)" id="activeSessions">0</div>
+            <div class="metric-label">活跃</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="metric-number" id="avgDuration">0m</div>
+            <div class="metric-label">平均时长</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg></div>
+            <div class="metric-number" id="totalMessages">0</div>
+            <div class="metric-label">消息数</div>
+          </div>
+        </div>
+
+        <!-- Agent Usage -->
+        <div class="usage-section">
+          <div class="usage-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>
+            智能体使用
+          </div>
+          <div class="usage-chart" id="usageChart"></div>
+        </div>
+
+        <!-- Session List -->
+        <div class="session-list" id="sessionList">
+          <div class="detail-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            加载会话中...
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Panel -->
+      <div class="session-detail-panel" id="detailPanel">
+        <div class="detail-empty" id="detailEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          选择一个会话查看详情
+        </div>
       </div>
     </div>
-
-    <!-- Agent Usage -->
-    <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px">Agent Usage</div>
-      <div class="usage-chart" id="usageChart"></div>
-    </div>
-
-    <!-- Session List -->
-    <div class="session-list" id="sessionList">
-      <div class="detail-empty">Loading sessions...</div>
-    </div>
-  </div>
-
-  <!-- Detail Panel -->
-  <div class="session-detail-panel" id="detailPanel">
-    <div class="detail-empty" id="detailEmpty">Select a session to view details</div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ====================================================================
-   JARVIS Session Manager — JavaScript
-   ==================================================================== */
+(() => {
+'use strict';
 
+/* ── Sidebar Toggle ──────────────────────────────────────────────────── */
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
+
+/* ── SVG Icon Helpers ────────────────────────────────────────────────── */
+const SVG = {
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  agent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+  xCircle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  timeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  agents: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  message: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  duration: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+};
+
+/* ── State ───────────────────────────────────────────────────────────── */
 const API_BASE = window.location.origin;
 let allSessions = [];
 let selectedSession = null;
 
-// ── Demo Data ──────────────────────────────────────────────────────────
+/* ── Demo Data ───────────────────────────────────────────────────────── */
 function generateDemoSessions() {
   const agents = ['orchestrator', 'coder', 'reviewer', 'researcher', 'ops', 'planner'];
   const channels = ['cli', 'web', 'api'];
@@ -308,24 +439,22 @@ function generateDemoSessions() {
 
     const messages = Array.from({ length: msgCount }, (_, j) => {
       const sample = msgSamples[j % msgSamples.length];
-      return {
-        ...sample,
-        timestamp: new Date(created.getTime() + j * 60000).toISOString(),
-      };
+      return { ...sample, timestamp: new Date(created.getTime() + j * 60000).toISOString() };
     });
 
     const events = [
-      { time: created.toISOString(), event: 'Session created' },
-      { time: new Date(created.getTime() + 1000).toISOString(), event: `Routed to ${sessionAgents[0]}` },
+      { time: created.toISOString(), type: 'created', event: '会话已创建' },
+      { time: new Date(created.getTime() + 1000).toISOString(), type: 'routed', event: '路由到 ' + sessionAgents[0] },
       ...sessionAgents.slice(1).map((a, j) => ({
         time: new Date(created.getTime() + (j+2) * 30000).toISOString(),
-        event: `Delegated to ${a}`,
+        type: 'delegated',
+        event: '委派到 ' + a,
       })),
-      { time: new Date(created.getTime() + duration * 60000).toISOString(), event: state === 'active' ? 'Awaiting input' : 'Session ended' },
+      { time: new Date(created.getTime() + duration * 60000).toISOString(), type: 'end', event: state === 'active' ? '等待输入' : '会话结束' },
     ];
 
     return {
-      id: `sess_${String(i+1).padStart(3,'0')}_${Math.random().toString(36).slice(2,8)}`,
+      id: 'sess_' + String(i+1).padStart(3,'0') + '_' + Math.random().toString(36).slice(2,8),
       user: userNames[i % userNames.length],
       channel: channels[i % channels.length],
       state,
@@ -340,10 +469,10 @@ function generateDemoSessions() {
   });
 }
 
-// ── Fetch ──────────────────────────────────────────────────────────────
+/* ── Fetch ───────────────────────────────────────────────────────────── */
 async function fetchSessions() {
   try {
-    const res = await fetch(`${API_BASE}/sessions`);
+    const res = await fetch(API_BASE + '/sessions');
     if (!res.ok) throw new Error();
     let data = await res.json();
     allSessions = Array.isArray(data) ? data : (data.data || []);
@@ -354,34 +483,39 @@ async function fetchSessions() {
   updateMetrics();
 }
 
-// ── Render List ────────────────────────────────────────────────────────
+/* ── Render List ─────────────────────────────────────────────────────── */
 function renderSessionList(sessions) {
   const list = document.getElementById('sessionList');
   if (!sessions.length) {
-    list.innerHTML = '<div class="detail-empty">No sessions found</div>';
+    list.innerHTML = '<div class="detail-empty"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>暂无会话记录</div>';
     return;
   }
-  list.innerHTML = sessions.map((s, i) => `
-    <div class="session-item ${selectedSession?.id === s.id ? 'selected' : ''}"
-         onclick="selectSession('${s.id}')" style="animation-delay:${i*0.04}s">
-      <div class="session-id">${s.id}</div>
-      <div class="session-row">
-        <span class="badge badge-${s.state}">${s.state}</span>
-        <span class="badge badge-${s.channel}">${s.channel}</span>
-        <span>User: ${s.user}</span>
-      </div>
-      <div class="session-row" style="margin-top:4px">
-        <span>${s.message_count} msgs</span>
-        <span>${s.agents?.length || 0} agents</span>
-        <span>${s.duration_min}m</span>
-        <span>${timeAgo(s.last_activity)}</span>
-      </div>
-    </div>
-  `).join('');
+  list.innerHTML = sessions.map((s, i) =>
+    '<div class="session-item ' + (selectedSession && selectedSession.id === s.id ? 'selected' : '') + '"'
+    + ' onclick="selectSession(\'' + s.id + '\')" style="animation-delay:' + (i*0.04) + 's">'
+    + '<div class="session-id">' + s.id + '</div>'
+    + '<div class="session-row">'
+    + '  <span class="badge badge-' + s.state + '">' + stateLabel(s.state) + '</span>'
+    + '  <span class="badge badge-' + s.channel + '">' + s.channel + '</span>'
+    + '  <span style="display:inline-flex;align-items:center;gap:3px">' + SVG.user + ' ' + s.user + '</span>'
+    + '</div>'
+    + '<div class="session-row" style="margin-top:4px">'
+    + '  <span>' + s.message_count + ' 条消息</span>'
+    + '  <span>' + (s.agents ? s.agents.length : 0) + ' 个智能体</span>'
+    + '  <span>' + s.duration_min + 'm</span>'
+    + '  <span>' + timeAgo(s.last_activity) + '</span>'
+    + '</div>'
+    + '</div>'
+  ).join('');
 }
 
-// ── Select Session ─────────────────────────────────────────────────────
-async function selectSession(id) {
+function stateLabel(state) {
+  const map = { active: '活跃', idle: '空闲', expired: '过期' };
+  return map[state] || state;
+}
+
+/* ── Select Session ──────────────────────────────────────────────────── */
+window.selectSession = function(id) {
   selectedSession = allSessions.find(s => s.id === id);
   if (!selectedSession) return;
 
@@ -389,131 +523,145 @@ async function selectSession(id) {
 
   const panel = document.getElementById('detailPanel');
   const s = selectedSession;
+
   const messages = (s.messages || []).map(m => {
     const isUser = m.role === 'user';
-    return `
-      <div class="chat-msg ${isUser ? 'user' : 'agent'}">
-        <div class="chat-avatar ${isUser ? 'user-avatar' : 'agent-avatar'}">${isUser ? 'U' : (m.agent||'A')[0].toUpperCase()}</div>
-        <div>
-          ${!isUser ? `<div class="chat-agent-label">${m.agent || 'agent'}</div>` : ''}
-          <div class="chat-bubble">${m.content}</div>
-          <div class="chat-timestamp">${new Date(m.timestamp).toLocaleTimeString()}</div>
-        </div>
-      </div>`;
+    return '<div class="chat-msg ' + (isUser ? 'user' : 'agent') + '">'
+      + '<div class="chat-avatar ' + (isUser ? 'user-avatar' : 'agent-avatar') + '">'
+      + (isUser ? SVG.user : SVG.agent)
+      + '</div>'
+      + '<div>'
+      + (!isUser ? '<div class="chat-agent-label">' + SVG.agents + ' ' + (m.agent || 'agent') + '</div>' : '')
+      + '<div class="chat-bubble">' + escapeHtml(m.content) + '</div>'
+      + '<div class="chat-timestamp">' + new Date(m.timestamp).toLocaleTimeString() + '</div>'
+      + '</div>'
+      + '</div>';
   }).join('');
 
-  const events = (s.events || []).map(e => `
-    <div class="timeline-event">
-      <span class="timeline-event-time">${new Date(e.time).toLocaleTimeString()}</span>
-      <span>${e.event}</span>
-    </div>
-  `).join('');
+  const events = (s.events || []).map(e =>
+    '<div class="timeline-event">'
+    + '<span class="timeline-event-time">' + new Date(e.time).toLocaleTimeString() + '</span>'
+    + '<span>' + escapeHtml(e.event) + '</span>'
+    + '</div>'
+  ).join('');
 
-  panel.innerHTML = `
-    <div class="detail-header">
-      <div class="detail-title">Session ${s.id}</div>
-      <div class="detail-meta">
-        <span class="badge badge-${s.state}">${s.state}</span>
-        <span class="badge badge-${s.channel}">${s.channel}</span>
-        <span>User: ${s.user}</span>
-        <span>Duration: ${s.duration_min}m</span>
-        <span>Agents: ${(s.agents||[]).join(', ')}</span>
-      </div>
-    </div>
-    <div class="chat-container">${messages || '<div class="detail-empty">No messages</div>'}</div>
-    <div class="timeline">
-      <div class="timeline-title">Event Timeline</div>
-      ${events}
-    </div>
-    <div class="actions-bar">
-      <button class="btn btn-ghost" onclick="exportSession('${s.id}')">Export JSON</button>
-      <button class="btn btn-danger" onclick="expireSession('${s.id}')">Expire</button>
-    </div>
-  `;
-}
+  panel.innerHTML =
+    '<div class="detail-header">'
+    + '<div class="detail-title">' + SVG.message + ' 会话 ' + s.id + '</div>'
+    + '<div class="detail-meta">'
+    + '  <span class="badge badge-' + s.state + '">' + stateLabel(s.state) + '</span>'
+    + '  <span class="badge badge-' + s.channel + '">' + s.channel + '</span>'
+    + '  <span class="detail-meta-item">' + SVG.user + ' 用户: ' + s.user + '</span>'
+    + '  <span class="detail-meta-item">' + SVG.duration + ' 持续时间: ' + s.duration_min + 'm</span>'
+    + '  <span class="detail-meta-item">' + SVG.agents + ' 智能体: ' + (s.agents || []).join(', ') + '</span>'
+    + '</div>'
+    + '</div>'
+    + '<div class="chat-container">' + (messages || '<div class="detail-empty">暂无消息</div>') + '</div>'
+    + '<div class="timeline">'
+    + '  <div class="timeline-title">' + SVG.timeline + ' 事件时间线</div>'
+    + events
+    + '</div>'
+    + '<div class="actions-bar">'
+    + '  <button class="btn btn-ghost" onclick="exportSession(\'' + s.id + '\')">' + SVG.download + ' 导出 JSON</button>'
+    + '  <button class="btn btn-danger" onclick="expireSession(\'' + s.id + '\')">' + SVG.xCircle + ' 过期</button>'
+    + '</div>';
+};
 
-// ── Metrics ────────────────────────────────────────────────────────────
+/* ── Metrics ─────────────────────────────────────────────────────────── */
 function updateMetrics() {
   document.getElementById('totalSessions').textContent = allSessions.length;
   const active = allSessions.filter(s => s.state === 'active').length;
   document.getElementById('activeSessions').textContent = active;
-  const totalMsgs = allSessions.reduce((a,s) => a + (s.message_count||0), 0);
+  const totalMsgs = allSessions.reduce((a, s) => a + (s.message_count || 0), 0);
   document.getElementById('totalMessages').textContent = totalMsgs;
-  const avgDur = allSessions.length ? Math.round(allSessions.reduce((a,s) => a + (s.duration_min||0), 0) / allSessions.length) : 0;
+  const avgDur = allSessions.length ? Math.round(allSessions.reduce((a, s) => a + (s.duration_min || 0), 0) / allSessions.length) : 0;
   document.getElementById('avgDuration').textContent = avgDur + 'm';
 
   // Agent usage chart
   const agentCounts = {};
-  allSessions.forEach(s => (s.agents || []).forEach(a => { agentCounts[a] = (agentCounts[a]||0) + 1; }));
+  allSessions.forEach(s => (s.agents || []).forEach(a => { agentCounts[a] = (agentCounts[a] || 0) + 1; }));
   const maxAgent = Math.max(...Object.values(agentCounts), 1);
   const colors = ['var(--accent)', 'var(--green)', 'var(--purple)', 'var(--orange)', 'var(--cyan)', 'var(--pink)'];
   const chart = document.getElementById('usageChart');
-  chart.innerHTML = Object.entries(agentCounts).map(([name, count], i) => `
-    <div class="usage-bar-wrap">
-      <div class="usage-bar" style="height:${(count/maxAgent)*80}px;background:${colors[i%colors.length]}"></div>
-      <div class="usage-bar-label">${name.slice(0,8)}</div>
-    </div>
-  `).join('');
+  chart.innerHTML = Object.entries(agentCounts).map(([name, count], i) =>
+    '<div class="usage-bar-wrap">'
+    + '<div class="usage-bar" style="height:' + ((count/maxAgent)*80) + 'px;background:' + colors[i % colors.length] + '"></div>'
+    + '<div class="usage-bar-label">' + name.slice(0,8) + '</div>'
+    + '</div>'
+  ).join('');
 
   try {
-    fetch(`${API_BASE}/sessions/metrics`).then(r => r.json()).catch(() => {});
+    fetch(API_BASE + '/sessions/metrics').then(r => r.json()).catch(() => {});
   } catch {}
 }
 
-// ── Filter ─────────────────────────────────────────────────────────────
-function filterSessions() {
+/* ── Filter ──────────────────────────────────────────────────────────── */
+window.filterSessions = function() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const filtered = allSessions.filter(s =>
     s.id.includes(q) || s.user.includes(q) || s.channel.includes(q) || s.state.includes(q)
   );
   renderSessionList(filtered);
-}
+};
 
-// ── Actions ────────────────────────────────────────────────────────────
-function expireOld() {
+/* ── Actions ─────────────────────────────────────────────────────────── */
+window.expireOld = function() {
   const expired = allSessions.filter(s => s.state === 'idle');
-  expired.forEach(s => s.state = 'expired');
+  expired.forEach(s => { s.state = 'expired'; });
   renderSessionList(allSessions);
   updateMetrics();
-  showToast(`Expired ${expired.length} idle sessions`);
-}
+  showToast('已过期 ' + expired.length + ' 个空闲会话');
+};
 
-function expireSession(id) {
+window.expireSession = function(id) {
   const s = allSessions.find(s => s.id === id);
-  if (s) { s.state = 'expired'; selectSession(id); updateMetrics(); showToast('Session expired'); }
-}
+  if (s) {
+    s.state = 'expired';
+    selectSession(id);
+    updateMetrics();
+    showToast('会话已过期');
+  }
+};
 
-function exportSession(id) {
+window.exportSession = function(id) {
   const s = allSessions.find(s => s.id === id);
   if (!s) return;
   const blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `session_${id}.json`; a.click();
+  a.href = url; a.download = 'session_' + id + '.json'; a.click();
   URL.revokeObjectURL(url);
-  showToast('Session exported');
-}
+  showToast('会话已导出');
+};
 
-// ── Helpers ────────────────────────────────────────────────────────────
+/* ── Helpers ──────────────────────────────────────────────────────────── */
 function timeAgo(isoStr) {
   const diff = Date.now() - new Date(isoStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 60) return mins + ' 分钟前';
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs/24)}d ago`;
+  if (hrs < 24) return hrs + ' 小时前';
+  return Math.floor(hrs / 24) + ' 天前';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 function showToast(msg, isError) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.innerHTML = (isError ? SVG.xCircle : SVG.check) + ' ' + escapeHtml(msg);
   t.style.background = isError ? 'var(--red)' : 'var(--green)';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── Init ───────────────────────────────────────────────────────────────
+/* ── Init ─────────────────────────────────────────────────────────────── */
 fetchSessions();
+
+})();
 </script>
 </body>
 </html>

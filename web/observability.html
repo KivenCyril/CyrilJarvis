@@ -1,106 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS - Observability</title>
+<title>JARVIS - 可观测</title>
 <style>
-/* ====================================================================
-   JARVIS Observability Dashboard — Standalone Page CSS
-   ==================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg-deep:      #0a0f1e;
   --bg-base:      #0f172a;
   --bg-surface:   #1e293b;
-  --bg-card:      #1e293b;
-  --bg-hover:     #273549;
-  --bg-input:     #0f172a;
-  --border:       #334155;
-  --border-light: #3f506a;
-  --border-focus: #6366f1;
+  --bg-hover:     #1c2d42;
+  --bg-input:     #0c1322;
+  --border:       #1e2d40;
+  --border-light: #2d4054;
   --text:         #e2e8f0;
   --text-dim:     #94a3b8;
-  --text-muted:   #64748b;
+  --text-muted:   #5a6d82;
   --accent:       #3b82f6;
   --accent-hover: #60a5fa;
   --green:        #22c55e;
-  --orange:       #f59e0b;
-  --red:          #ef4444;
   --purple:       #a855f7;
+  --yellow:       #eab308;
+  --red:          #ef4444;
+  --orange:       #f59e0b;
   --cyan:         #06b6d4;
   --pink:         #ec4899;
   --radius:       8px;
   --radius-lg:    12px;
-  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.3);
-  --transition:   180ms ease;
-  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --mono:         'JetBrains Mono', 'Fira Code', monospace;
+  --transition:   200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono:         'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg-deep); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { display: flex; flex-direction: column; overflow: hidden; }
-::-webkit-scrollbar { width: 6px; }
+
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
 
-/* -- Top Nav ----------------------------------------------------------- */
-.topnav {
-  height: 52px; background: var(--bg-base); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
+/* ── Top Bar ─────────────────────────────────────────────── */
+.topbar {
+  height: 50px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 50; position: relative;
 }
-.topnav-brand { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-.topnav-brand span { color: var(--text-dim); font-weight: 400; margin-left: 6px; font-size: 14px; }
-.topnav-links { display: flex; gap: 4px; margin-left: 24px; flex-wrap: wrap; }
-.topnav-links a {
-  padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  color: var(--text-dim); text-decoration: none; transition: var(--transition);
-}
-.topnav-links a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
-.topnav-links a.active { background: var(--accent); color: #fff; }
+.topbar::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.2) 50%, transparent); }
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #7c3aed); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(99,102,241,0.35); }
+.topbar-logo svg { width: 16px; height: 16px; color: #fff; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(135deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-page { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+.topbar-spacer { flex: 1; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: none; cursor: pointer; transition: var(--transition); }
+.topbar-btn:hover { background: var(--bg-hover); color: var(--text-dim); }
+.topbar-btn svg { width: 17px; height: 17px; }
 
-/* -- Layout ------------------------------------------------------------ */
-.main-layout { flex: 1; display: grid; grid-template-columns: 380px 1fr; overflow: hidden; }
+/* ── Layout ──────────────────────────────────────────────── */
+.page-layout { flex: 1; display: grid; grid-template-columns: 248px 1fr; overflow: hidden; transition: grid-template-columns 300ms cubic-bezier(0.16,1,0.3,1); }
+.page-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.page-sidebar {
+  background: var(--bg-base); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 248px; min-width: 248px; max-width: 248px;
+  transition: all 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.sidebar-collapsed .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+.page-sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
+.nav-group { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(30,45,64,0.6); }
+.nav-group:last-child { border-bottom: none; }
+.nav-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-muted); font-weight: 600; padding: 10px 10px 5px; user-select: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text-dim); text-decoration: none; transition: var(--transition); position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; border-color: var(--border); }
+.nav-item.active { background: rgba(59,130,246,0.08); color: var(--accent-hover); font-weight: 500; border-color: rgba(59,130,246,0.15); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 0 2px 2px 0; background: var(--accent); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+.nav-item:hover svg { opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+
+.page-content { overflow-y: auto; }
+
+@media (max-width: 1024px) {
+  .page-layout { grid-template-columns: 0px 1fr; }
+  .page-sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+}
+
+/* ── Observability Main Layout ───────────────────────────── */
+.obs-layout { flex: 1; display: grid; grid-template-columns: 340px 1fr; overflow: hidden; height: 100%; }
 .trace-list-panel {
   background: var(--bg-base); border-right: 1px solid var(--border);
   overflow-y: auto; display: flex; flex-direction: column;
 }
 .content-area { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
 
-/* -- Toolbar ----------------------------------------------------------- */
+/* ── Toolbar ──────────────────────────────────────────────── */
 .toolbar {
-  display: flex; gap: 12px; align-items: center; padding: 14px 16px;
+  display: flex; gap: 10px; align-items: center; padding: 12px 14px;
   border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
 .toolbar input {
   flex: 1; background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-size: 12px;
+  border-radius: var(--radius); padding: 7px 10px 7px 32px; color: var(--text); font-size: 12px;
+  font-family: var(--font); transition: var(--transition);
 }
-.toolbar input:focus { border-color: var(--border-focus); outline: none; }
+.toolbar input:focus { border-color: var(--accent); outline: none; }
 .toolbar select {
   background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-size: 12px;
+  border-radius: var(--radius); padding: 7px 10px; color: var(--text); font-size: 12px;
+  font-family: var(--font); cursor: pointer; transition: var(--transition);
 }
+.toolbar select:focus { border-color: var(--accent); outline: none; }
+.search-wrapper { flex: 1; position: relative; display: flex; align-items: center; }
+.search-wrapper svg { position: absolute; left: 10px; width: 14px; height: 14px; color: var(--text-muted); pointer-events: none; }
 
 .btn {
-  padding: 8px 16px; border-radius: var(--radius); font-size: 12px; font-weight: 600;
-  cursor: pointer; border: none; transition: var(--transition);
+  padding: 7px 14px; border-radius: var(--radius); font-size: 12px; font-weight: 500;
+  cursor: pointer; border: none; transition: var(--transition); font-family: var(--font);
+  display: inline-flex; align-items: center; gap: 6px;
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hover); }
 .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
 .btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
 .btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn svg { width: 13px; height: 13px; }
 
-/* -- Trace List -------------------------------------------------------- */
+/* ── Trace List ──────────────────────────────────────────── */
 .trace-item {
   padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
   transition: var(--transition);
 }
 .trace-item:hover { background: var(--bg-hover); }
-.trace-item.selected { background: rgba(59,130,246,0.1); border-left: 3px solid var(--accent); }
+.trace-item.selected { background: rgba(59,130,246,0.08); border-left: 3px solid var(--accent); }
 .trace-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .trace-id { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 600; }
 .trace-time { font-size: 11px; color: var(--text-muted); }
@@ -108,7 +143,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .trace-meta { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); }
 .trace-meta-item { display: flex; align-items: center; gap: 4px; }
 
-/* Status badges */
+/* ── Status Badges ───────────────────────────────────────── */
 .status-badge {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
   border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase;
@@ -117,13 +152,14 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .status-error { background: rgba(239,68,68,0.15); color: var(--red); }
 .status-pending { background: rgba(245,158,11,0.15); color: var(--orange); }
 
-/* -- Waterfall Chart --------------------------------------------------- */
+/* ── Waterfall Chart ─────────────────────────────────────── */
 .waterfall-container {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 20px; overflow-x: auto;
 }
 .waterfall-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.waterfall-title { font-size: 16px; font-weight: 700; }
+.waterfall-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.waterfall-title svg { width: 18px; height: 18px; color: var(--accent); }
 .waterfall-subtitle { font-size: 12px; color: var(--text-muted); }
 .waterfall-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; min-height: 28px; }
 .waterfall-label {
@@ -133,12 +169,12 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .waterfall-bar-container { flex: 1; position: relative; height: 20px; }
 .waterfall-bar {
   position: absolute; height: 100%; border-radius: 3px; min-width: 4px;
-  transition: opacity var(--transition);
+  transition: opacity var(--transition); cursor: pointer;
 }
 .waterfall-bar:hover { opacity: 0.8; }
 .waterfall-bar-tooltip {
   display: none; position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
-  background: var(--bg-card); border: 1px solid var(--border); padding: 4px 8px;
+  background: var(--bg-surface); border: 1px solid var(--border); padding: 4px 8px;
   border-radius: 4px; font-size: 10px; white-space: nowrap; z-index: 10;
 }
 .waterfall-bar:hover .waterfall-bar-tooltip { display: block; }
@@ -148,48 +184,49 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 }
 .waterfall-duration { font-size: 11px; color: var(--text-dim); font-family: var(--mono); width: 70px; text-align: right; flex-shrink: 0; }
 
-/* -- Metrics Panel ----------------------------------------------------- */
-.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+/* ── Metrics Panel ───────────────────────────────────────── */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
 .metric-card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 18px; transition: var(--transition);
 }
 .metric-card:hover { border-color: var(--border-light); }
-.metric-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.metric-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.metric-label svg { width: 13px; height: 13px; opacity: 0.6; }
 .metric-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .metric-value.green { color: var(--green); }
 .metric-value.blue { color: var(--accent); }
 .metric-value.orange { color: var(--orange); }
 .metric-value.red { color: var(--red); }
 .metric-unit { font-size: 14px; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
-.metric-sparkline { margin-top: 10px; height: 40px; }
 .metric-change { font-size: 11px; margin-top: 6px; }
 .metric-change.up { color: var(--green); }
 .metric-change.down { color: var(--red); }
 
-/* -- Histogram --------------------------------------------------------- */
+/* ── Histogram ───────────────────────────────────────────── */
 .histogram-container {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 20px;
 }
 .histogram-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
 .histogram-bars { display: flex; align-items: flex-end; gap: 3px; height: 100px; }
 .histogram-bar {
   flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; min-width: 8px;
-  transition: var(--transition); position: relative;
+  transition: var(--transition); position: relative; cursor: pointer;
 }
 .histogram-bar:hover { background: var(--accent-hover); }
 .histogram-bar-label {
   display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-  background: var(--bg-card); border: 1px solid var(--border); padding: 2px 6px;
+  background: var(--bg-surface); border: 1px solid var(--border); padding: 2px 6px;
   border-radius: 3px; font-size: 9px; white-space: nowrap; margin-bottom: 4px;
 }
 .histogram-bar:hover .histogram-bar-label { display: block; }
 .histogram-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; color: var(--text-muted); }
 
-/* -- Section Header ---------------------------------------------------- */
+/* ── Section Header ──────────────────────────────────────── */
 .section-header { display: flex; justify-content: space-between; align-items: center; }
-.section-title { font-size: 16px; font-weight: 700; }
+.section-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.section-title svg { width: 18px; height: 18px; color: var(--accent); }
 .section-subtitle { font-size: 12px; color: var(--text-muted); }
 .auto-refresh-badge {
   display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--green);
@@ -197,7 +234,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 }
 .auto-refresh-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
 
-/* -- Span Detail Overlay ---------------------------------------------- */
+/* ── Span Detail Overlay ─────────────────────────────────── */
 .span-detail-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
   z-index: 100; display: flex; justify-content: flex-end; opacity: 0; pointer-events: none;
@@ -211,8 +248,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .span-detail-overlay.show .span-detail-panel { transform: translateX(0); }
 .span-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .span-detail-title { font-size: 17px; font-weight: 700; }
-.span-detail-close { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; }
-.span-detail-close:hover { color: var(--text); }
+.span-detail-close { background: none; border: none; color: var(--text-dim); cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); transition: var(--transition); }
+.span-detail-close:hover { background: var(--bg-hover); color: var(--text); }
+.span-detail-close svg { width: 18px; height: 18px; }
 .span-detail-section { margin-bottom: 18px; }
 .span-detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
 .span-detail-value { font-size: 13px; color: var(--text); word-break: break-all; }
@@ -224,12 +262,13 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto;
 }
 
-/* -- Empty State ------------------------------------------------------- */
+/* ── Empty State ─────────────────────────────────────────── */
 .empty-state {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 12px; padding: 60px 20px; color: var(--text-muted); text-align: center;
 }
-.empty-icon { font-size: 40px; opacity: 0.3; }
+.empty-icon { opacity: 0.3; }
+.empty-icon svg { width: 40px; height: 40px; }
 .empty-title { font-size: 15px; font-weight: 600; color: var(--text-dim); }
 .empty-sub { font-size: 12px; max-width: 280px; }
 
@@ -241,130 +280,195 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 768px) {
+  .page-sidebar {
+    position: fixed; left: 0; top: 50px; bottom: 0; z-index: 100; width: 248px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .obs-layout { grid-template-columns: 1fr; }
+  .trace-list-panel { max-height: 40vh; }
+}
 </style>
 </head>
 <body>
 
-<!-- Top Navigation -->
-<nav class="topnav">
-  <div class="topnav-brand">JARVIS <span>Observability</span></div>
-  <div class="topnav-links">
-    <a href="index.html">Dashboard</a>
-    <a href="knowledge.html">Knowledge</a>
-    <a href="workflows.html">Workflows</a>
-    <a href="memory.html">Memory</a>
-    <a href="skills.html">Skills</a>
-    <a href="sessions.html">Sessions</a>
-    <a href="tools.html">Tools</a>
-    <a href="agents.html">Agents</a>
-    <a href="observability.html" class="active">Observability</a>
-    <a href="curator.html">Curator</a>
-    <a href="api-docs.html">API Docs</a>
-    <a href="chat.html">Chat</a>
-    <a href="settings.html">Settings</a>
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-title">JARVIS</span>
+    <span class="topbar-page">可观测</span>
   </div>
-</nav>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" id="sidebarToggle" aria-label="切换侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</header>
 
-<div class="main-layout">
-  <!-- Trace List Panel -->
-  <div class="trace-list-panel">
-    <div class="toolbar">
-      <input type="text" id="traceSearch" placeholder="Search traces..." />
-      <select id="traceFilter">
-        <option value="all">All</option>
-        <option value="ok">OK</option>
-        <option value="error">Error</option>
-      </select>
-      <button class="btn btn-primary btn-sm" onclick="loadTraces()">Refresh</button>
-    </div>
-    <div id="traceList">
-      <!-- Populated by JS -->
-    </div>
-    <div class="empty-state" id="traceListEmpty">
-      <span class="empty-icon">&#128269;</span>
-      <span class="empty-title">No traces found</span>
-      <span class="empty-sub">Traces will appear here as your system processes requests</span>
-    </div>
-  </div>
+<div class="page-layout" id="pageLayout">
+  <aside class="page-sidebar">
+    <nav class="page-sidebar-scroll" aria-label="主导航">
+      <div class="nav-group">
+        <div class="nav-group-label">对话</div>
+        <a class="nav-item" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 对话</a>
+        <a class="nav-item" href="/web/sessions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话记录</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">智能体</div>
+        <a class="nav-item" href="/web/agents.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 智能体</a>
+        <a class="nav-item" href="/web/workflows.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 工作流</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">知识库</div>
+        <a class="nav-item" href="/web/knowledge.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 知识库</a>
+        <a class="nav-item" href="/web/memory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 记忆</a>
+        <a class="nav-item" href="/web/skills.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 技能</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">工具</div>
+        <a class="nav-item" href="/web/tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> 工具</a>
+        <a class="nav-item" href="/web/curator.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 策展</a>
+        <a class="nav-item" href="/web/templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 模板</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <a class="nav-item" href="/web/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 设置</a>
+        <a class="nav-item active" href="/web/observability.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 可观测</a>
+        <a class="nav-item" href="/web/api-docs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 接口文档</a>
+      </div>
+    </nav>
+  </aside>
 
-  <!-- Content Area -->
-  <div class="content-area" id="contentArea">
-    <!-- Metrics Section -->
-    <div>
-      <div class="section-header">
+  <div class="page-content">
+    <div class="obs-layout">
+      <!-- Trace List Panel -->
+      <div class="trace-list-panel">
+        <div class="toolbar">
+          <div class="search-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="traceSearch" placeholder="搜索追踪..." />
+          </div>
+          <select id="traceFilter">
+            <option value="all">全部</option>
+            <option value="ok">正常</option>
+            <option value="error">错误</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="loadTraces()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            刷新
+          </button>
+        </div>
+        <div id="traceList"></div>
+        <div class="empty-state" id="traceListEmpty">
+          <span class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <span class="empty-title">未找到追踪记录</span>
+          <span class="empty-sub">当系统处理请求时，追踪记录将显示在这里</span>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area" id="contentArea">
+        <!-- Metrics Section -->
         <div>
-          <div class="section-title">Live Metrics</div>
-          <div class="section-subtitle">Auto-refreshing every 5 seconds</div>
+          <div class="section-header">
+            <div>
+              <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                实时指标
+              </div>
+              <div class="section-subtitle">每5秒自动刷新</div>
+            </div>
+            <div class="auto-refresh-badge" id="autoRefreshBadge">
+              <span class="auto-refresh-dot"></span>
+              <span>实时</span>
+            </div>
+          </div>
         </div>
-        <div class="auto-refresh-badge" id="autoRefreshBadge">
-          <span class="auto-refresh-dot"></span>
-          <span>Live</span>
+
+        <!-- Counter metrics -->
+        <div class="metrics-grid" id="metricsGrid"></div>
+
+        <!-- Histogram -->
+        <div class="histogram-container" id="histogramContainer" style="display:none;">
+          <div class="histogram-title" id="histogramTitle">请求延迟分布</div>
+          <div class="histogram-bars" id="histogramBars"></div>
+          <div class="histogram-axis" id="histogramAxis"></div>
+        </div>
+
+        <!-- Trace Detail / Waterfall -->
+        <div id="traceDetail" style="display:none;">
+          <div class="section-header" style="margin-bottom:16px;">
+            <div>
+              <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                追踪详情
+              </div>
+              <div class="section-subtitle" id="traceDetailSubtitle"></div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="closeTraceDetail()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              关闭
+            </button>
+          </div>
+
+          <!-- Trace info row -->
+          <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+            <div class="metric-card" style="flex:1; min-width:140px;">
+              <div class="metric-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/></svg>
+                追踪ID
+              </div>
+              <div style="font-family:var(--mono); font-size:13px; word-break:break-all;" id="detailTraceId"></div>
+            </div>
+            <div class="metric-card" style="flex:1; min-width:140px;">
+              <div class="metric-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                根操作
+              </div>
+              <div style="font-size:14px; font-weight:600;" id="detailRootOp"></div>
+            </div>
+            <div class="metric-card" style="flex:1; min-width:100px;">
+              <div class="metric-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                耗时
+              </div>
+              <div class="metric-value blue" style="font-size:22px;" id="detailDuration"></div>
+            </div>
+            <div class="metric-card" style="flex:1; min-width:100px;">
+              <div class="metric-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                跨度数
+              </div>
+              <div class="metric-value" style="font-size:22px;" id="detailSpanCount"></div>
+            </div>
+            <div class="metric-card" style="flex:1; min-width:100px;">
+              <div class="metric-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                状态
+              </div>
+              <div id="detailStatus"></div>
+            </div>
+          </div>
+
+          <!-- Waterfall chart -->
+          <div class="waterfall-container">
+            <div class="waterfall-header">
+              <div class="waterfall-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                跨度瀑布图
+              </div>
+              <div class="waterfall-subtitle" id="waterfallSubtitle"></div>
+            </div>
+            <div id="waterfallRows"></div>
+            <div class="waterfall-time-axis" id="waterfallAxis"></div>
+          </div>
+        </div>
+
+        <!-- Initial empty state for content area -->
+        <div class="empty-state" id="contentEmpty">
+          <span class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+          <span class="empty-title">选择追踪查看详情</span>
+          <span class="empty-sub">或等待实时指标显示在上方</span>
         </div>
       </div>
-    </div>
-
-    <!-- Counter metrics -->
-    <div class="metrics-grid" id="metricsGrid">
-      <!-- Populated by JS -->
-    </div>
-
-    <!-- Histogram -->
-    <div class="histogram-container" id="histogramContainer" style="display:none;">
-      <div class="histogram-title" id="histogramTitle">Request Latency Distribution</div>
-      <div class="histogram-bars" id="histogramBars"></div>
-      <div class="histogram-axis" id="histogramAxis"></div>
-    </div>
-
-    <!-- Trace Detail / Waterfall -->
-    <div id="traceDetail" style="display:none;">
-      <div class="section-header" style="margin-bottom:16px;">
-        <div>
-          <div class="section-title">Trace Detail</div>
-          <div class="section-subtitle" id="traceDetailSubtitle"></div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="closeTraceDetail()">Close</button>
-      </div>
-
-      <!-- Trace info row -->
-      <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
-        <div class="metric-card" style="flex:1; min-width:140px;">
-          <div class="metric-label">Trace ID</div>
-          <div style="font-family:var(--mono); font-size:13px; word-break:break-all;" id="detailTraceId"></div>
-        </div>
-        <div class="metric-card" style="flex:1; min-width:140px;">
-          <div class="metric-label">Root Operation</div>
-          <div style="font-size:14px; font-weight:600;" id="detailRootOp"></div>
-        </div>
-        <div class="metric-card" style="flex:1; min-width:100px;">
-          <div class="metric-label">Total Duration</div>
-          <div class="metric-value blue" style="font-size:22px;" id="detailDuration"></div>
-        </div>
-        <div class="metric-card" style="flex:1; min-width:100px;">
-          <div class="metric-label">Span Count</div>
-          <div class="metric-value" style="font-size:22px;" id="detailSpanCount"></div>
-        </div>
-        <div class="metric-card" style="flex:1; min-width:100px;">
-          <div class="metric-label">Status</div>
-          <div id="detailStatus"></div>
-        </div>
-      </div>
-
-      <!-- Waterfall chart -->
-      <div class="waterfall-container">
-        <div class="waterfall-header">
-          <div class="waterfall-title">Span Waterfall</div>
-          <div class="waterfall-subtitle" id="waterfallSubtitle"></div>
-        </div>
-        <div id="waterfallRows"></div>
-        <div class="waterfall-time-axis" id="waterfallAxis"></div>
-      </div>
-    </div>
-
-    <!-- Initial empty state for content area -->
-    <div class="empty-state" id="contentEmpty">
-      <span class="empty-icon">&#128200;</span>
-      <span class="empty-title">Select a trace to view details</span>
-      <span class="empty-sub">Or wait for live metrics to appear above</span>
     </div>
   </div>
 </div>
@@ -373,19 +477,14 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 <div class="span-detail-overlay" id="spanDetailOverlay">
   <div class="span-detail-panel">
     <div class="span-detail-header">
-      <div class="span-detail-title" id="spanDetailTitle">Span Detail</div>
-      <button class="span-detail-close" onclick="closeSpanDetail()">&times;</button>
+      <div class="span-detail-title" id="spanDetailTitle">跨度详情</div>
+      <button class="span-detail-close" onclick="closeSpanDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div id="spanDetailContent">
-      <!-- Populated by JS -->
-    </div>
+    <div id="spanDetailContent"></div>
   </div>
 </div>
 
 <script>
-/* ====================================================================
-   JARVIS Observability Dashboard — JavaScript
-   ==================================================================== */
 (() => {
 'use strict';
 
@@ -396,17 +495,17 @@ let selectedTrace = null;
 let metrics = {};
 let refreshTimer = null;
 
-/* ── Mock Data ────────────────────────────────────────────────────── */
+/* -- Mock Data --------------------------------------------------------- */
 const MOCK_TRACES = [
   {
     trace_id: 'tr-a1b2c3d4e5f6',
-    root_operation: 'POST /specs',
+    root_operation: 'POST /chat',
     span_count: 8,
     duration_ms: 1243,
     status: 'ok',
     timestamp: new Date(Date.now() - 120000).toISOString(),
     spans: [
-      { span_id: 'sp-001', operation: 'POST /specs', start_ms: 0, duration_ms: 1243, status: 'ok', service: 'gateway', tags: { 'http.method': 'POST', 'http.url': '/specs' } },
+      { span_id: 'sp-001', operation: 'POST /chat', start_ms: 0, duration_ms: 1243, status: 'ok', service: 'gateway', tags: { 'http.method': 'POST', 'http.url': '/chat' } },
       { span_id: 'sp-002', operation: 'validate_intent', start_ms: 12, duration_ms: 85, status: 'ok', service: 'orchestrator', tags: {} },
       { span_id: 'sp-003', operation: 'llm_decompose', start_ms: 100, duration_ms: 890, status: 'ok', service: 'planner', tags: { model: 'gpt-4' } },
       { span_id: 'sp-004', operation: 'store_spec', start_ms: 1000, duration_ms: 45, status: 'ok', service: 'storage', tags: {} },
@@ -476,23 +575,33 @@ const MOCK_TRACES = [
   },
 ];
 
+const METRIC_LABELS = {
+  requests_total: '总请求数',
+  errors_total: '错误率',
+  specs_created: '已创建规格',
+  steps_completed: '已完成步骤',
+  agent_invocations: '智能体调用',
+  ws_connections: '活跃连接',
+  active_specs: '活跃规格',
+  busy_agents: '活跃智能体',
+  memory_mb: '内存占用',
+  uptime_hours: '运行时长',
+};
+
 const MOCK_METRICS = {
   counters: [
     { name: 'requests_total', value: 12847, change: '+3.2%', changeDir: 'up' },
     { name: 'errors_total', value: 23, change: '+1', changeDir: 'up' },
-    { name: 'specs_created', value: 342, change: '+12', changeDir: 'up' },
-    { name: 'steps_completed', value: 1876, change: '+45', changeDir: 'up' },
     { name: 'agent_invocations', value: 4521, change: '+8.1%', changeDir: 'up' },
     { name: 'ws_connections', value: 8, change: '0', changeDir: 'up' },
   ],
   gauges: [
-    { name: 'active_specs', value: 5, color: 'blue' },
     { name: 'busy_agents', value: 3, color: 'orange' },
     { name: 'memory_mb', value: 412, unit: 'MB', color: 'green' },
     { name: 'uptime_hours', value: 72.4, unit: 'h', color: 'green' },
   ],
   histogram: {
-    title: 'Request Latency (ms)',
+    title: '请求延迟分布 (ms)',
     buckets: [
       { label: '0-50', count: 4520 },
       { label: '50-100', count: 3210 },
@@ -506,7 +615,7 @@ const MOCK_METRICS = {
   }
 };
 
-/* ── Helper Functions ─────────────────────────────────────────────── */
+/* -- Helper Functions --------------------------------------------------- */
 function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
 
 function formatDuration(ms) {
@@ -516,7 +625,7 @@ function formatDuration(ms) {
 }
 
 function formatTime(ts) {
-  try { return new Date(ts).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+  try { return new Date(ts).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
   catch { return '--'; }
 }
 
@@ -531,7 +640,7 @@ function serviceColor(svc) {
   return map[svc] || 'var(--accent)';
 }
 
-/* ── Load & Render Traces ─────────────────────────────────────────── */
+/* -- Load & Render Traces ----------------------------------------------- */
 async function loadTraces() {
   try {
     traces = await fetch(API_BASE + '/traces').then(r => r.json());
@@ -569,14 +678,20 @@ function renderTraceList() {
       <div class="trace-operation">${esc(t.root_operation)}</div>
       <div class="trace-meta">
         <span class="trace-meta-item"><span class="status-badge ${t.status === 'ok' ? 'status-ok' : 'status-error'}">${t.status.toUpperCase()}</span></span>
-        <span class="trace-meta-item">${t.span_count} spans</span>
-        <span class="trace-meta-item">${formatDuration(t.duration_ms)}</span>
+        <span class="trace-meta-item">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          ${t.span_count} 个跨度
+        </span>
+        <span class="trace-meta-item">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${formatDuration(t.duration_ms)}
+        </span>
       </div>
     </div>
   `).join('');
 }
 
-/* ── Select Trace ─────────────────────────────────────────────────── */
+/* -- Select Trace ------------------------------------------------------- */
 window.selectTrace = async function(traceId) {
   selectedTraceId = traceId;
 
@@ -599,7 +714,7 @@ function renderTraceDetail() {
   document.getElementById('traceDetail').style.display = 'block';
   document.getElementById('contentEmpty').style.display = 'none';
 
-  document.getElementById('traceDetailSubtitle').textContent = `Trace from ${formatTime(t.timestamp)}`;
+  document.getElementById('traceDetailSubtitle').textContent = `时间戳: ${formatTime(t.timestamp)}`;
   document.getElementById('detailTraceId').textContent = t.trace_id;
   document.getElementById('detailRootOp').textContent = t.root_operation;
   document.getElementById('detailDuration').textContent = formatDuration(t.duration_ms);
@@ -618,14 +733,14 @@ window.closeTraceDetail = function() {
   renderTraceList();
 };
 
-/* ── Waterfall Rendering ──────────────────────────────────────────── */
+/* -- Waterfall Rendering ------------------------------------------------ */
 function renderWaterfall(spans, totalMs) {
   const container = document.getElementById('waterfallRows');
   const axis = document.getElementById('waterfallAxis');
-  document.getElementById('waterfallSubtitle').textContent = `${spans.length} spans, total ${formatDuration(totalMs)}`;
+  document.getElementById('waterfallSubtitle').textContent = `${spans.length} 个跨度, 总耗时 ${formatDuration(totalMs)}`;
 
   if (!spans.length || !totalMs) {
-    container.innerHTML = '<div style="padding:20px; color:var(--text-muted); text-align:center;">No spans</div>';
+    container.innerHTML = '<div style="padding:20px; color:var(--text-muted); text-align:center;">无跨度数据</div>';
     axis.innerHTML = '';
     return;
   }
@@ -656,7 +771,7 @@ function renderWaterfall(spans, totalMs) {
   axis.innerHTML = axisHtml;
 }
 
-/* ── Span Detail ──────────────────────────────────────────────────── */
+/* -- Span Detail -------------------------------------------------------- */
 window.showSpanDetail = function(spanId) {
   if (!selectedTrace) return;
   const span = selectedTrace.spans.find(s => s.span_id === spanId);
@@ -666,30 +781,30 @@ window.showSpanDetail = function(spanId) {
   const content = document.getElementById('spanDetailContent');
   content.innerHTML = `
     <div class="span-detail-section">
-      <div class="span-detail-label">Span ID</div>
+      <div class="span-detail-label">跨度 ID</div>
       <div class="span-detail-value" style="font-family:var(--mono);">${esc(span.span_id)}</div>
     </div>
     <div class="span-detail-section">
-      <div class="span-detail-label">Service</div>
+      <div class="span-detail-label">服务</div>
       <div class="span-detail-value">${esc(span.service)}</div>
     </div>
     <div class="span-detail-section">
-      <div class="span-detail-label">Status</div>
+      <div class="span-detail-label">状态</div>
       <div><span class="status-badge ${span.status === 'ok' ? 'status-ok' : 'status-error'}">${span.status.toUpperCase()}</span></div>
     </div>
     <div class="span-detail-section">
-      <div class="span-detail-label">Timing</div>
-      <div class="span-detail-value">Start: ${formatDuration(span.start_ms)} | Duration: ${formatDuration(span.duration_ms)}</div>
+      <div class="span-detail-label">耗时</div>
+      <div class="span-detail-value">开始: ${formatDuration(span.start_ms)} | 耗时: ${formatDuration(span.duration_ms)}</div>
     </div>
     ${Object.keys(span.tags || {}).length ? `
     <div class="span-detail-section">
-      <div class="span-detail-label">Tags</div>
+      <div class="span-detail-label">标签</div>
       <div class="span-detail-tags">
         ${Object.entries(span.tags).map(([k,v]) => `<span class="span-detail-tag">${esc(k)}: ${esc(v)}</span>`).join('')}
       </div>
     </div>` : ''}
     <div class="span-detail-section">
-      <div class="span-detail-label">Raw JSON</div>
+      <div class="span-detail-label">原始 JSON</div>
       <div class="span-detail-json">${esc(JSON.stringify(span, null, 2))}</div>
     </div>
   `;
@@ -705,7 +820,7 @@ document.getElementById('spanDetailOverlay').addEventListener('click', function(
   if (e.target === this) closeSpanDetail();
 });
 
-/* ── Metrics ──────────────────────────────────────────────────────── */
+/* -- Metrics ------------------------------------------------------------ */
 async function loadMetrics() {
   try {
     metrics = await fetch(API_BASE + '/metrics').then(r => r.json());
@@ -718,9 +833,21 @@ async function loadMetrics() {
 function renderMetrics() {
   const grid = document.getElementById('metricsGrid');
 
+  const metricIcons = {
+    requests_total: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+    errors_total: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+    agent_invocations: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+    ws_connections: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+    busy_agents: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+    memory_mb: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>',
+    uptime_hours: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  };
+
+  const defaultIcon = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>';
+
   const counterCards = (metrics.counters || []).map(c => `
     <div class="metric-card">
-      <div class="metric-label">${esc(c.name.replace(/_/g, ' '))}</div>
+      <div class="metric-label">${metricIcons[c.name] || defaultIcon} ${esc(METRIC_LABELS[c.name] || c.name.replace(/_/g, ' '))}</div>
       <div class="metric-value">${typeof c.value === 'number' ? c.value.toLocaleString() : c.value}</div>
       ${c.change ? `<div class="metric-change ${c.changeDir === 'up' && c.name.includes('error') ? 'down' : c.changeDir}">${esc(c.change)}</div>` : ''}
     </div>
@@ -728,7 +855,7 @@ function renderMetrics() {
 
   const gaugeCards = (metrics.gauges || []).map(g => `
     <div class="metric-card">
-      <div class="metric-label">${esc(g.name.replace(/_/g, ' '))}</div>
+      <div class="metric-label">${metricIcons[g.name] || defaultIcon} ${esc(METRIC_LABELS[g.name] || g.name.replace(/_/g, ' '))}</div>
       <div class="metric-value ${g.color || ''}">${g.value}<span class="metric-unit">${g.unit || ''}</span></div>
     </div>
   `).join('');
@@ -739,7 +866,7 @@ function renderMetrics() {
   const hist = metrics.histogram;
   if (hist && hist.buckets && hist.buckets.length) {
     document.getElementById('histogramContainer').style.display = 'block';
-    document.getElementById('histogramTitle').textContent = hist.title || 'Histogram';
+    document.getElementById('histogramTitle').textContent = hist.title || '直方图';
     const maxCount = Math.max(...hist.buckets.map(b => b.count));
     const bars = document.getElementById('histogramBars');
     bars.innerHTML = hist.buckets.map(b => {
@@ -754,18 +881,23 @@ function renderMetrics() {
   }
 }
 
-/* ── Auto Refresh ─────────────────────────────────────────────────── */
+/* -- Auto Refresh ------------------------------------------------------- */
 function startAutoRefresh() {
   refreshTimer = setInterval(() => {
     loadMetrics();
   }, 5000);
 }
 
-/* ── Search & Filter ──────────────────────────────────────────────── */
+/* -- Search & Filter ---------------------------------------------------- */
 document.getElementById('traceSearch').addEventListener('input', renderTraceList);
 document.getElementById('traceFilter').addEventListener('change', renderTraceList);
 
-/* ── Init ─────────────────────────────────────────────────────────── */
+/* -- Sidebar Toggle ----------------------------------------------------- */
+document.getElementById('sidebarToggle').addEventListener('click', function() {
+  document.getElementById('pageLayout').classList.toggle('sidebar-collapsed');
+});
+
+/* -- Init --------------------------------------------------------------- */
 window.loadTraces = loadTraces;
 loadTraces();
 loadMetrics();
