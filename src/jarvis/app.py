@@ -22,6 +22,14 @@ from jarvis.engine.spec_registry import SpecRegistry
 from jarvis.hooks.engine import HookEngine
 from jarvis.knowledge.graph import KnowledgeGraph
 from jarvis.llm.registry import LLMRegistry
+from jarvis.skills.registry import SkillRegistry
+from jarvis.skills.evolve import SkillEvolver
+from jarvis.skills.eval import SkillEvaluator
+from jarvis.skills.failure_analyzer import FailureAnalyzer
+from jarvis.curator.engine import Curator
+from jarvis.memory.manager import MemoryManager
+from jarvis.session.manager import SessionManager
+from jarvis.observability.tracer import tracer
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +53,14 @@ class JarvisApp:
         self.hook_engine = HookEngine()
         self.knowledge_graph = KnowledgeGraph()
         self._tool_registry = None
+
+        self.skill_registry = SkillRegistry()
+        self.skill_evolver = SkillEvolver(self.skill_registry, self.llm_registry)
+        self.skill_evaluator = SkillEvaluator(self.llm_registry)
+        self.failure_analyzer = FailureAnalyzer(self.llm_registry)
+        self.curator = Curator(self.llm_registry)
+        self.memory_manager = MemoryManager()
+        self.session_manager = SessionManager()
 
     def _init_tools(self):
         try:
@@ -85,11 +101,14 @@ class JarvisApp:
         from jarvis.engine.replanner import Replanner
         self.spec_engine._replanner = Replanner(llm_registry=self.llm_registry)
 
+        skills_loaded = self.skill_registry.load_directory()
+
         logger.info(
-            "JARVIS initialized: %d agents, %d tools, %d agent-specs",
+            "JARVIS initialized: %d agents, %d tools, %d specs, %d skills",
             len(self.registry),
             len(self._tool_registry.list_tools()) if self._tool_registry else 0,
             len(self.spec_registry.list_specs()),
+            skills_loaded,
         )
 
     async def chat(self, message: str) -> str:
@@ -105,6 +124,45 @@ class JarvisApp:
             return result.model_dump(mode="json")
         return {"error": "Spec execution failed"}
 
+    async def record_skill_execution(self, skill_name: str, execution) -> None:
+        """Record a skill execution and trigger reflection + evolution if needed."""
+        from jarvis.skills.base import SkillExecution
+        skill = self.skill_registry.get(skill_name)
+        if not skill:
+            return
+
+        skill.record_execution(execution)
+
+        if not execution.success:
+            analysis = await self.failure_analyzer.analyze(execution, skill)
+            summary = self.failure_analyzer.aggregate(skill_name)
+            if self.failure_analyzer.should_trigger_improvement(summary):
+                await self._evolve_skill(skill)
+
+    async def _evolve_skill(self, skill) -> None:
+        """Run the full evolution pipeline: improve → eval → curator review → promote/rollback."""
+        improved = await self.skill_evolver.improve_skill(skill)
+        if not improved:
+            return
+
+        suite = self.skill_evaluator.get_suite(skill.metadata.name)
+        if suite and suite.cases:
+            passed = await self.skill_evaluator.regression_test(skill, improved, suite)
+            if not passed:
+                logger.warning("Skill %s evolution failed regression test, rolling back", skill.metadata.name)
+                self.skill_registry.deprecate(improved.metadata.name)
+                return
+
+        review = await self.curator.review_skill(improved)
+        if review.verdict.value in ("approved", "needs_revision"):
+            from jarvis.skills.base import SkillStatus
+            improved.status = SkillStatus.ACTIVE
+            self.skill_registry.register(improved)
+            logger.info("Skill %s evolved to %s", skill.metadata.name, improved.metadata.version)
+        else:
+            logger.warning("Skill %s evolution rejected by curator: %s", skill.metadata.name, review.verdict)
+
     async def shutdown(self) -> None:
+        self.skill_registry.save_all()
         await self.registry.shutdown_all()
         logger.info("JARVIS shutdown complete")

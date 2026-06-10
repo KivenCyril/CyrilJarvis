@@ -435,6 +435,133 @@ class SkillEvolver:
         )
 
     # ------------------------------------------------------------------
+    # Reflection plane
+    # ------------------------------------------------------------------
+
+    async def reflect_on_execution(
+        self, skill: Skill, execution: SkillExecution
+    ) -> dict:
+        """Post-execution reflection: analyze outcome and propose improvements.
+
+        When the same recommendation appears 3+ times in a skill's reflection
+        log, it is promoted to a formal constraint.
+        """
+        from jarvis.skills.failure_analyzer import FailureAnalyzer
+
+        result = {
+            "execution_id": execution.id,
+            "success": execution.success,
+            "recommendations": [],
+            "promoted_constraints": [],
+        }
+
+        if execution.success and execution.score >= 0.8:
+            return result
+
+        analyzer = FailureAnalyzer(self._llm)
+        if not execution.success:
+            analysis = await analyzer.analyze(execution, skill)
+            result["failure_type"] = analysis.failure_type.value
+            result["root_cause"] = analysis.root_cause
+            if analysis.recommendation:
+                result["recommendations"].append(analysis.recommendation)
+
+        if execution.score > 0 and execution.score < 0.7:
+            result["recommendations"].append(
+                f"Quality below threshold ({execution.score:.2f}): review steps for clarity"
+            )
+
+        skill.reflection_log.append(result)
+
+        all_recs = []
+        for entry in skill.reflection_log:
+            all_recs.extend(entry.get("recommendations", []))
+
+        from collections import Counter
+        rec_counts = Counter(all_recs)
+        for rec, count in rec_counts.items():
+            if count >= 3 and rec not in skill.constraints:
+                skill.constraints.append(rec)
+                result["promoted_constraints"].append(rec)
+                logger.info(
+                    "Promoted recommendation to constraint for '%s': %s",
+                    skill.metadata.name, rec,
+                )
+
+        return result
+
+    async def improve_with_eval(self, skill: Skill) -> Skill | None:
+        """Eval-driven improvement: use failing eval cases to generate minimal patches."""
+        from jarvis.skills.eval import SkillEvaluator
+
+        evaluator = SkillEvaluator(self._llm)
+        suite = evaluator.get_suite(skill.metadata.name)
+        if not suite or not suite.cases:
+            return None
+
+        suite = await evaluator.run_suite(skill, suite)
+        if suite.pass_rate >= 1.0:
+            return None
+
+        failed_cases = [
+            (c, r) for c, r in zip(suite.cases, suite.results)
+            if not r.passed
+        ]
+        if not failed_cases:
+            return None
+
+        failure_descriptions = []
+        for case, result in failed_cases[:5]:
+            failure_descriptions.append(
+                f"- Eval '{case.name}': expected {case.expected}, "
+                f"got failure: {result.failure_reason}"
+            )
+
+        new_constraints = list(skill.constraints)
+        new_notes = list(skill.improvement_notes)
+
+        for case, result in failed_cases[:3]:
+            fix_note = f"Fix eval '{case.name}': {result.failure_reason}"
+            new_notes.append(fix_note)
+            if case.expected:
+                new_constraints.append(
+                    f"Ensure output addresses: {', '.join(case.expected[:3])}"
+                )
+
+        seen = set()
+        deduped = []
+        for c in new_constraints:
+            if c not in seen:
+                seen.add(c)
+                deduped.append(c)
+
+        improved = Skill(
+            metadata=SkillMetadata(
+                name=skill.metadata.name,
+                version=self._bump_version(skill.metadata.version),
+                description=skill.metadata.description,
+                author="eval-driven-evolver",
+                created_by="agent",
+                tags=list(skill.metadata.tags) + ["eval-improved"],
+                domain=skill.metadata.domain,
+            ),
+            status=SkillStatus.DRAFT,
+            system_prompt=skill.system_prompt,
+            steps=list(skill.steps),
+            constraints=deduped,
+            parent_skill_id=skill.id,
+            parent_spec_id=skill.parent_spec_id,
+            improvement_notes=new_notes,
+        )
+
+        self._registry.register(improved)
+        logger.info(
+            "Eval-driven evolution of '%s': %d failing evals addressed",
+            skill.metadata.name, len(failed_cases),
+        )
+        return improved
+
+    # ------------------------------------------------------------------
     # Batch evolution
     # ------------------------------------------------------------------
 

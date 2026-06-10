@@ -124,10 +124,15 @@ class Skill(BaseModel):
     use_count: int = 0
     last_used_at: datetime | None = None
 
+    # Eval ---------------------------------------------------------------
+    eval_cases: list[dict] = Field(default_factory=list)
+    eval_pass_rate: float = 0.0
+
     # Evolution -----------------------------------------------------------
     parent_skill_id: str | None = None
     parent_spec_id: str | None = None
     improvement_notes: list[str] = Field(default_factory=list)
+    reflection_log: list[dict] = Field(default_factory=list, exclude=True)
 
     # ------------------------------------------------------------------
     # Execution tracking

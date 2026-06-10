@@ -1215,6 +1215,78 @@ async def render_prompt_template(name: str, req: RenderTemplateRequest):
     }
 
 
+# --- Skill Eval API ---
+
+class AddEvalRequest(BaseModel):
+    name: str
+    prompt: str
+    expected: list[str] = []
+    must_not: list[str] = []
+    eval_type: str = "validation"
+
+
+@app.post("/skills/{skill_name}/evals")
+async def add_skill_eval(skill_name: str, req: AddEvalRequest):
+    from jarvis.skills.eval import EvalCase, EvalType
+    skill = jarvis.skill_registry.get(skill_name)
+    if not skill:
+        raise HTTPException(404, f"Skill '{skill_name}' not found")
+    case = EvalCase(
+        name=req.name,
+        prompt=req.prompt,
+        expected=req.expected,
+        must_not=req.must_not,
+        eval_type=EvalType(req.eval_type),
+    )
+    jarvis.skill_evaluator.add_eval(skill_name, case)
+    return {"success": True, "eval_id": case.id}
+
+
+@app.post("/skills/{skill_name}/evals/run")
+async def run_skill_evals(skill_name: str):
+    skill = jarvis.skill_registry.get(skill_name)
+    if not skill:
+        raise HTTPException(404, f"Skill '{skill_name}' not found")
+    suite = jarvis.skill_evaluator.get_suite(skill_name)
+    if not suite or not suite.cases:
+        raise HTTPException(400, f"No eval cases for skill '{skill_name}'")
+    suite = await jarvis.skill_evaluator.run_suite(skill, suite)
+    return {
+        "skill": skill_name,
+        "total": len(suite.cases),
+        "passed": sum(1 for r in suite.results if r.passed),
+        "pass_rate": suite.pass_rate,
+        "results": [r.model_dump(mode="json") for r in suite.results],
+    }
+
+
+@app.get("/skills/{skill_name}/evals/results")
+async def get_skill_eval_results(skill_name: str):
+    suite = jarvis.skill_evaluator.get_suite(skill_name)
+    if not suite:
+        return {"skill": skill_name, "results": [], "pass_rate": 0.0}
+    return {
+        "skill": skill_name,
+        "total": len(suite.cases),
+        "pass_rate": suite.pass_rate,
+        "results": [r.model_dump(mode="json") for r in suite.results],
+    }
+
+
+@app.post("/skills/{skill_name}/evolve")
+async def evolve_skill(skill_name: str):
+    skill = jarvis.skill_registry.get(skill_name)
+    if not skill:
+        raise HTTPException(404, f"Skill '{skill_name}' not found")
+    await jarvis._evolve_skill(skill)
+    updated = jarvis.skill_registry.get(skill_name)
+    return {
+        "success": True,
+        "skill": skill_name,
+        "version": updated.metadata.version if updated else "unknown",
+    }
+
+
 # --- Static frontend (must be last so it doesn't shadow API routes) ---
 
 from jarvis.server.static import mount_static  # noqa: E402
