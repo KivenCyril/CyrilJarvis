@@ -48,6 +48,7 @@ async def _init_app() -> JarvisApp:
     _load_env()
     j = JarvisApp()
     await j.initialize()
+    j.enable_skill_feedback()
     return j
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime, timezone
+from typing import Awaitable, Callable
 
 from jarvis.agents.base import AgentContext, TaskResult
 from jarvis.agents.orchestrator import Orchestrator
@@ -16,6 +17,8 @@ from jarvis.models.streaming_spec import (
 )
 
 logger = logging.getLogger(__name__)
+
+FinishCallback = Callable[[StreamingSpec], Awaitable[None]]
 
 
 class SpecExecutor:
@@ -33,6 +36,9 @@ class SpecExecutor:
     def __init__(self, spec_engine: SpecEngine, orchestrator: Orchestrator) -> None:
         self.spec_engine = spec_engine
         self.orchestrator = orchestrator
+        # Fired once per finished spec (COMPLETED or FAILED), e.g. for the
+        # skill self-evolution feedback loop.
+        self.on_finish: list[FinishCallback] = []
 
     # ── Full-spec execution ─────────────────────────────────────────────
 
@@ -85,7 +91,14 @@ class SpecExecutor:
             if spec:
                 self._update_step_readiness(spec)
 
-        return self.spec_engine.get(spec_id)
+        spec = self.spec_engine.get(spec_id)
+        if spec:
+            for callback in self.on_finish:
+                try:
+                    await callback(spec)
+                except Exception:
+                    logger.exception("on_finish callback failed for spec %s", spec_id)
+        return spec
 
     # ── Single-step execution ───────────────────────────────────────────
 

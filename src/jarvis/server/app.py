@@ -40,6 +40,7 @@ def _patch_spec_engine_emit(engine) -> None:
 async def lifespan(_app: FastAPI):
     load_dotenv(Path(__file__).resolve().parents[3] / ".env")
     await jarvis.initialize()
+    jarvis.enable_skill_feedback()
     _patch_spec_engine_emit(jarvis.spec_engine)
     yield
     await jarvis.shutdown()

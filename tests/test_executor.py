@@ -153,3 +153,63 @@ class TestHonestFailure:
         await asyncio.sleep(0.05)
         assert "spec_failed" in events
         assert "spec_completed" not in events
+
+
+class TestSkillFeedbackLoop:
+    """Finished specs feed the skill self-evolution loop."""
+
+    @pytest.fixture
+    async def app(self):
+        j = JarvisApp()
+        await j.initialize()
+        # Never write to the real ~/.jarvis/skills from tests
+        j.skill_registry.save_all = lambda: None
+        yield j
+        await j.shutdown()
+
+    @pytest.mark.asyncio
+    async def test_on_finish_fires_on_completion(self, app: JarvisApp):
+        seen: list[str] = []
+
+        async def on_finish(spec):
+            seen.append(spec.id)
+
+        app.executor.on_finish.append(on_finish)
+        spec = await app.spec_engine.create("finish callback task")
+        await app.executor.execute_spec(spec.id)
+        assert seen == [spec.id]
+
+    @pytest.mark.asyncio
+    async def test_matched_skill_records_execution(self, app: JarvisApp):
+        from jarvis.skills.base import Skill, SkillMetadata
+
+        skill = Skill(metadata=SkillMetadata(
+            name="zebrafinch-care",
+            description="review zebrafinch health",
+            tags=["zebrafinch", "review"],
+        ))
+        app.skill_registry.register(skill)
+        app.enable_skill_feedback()
+
+        spec = await app.spec_engine.create("review the zebrafinch health")
+        result = await app.executor.execute_spec(spec.id)
+        assert result.status == SpecStatus.COMPLETED
+
+        updated = app.skill_registry.get("zebrafinch-care")
+        assert updated.use_count == 1
+        assert updated.success_rate == 1.0
+        assert updated.executions[0].input_context == spec.intent
+        assert updated.executions[0].duration_ms >= 0
+
+    @pytest.mark.asyncio
+    async def test_uncovered_successful_spec_is_distilled(self, app: JarvisApp):
+        from unittest.mock import AsyncMock
+
+        app.skill_evolver.distill_from_spec = AsyncMock()
+        app.enable_skill_feedback()
+
+        spec = await app.spec_engine.create("xylophone vortex calibration")
+        result = await app.executor.execute_spec(spec.id)
+        assert result.status == SpecStatus.COMPLETED
+
+        app.skill_evolver.distill_from_spec.assert_awaited_once()

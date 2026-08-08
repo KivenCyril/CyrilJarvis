@@ -135,6 +135,43 @@ class JarvisApp:
             return result.model_dump(mode="json")
         return {"error": "Spec execution failed"}
 
+    def enable_skill_feedback(self) -> None:
+        """Wire the skill self-evolution loop into spec execution.
+
+        Called by runtime entry points (server / CLI) so every finished spec
+        feeds real execution statistics back to matching skills and can be
+        distilled into a new draft skill.
+        """
+        self.executor.on_finish.append(self._on_spec_finished)
+
+    async def _on_spec_finished(self, spec) -> None:
+        from jarvis.models.streaming_spec import SpecStatus, StepStatus
+        from jarvis.skills.base import SkillExecution
+
+        success = spec.status == SpecStatus.COMPLETED
+
+        # Feedback: record a real execution against the best-matching skill.
+        # Threshold rules in FailureAnalyzer may then trigger improvement.
+        skill = await self.skill_registry.match_skill(spec.intent)
+        if skill:
+            done = sum(1 for s in spec.steps if s.status == StepStatus.COMPLETED)
+            execution = SkillExecution(
+                input_context=spec.intent,
+                output=f"{done}/{len(spec.steps)} steps completed",
+                success=success,
+                duration_ms=int(spec.elapsed_time * 1000),
+            )
+            await self.record_skill_execution(skill.metadata.name, execution)
+            return
+
+        # Distillation: a successful spec not covered by any skill becomes
+        # a new draft skill for future reuse.
+        if success and len(spec.steps) >= 3:
+            try:
+                await self.skill_evolver.distill_from_spec(spec)
+            except Exception:
+                logger.exception("Skill distillation failed for spec %s", spec.id)
+
     async def record_skill_execution(self, skill_name: str, execution) -> None:
         """Record a skill execution and trigger reflection + evolution if needed."""
         from jarvis.skills.base import SkillExecution
