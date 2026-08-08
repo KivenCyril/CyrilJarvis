@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
-load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 from fastapi import FastAPI, HTTPException, WebSocket, Query, WebSocketDisconnect
 from pydantic import BaseModel
@@ -39,6 +38,7 @@ def _patch_spec_engine_emit(engine) -> None:
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    load_dotenv(Path(__file__).resolve().parents[3] / ".env")
     await jarvis.initialize()
     _patch_spec_engine_emit(jarvis.spec_engine)
     yield

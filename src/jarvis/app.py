@@ -18,7 +18,6 @@ from jarvis.agents.specialists.writing_agent import WritingAgent
 from jarvis.engine.executor import SpecExecutor
 from jarvis.engine.spec_engine import SpecEngine
 from jarvis.engine.spec_registry import SpecRegistry
-from jarvis.hooks.engine import HookEngine
 from jarvis.knowledge.graph import KnowledgeGraph
 from jarvis.llm.registry import LLMRegistry
 from jarvis.skills.registry import SkillRegistry
@@ -39,7 +38,7 @@ class JarvisApp:
     """Top-level application that wires all components together.
 
     Connects LLM providers, tool registry, agent system, streaming spec engine,
-    knowledge graph, and hooks into a unified personal AI assistant.
+    and knowledge graph into a unified personal AI assistant.
     """
 
     def __init__(self, specs_dir: str | Path | None = None) -> None:
@@ -49,7 +48,6 @@ class JarvisApp:
         self.spec_engine = SpecEngine(llm_registry=self.llm_registry)
         self.executor = SpecExecutor(self.spec_engine, self.orchestrator)
         self.spec_registry = SpecRegistry(specs_dir or SPECS_DIR if SPECS_DIR.exists() else None)
-        self.hook_engine = HookEngine()
         self.knowledge_graph = KnowledgeGraph()
         self._tool_registry = None
 

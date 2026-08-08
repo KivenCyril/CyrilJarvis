@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator
+from typing import Any
 
 from jarvis.llm.provider import (
     LLMProvider,
@@ -159,60 +158,6 @@ class ConversationLoop:
 
         final_response = "\n".join(accumulated_response) if accumulated_response else ""
         return final_response, state
-
-    async def run_streaming(
-        self,
-        user_message: str,
-        context: list[Message] | None = None,
-    ) -> AsyncIterator[str]:
-        """Stream the conversation response in real-time."""
-        state = ConversationState()
-
-        if self.system_prompt:
-            state.messages.append(Message(role=Role.SYSTEM, content=self.system_prompt))
-        if context:
-            state.messages.extend(context)
-        state.messages.append(Message(role=Role.USER, content=user_message))
-
-        for turn in range(self.max_turns):
-            full_content = ""
-            tool_calls_in_turn: list[ToolCall] = []
-            chunk_count = 0
-            max_chunks = 2000  # 安全上限，防止无限循环
-
-            async for chunk in self.llm.stream(
-                messages=state.messages,
-                tools=self.tools if self.tool_executor else None,
-            ):
-                chunk_count += 1
-                if chunk.delta:
-                    full_content += chunk.delta
-                    yield chunk.delta
-                if chunk.tool_calls:
-                    tool_calls_in_turn.extend(chunk.tool_calls)
-                if chunk.finish_reason:
-                    break
-                if chunk_count >= max_chunks:
-                    logger.warning("Stream hit max_chunks limit (%d), breaking", max_chunks)
-                    break
-
-            if not tool_calls_in_turn:
-                break
-
-            state.messages.append(
-                Message(
-                    role=Role.ASSISTANT,
-                    content=full_content,
-                    tool_calls=tool_calls_in_turn,
-                )
-            )
-
-            for tc in tool_calls_in_turn:
-                tool_output = await self._execute_tool(tc)
-                state.messages.append(
-                    Message(role=Role.TOOL, content=tool_output, tool_call_id=tc.id)
-                )
-                yield f"\n[Tool: {tc.name}] -> {tool_output[:200]}\n"
 
     async def _execute_tool(self, tc: ToolCall) -> str:
         """Execute a tool call with error handling."""

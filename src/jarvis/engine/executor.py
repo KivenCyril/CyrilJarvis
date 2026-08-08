@@ -59,6 +59,7 @@ class SpecExecutor:
                 SpecStatus.PAUSED,
                 SpecStatus.REDIRECTED,
                 SpecStatus.COMPLETED,
+                SpecStatus.FAILED,
             ):
                 logger.info(
                     "Spec status is %s, stopping execution", spec.status.value
@@ -68,30 +69,9 @@ class SpecExecutor:
             ready_steps = spec.get_ready_steps()
 
             if not ready_steps:
-                remaining = [
-                    s
-                    for s in spec.steps
-                    if s.status
-                    not in (
-                        StepStatus.COMPLETED,
-                        StepStatus.SKIPPED,
-                        StepStatus.FAILED,
-                        StepStatus.CANCELLED,
-                    )
-                ]
-                if not remaining:
-                    # All steps have reached a terminal state
-                    spec.status = SpecStatus.COMPLETED
-                    break
-                elif all(
-                    s.status in (StepStatus.FAILED, StepStatus.BLOCKED)
-                    for s in remaining
-                ):
-                    # Nothing can proceed -- mark spec as failed
-                    spec.status = SpecStatus.FAILED
-                    break
-                # Nothing ready yet but non-terminal steps exist (shouldn't
-                # normally happen -- break to avoid infinite loop)
+                # Nothing can run: finalize terminal status (COMPLETED /
+                # FAILED) and emit the matching event, then stop.
+                await self.spec_engine.finalize(spec_id)
                 break
 
             # Execute all ready steps in parallel
@@ -176,18 +156,6 @@ class SpecExecutor:
                 )
 
             result = await self.orchestrator.handle(message, context)
-
-            # If no agent could handle it, synthesise a success for the mock phase
-            if not result.success and "No agent found" in (result.error or ""):
-                result = TaskResult(
-                    task_id=context.task_id,
-                    agent_name="orchestrator",
-                    success=True,
-                    output=(
-                        f"[Orchestrator] Step '{step.name}' completed "
-                        f"(no specialist needed)"
-                    ),
-                )
 
             last_result = result
 

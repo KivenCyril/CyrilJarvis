@@ -144,7 +144,7 @@ class Replanner:
 
                 decompose_prompt += "\nDecompose the NEW intent into steps, considering what was already done."
 
-                from jarvis.engine.spec_engine import DECOMPOSE_SYSTEM_PROMPT
+                from jarvis.engine.spec_engine import DECOMPOSE_SYSTEM_PROMPT, SpecEngine
                 response = await llm.chat(
                     messages=[
                         Message(role=Role.SYSTEM, content=DECOMPOSE_SYSTEM_PROMPT),
@@ -163,6 +163,7 @@ class Replanner:
                         step_data.get("description", ""),
                         source=ChangeSource.AGENT,
                     )
+                SpecEngine._wire_dependencies(new_spec, steps)
                 new_spec.status = SpecStatus.EXECUTING
                 return new_spec
             except Exception as e:

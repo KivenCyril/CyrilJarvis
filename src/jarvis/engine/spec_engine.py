@@ -11,7 +11,6 @@ from jarvis.models.streaming_spec import (
     ChangeType,
     SpecEvent,
     SpecStatus,
-    Step,
     StepStatus,
     StreamingSpec,
 )
@@ -20,11 +19,15 @@ logger = logging.getLogger(__name__)
 
 DECOMPOSE_SYSTEM_PROMPT = """\
 You are a task decomposition engine. Given a user's intent, break it down into \
-concrete, actionable steps. Return a JSON array of objects with "name" and "description" fields.
+concrete, actionable steps. Return a JSON array of objects with "name", \
+"description" and "depends_on" fields.
 
 Rules:
+- "depends_on" is an array of NAMES of earlier steps that must finish before \
+this step can start; use [] when the step can start immediately
+- Steps that do not depend on each other should stay independent so they can \
+run in parallel -- do not chain steps unnecessarily
 - Each step should be independently executable
-- Steps should be ordered by dependency (earlier steps first)
 - Use clear, imperative language for step names
 - Description should explain WHAT to do, not HOW
 - 3-8 steps typically. Don't over-decompose simple tasks
@@ -94,6 +97,7 @@ class SpecEngine:
                         step_data.get("description", ""),
                         source=ChangeSource.AGENT,
                     )
+                self._wire_dependencies(spec, steps)
             except Exception as e:
                 logger.warning("LLM decomposition failed, using fallback: %s", e)
                 self._add_fallback_steps(spec, intent)
@@ -112,6 +116,28 @@ class SpecEngine:
         spec.add_step("制定方案", "确定实施路径", source=ChangeSource.AGENT)
         spec.add_step("执行", "按方案执行", source=ChangeSource.AGENT)
         spec.add_step("验证", "验证执行结果", source=ChangeSource.AGENT)
+        # Fallback chain is sequential by design
+        spec.add_dependency(spec.steps[1].id, spec.steps[0].id, source=ChangeSource.AGENT)
+        spec.add_dependency(spec.steps[2].id, spec.steps[1].id, source=ChangeSource.AGENT)
+        spec.add_dependency(spec.steps[3].id, spec.steps[2].id, source=ChangeSource.AGENT)
+        spec.update_step_readiness()
+
+    @staticmethod
+    def _wire_dependencies(spec: StreamingSpec, steps_data: list[dict]) -> None:
+        """Resolve LLM-provided dependency step names into DAG edges.
+
+        Names are matched against previously defined steps (first occurrence
+        wins); unknown names are skipped. ``add_dependency`` rejects edges
+        that would create a cycle.
+        """
+        name_to_id: dict[str, str] = {}
+        for step, data in zip(spec.steps, steps_data):
+            for dep_name in data.get("depends_on") or []:
+                dep_id = name_to_id.get(dep_name)
+                if dep_id:
+                    spec.add_dependency(step.id, dep_id, source=ChangeSource.AGENT)
+            name_to_id.setdefault(step.name, step.id)
+        spec.update_step_readiness()
 
     def get(self, spec_id: str) -> StreamingSpec | None:
         return self._specs.get(spec_id)
@@ -135,14 +161,11 @@ class SpecEngine:
         if output:
             spec.set_step_output(step_id, output)
 
-        # Check if all steps reached a terminal state
-        if all(
-            s.status in (StepStatus.COMPLETED, StepStatus.SKIPPED, StepStatus.CANCELLED)
-            for s in spec.steps
-        ):
-            spec.status = SpecStatus.COMPLETED
-
         self._emit(spec_id, "step_updated", {"step_id": step_id, "status": status, "output": output})
+
+        # Emit terminal event if all steps reached a terminal state
+        await self.finalize(spec_id)
+
         return spec
 
     async def add_constraint(
@@ -278,6 +301,72 @@ class SpecEngine:
         })
         return spec
 
+    _TERMINAL_STEP_STATES = (
+        StepStatus.COMPLETED,
+        StepStatus.SKIPPED,
+        StepStatus.FAILED,
+        StepStatus.CANCELLED,
+    )
+
+    async def finalize(self, spec_id: str) -> StreamingSpec | None:
+        """Recompute terminal status from step states and emit terminal events.
+
+        - All steps terminal -> COMPLETED, or FAILED if any step failed
+        - Remaining steps all BLOCKED (failed dependency chain) -> FAILED
+        Emits ``spec_completed`` / ``spec_failed`` exactly once per transition.
+        """
+        spec = self._specs.get(spec_id)
+        if not spec or spec.status in (
+            SpecStatus.COMPLETED,
+            SpecStatus.FAILED,
+            SpecStatus.PAUSED,
+            SpecStatus.REDIRECTED,
+        ):
+            return spec
+
+        # Refresh BLOCKED/READY states before judging the terminal condition,
+        # otherwise steps unblocked by a just-completed dependency still look
+        # BLOCKED and the spec would be wrongly failed.
+        spec.update_step_readiness()
+
+        remaining = [s for s in spec.steps if s.status not in self._TERMINAL_STEP_STATES]
+        any_failed = any(s.status == StepStatus.FAILED for s in spec.steps)
+
+        if not remaining:
+            self._transition(spec, SpecStatus.FAILED if any_failed else SpecStatus.COMPLETED)
+        elif all(s.status == StepStatus.BLOCKED for s in remaining):
+            self._transition(spec, SpecStatus.FAILED)
+        return spec
+
+    def _transition(self, spec: StreamingSpec, new_status: SpecStatus) -> None:
+        """Set a terminal status, record it, and emit the matching event."""
+        if spec.status == new_status:
+            return
+        old = spec.status
+        spec.status = new_status
+        spec._record_change(
+            ChangeSource.AGENT,
+            ChangeType.STATUS_CHANGED,
+            "status",
+            old_value=old.value,
+            new_value=new_status.value,
+        )
+        if new_status == SpecStatus.COMPLETED:
+            self._emit(spec.id, "spec_completed", {
+                "status": new_status.value,
+                "progress": spec.progress,
+            })
+        elif new_status == SpecStatus.FAILED:
+            self._emit(spec.id, "spec_failed", {
+                "status": new_status.value,
+                "failed_steps": [
+                    {"id": s.id, "name": s.name, "error": s.error}
+                    for s in spec.steps
+                    if s.status == StepStatus.FAILED
+                ],
+            })
+        logger.info("Spec %s transitioned %s -> %s", spec.id, old.value, new_status.value)
+
     async def stream(self, spec_id: str) -> AsyncIterator[SpecEvent]:
         queue: asyncio.Queue[SpecEvent] = asyncio.Queue()
         self._subscribers.setdefault(spec_id, []).append(queue)
@@ -285,7 +374,7 @@ class SpecEngine:
             while True:
                 event = await queue.get()
                 yield event
-                if event.event_type in ("spec_completed", "spec_redirected"):
+                if event.event_type in ("spec_completed", "spec_failed", "spec_redirected"):
                     break
         finally:
             self._subscribers[spec_id].remove(queue)

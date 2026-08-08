@@ -13,7 +13,6 @@ from jarvis.agents.specialists.devops_agent import DevOpsAgent
 from jarvis.agents.specialists.knowledge_agent import KnowledgeAgent
 from jarvis.agents.specialists.ops_agent import OpsAgent
 from jarvis.agents.specialists.research_agent import ResearchAgent
-from jarvis.agents.specialists.security_agent import SecurityAgent
 from jarvis.agents.specialists.writing_agent import WritingAgent
 
 
@@ -70,53 +69,6 @@ class TestDataAgent:
         result = await agent.execute("process this", ctx)
         assert result.success
         assert "analysis" in result.output
-
-
-# ── SecurityAgent ──
-
-class TestSecurityAgent:
-    def test_can_handle_security_keywords(self):
-        agent = SecurityAgent()
-        assert agent.can_handle("run a security audit") > 0
-        assert agent.can_handle("check for vulnerabilities") > 0
-        assert agent.can_handle("scan for secrets and passwords") > 0
-        assert agent.can_handle("安全扫描") > 0
-
-    def test_can_handle_no_match(self):
-        agent = SecurityAgent()
-        assert agent.can_handle("write a blog post") == 0.0
-
-    @pytest.mark.asyncio
-    async def test_execute_audit(self):
-        agent = SecurityAgent()
-        ctx = AgentContext()
-        result = await agent.execute("perform a security audit of the codebase", ctx)
-        assert result.success
-        assert "audit" in result.output
-
-    @pytest.mark.asyncio
-    async def test_execute_vulnerability(self):
-        agent = SecurityAgent()
-        ctx = AgentContext()
-        result = await agent.execute("scan dependencies for CVE vulnerabilities", ctx)
-        assert result.success
-        assert "vulnerability" in result.output
-
-    @pytest.mark.asyncio
-    async def test_execute_secrets(self):
-        agent = SecurityAgent()
-        ctx = AgentContext()
-        result = await agent.execute("detect hardcoded secrets and credentials", ctx)
-        assert result.success
-        assert "secrets" in result.output
-
-    @pytest.mark.asyncio
-    async def test_execute_network(self):
-        agent = SecurityAgent()
-        ctx = AgentContext()
-        result = await agent.execute("analyze network ports and TLS config", ctx)
-        assert result.success
-        assert "network" in result.output
 
 
 # ── DevOpsAgent ──
@@ -297,7 +249,6 @@ class TestFullAgentRouting:
             CommsAgent(),
             OpsAgent(),
             DataAgent(),
-            SecurityAgent(),
             DevOpsAgent(),
             WritingAgent(),
             ResearchAgent(),
@@ -311,12 +262,6 @@ class TestFullAgentRouting:
         result = await orchestrator.handle("analyze this CSV data and compute statistics")
         assert result.success
         assert result.agent_name == "data-agent"
-
-    @pytest.mark.asyncio
-    async def test_route_to_security_agent(self, orchestrator: Orchestrator):
-        result = await orchestrator.handle("run a security audit and scan for vulnerabilities")
-        assert result.success
-        assert result.agent_name == "security-agent"
 
     @pytest.mark.asyncio
     async def test_route_to_devops_agent(self, orchestrator: Orchestrator):
@@ -338,7 +283,7 @@ class TestFullAgentRouting:
 
     @pytest.mark.asyncio
     async def test_original_agents_still_route(self, orchestrator: Orchestrator):
-        """Verify the original 5 agents still route correctly with 10 agents."""
+        """Verify the original agents still route correctly with the full roster."""
         result = await orchestrator.handle("请帮我 review 这段代码")
         assert result.success
         assert result.agent_name == "code-agent"
@@ -356,9 +301,9 @@ class TestFullAgentRouting:
         assert result.agent_name == "ops-agent"
 
     @pytest.mark.asyncio
-    async def test_ten_agents_registered(self, orchestrator: Orchestrator):
+    async def test_all_agents_registered(self, orchestrator: Orchestrator):
         cards = orchestrator.registry.list_cards()
-        assert len(cards) == 10
+        assert len(cards) == 9
 
     @pytest.mark.asyncio
     async def test_no_match_still_fails(self, orchestrator: Orchestrator):

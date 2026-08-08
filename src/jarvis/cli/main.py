@@ -7,16 +7,6 @@ from pathlib import Path
 
 import typer
 
-# Load .env file if present
-try:
-    from dotenv import load_dotenv
-    _env_path = Path.cwd() / ".env"
-    if _env_path.exists():
-        load_dotenv(_env_path)
-    else:
-        load_dotenv()
-except ImportError:
-    pass
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -41,7 +31,21 @@ def _run(coro):
     return asyncio.run(coro)
 
 
+def _load_env() -> None:
+    """Load .env at execution time (never at import) so module imports stay side-effect free."""
+    try:
+        from dotenv import load_dotenv
+        _env_path = Path.cwd() / ".env"
+        if _env_path.exists():
+            load_dotenv(_env_path)
+        else:
+            load_dotenv()
+    except ImportError:
+        pass
+
+
 async def _init_app() -> JarvisApp:
+    _load_env()
     j = JarvisApp()
     await j.initialize()
     return j

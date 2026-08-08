@@ -438,9 +438,138 @@ class TestSpecEngine:
     async def test_remove_dependency_nonexistent_via_engine(self, engine: SpecEngine):
         spec = await engine.create("no-dep task")
         a_id = spec.steps[0].id
-        b_id = spec.steps[1].id
-        result = await engine.remove_dependency(spec.id, b_id, a_id)
+        c_id = spec.steps[2].id
+        result = await engine.remove_dependency(spec.id, c_id, a_id)
         assert result is None
+
+
+class _FakeLLMResponse:
+    def __init__(self, content: str) -> None:
+        self.content = content
+
+
+class _FakeLLM:
+    def __init__(self, payload: list[dict]) -> None:
+        import json
+        self._content = json.dumps(payload)
+
+    async def chat(self, messages, temperature=0.3, max_tokens=2048):
+        return _FakeLLMResponse(self._content)
+
+
+class _FakeLLMRegistry:
+    def __init__(self, payload: list[dict]) -> None:
+        self._llm = _FakeLLM(payload)
+
+    def get(self):
+        return self._llm
+
+
+class TestDependencyDecomposition:
+    """LLM decomposition must produce a real dependency-aware DAG."""
+
+    PAYLOAD = [
+        {"name": "Collect data", "description": "gather input", "depends_on": []},
+        {"name": "Clean data", "description": "normalize", "depends_on": ["Collect data"]},
+        {"name": "Build report", "description": "render", "depends_on": ["Clean data"]},
+        {"name": "Notify user", "description": "send message", "depends_on": []},
+    ]
+
+    @pytest.mark.asyncio
+    async def test_create_wires_llm_dependencies(self):
+        engine = SpecEngine(llm_registry=_FakeLLMRegistry(self.PAYLOAD))
+        spec = await engine.create("process the dataset")
+
+        collect, clean, report, notify = spec.steps
+        assert clean.depends_on == [collect.id]
+        assert report.depends_on == [clean.id]
+        assert collect.depends_on == []
+        assert notify.depends_on == []
+
+        # Readiness follows the DAG
+        ready = {s.id for s in spec.get_ready_steps()}
+        blocked = {s.id for s in spec.get_blocked_steps()}
+        assert ready == {collect.id, notify.id}
+        assert blocked == {clean.id, report.id}
+
+        # Topological order respects the generated edges
+        order = [s.id for s in spec.topological_sort()]
+        assert order.index(collect.id) < order.index(clean.id) < order.index(report.id)
+
+    @pytest.mark.asyncio
+    async def test_unknown_dependency_names_are_skipped(self):
+        payload = [
+            {"name": "A", "description": "", "depends_on": ["Ghost step"]},
+            {"name": "B", "description": "", "depends_on": ["A"]},
+        ]
+        engine = SpecEngine(llm_registry=_FakeLLMRegistry(payload))
+        spec = await engine.create("tolerate bad names")
+
+        a, b = spec.steps
+        assert a.depends_on == []  # unknown name ignored, no crash
+        assert b.depends_on == [a.id]
+        assert spec.validate_dag()
+
+
+class TestTerminalEvents:
+    """finalize() must emit spec_completed / spec_failed exactly once."""
+
+    @pytest.mark.asyncio
+    async def test_spec_completed_emitted(self):
+        engine = SpecEngine()
+        events: list[str] = []
+
+        async def on_event(spec_id, event_type, data):
+            events.append(event_type)
+
+        engine.on_event(on_event)
+        spec = await engine.create("finish me")
+        for step in spec.steps:
+            await engine.update_step(spec.id, step.id, status=StepStatus.COMPLETED)
+
+        await asyncio.sleep(0.05)
+        assert engine.get(spec.id).status == SpecStatus.COMPLETED
+        assert events.count("spec_completed") == 1
+        assert "spec_failed" not in events
+
+    @pytest.mark.asyncio
+    async def test_spec_failed_emitted_on_step_failure(self):
+        engine = SpecEngine()
+        events: list[tuple[str, dict]] = []
+
+        async def on_event(spec_id, event_type, data):
+            events.append((event_type, data))
+
+        engine.on_event(on_event)
+        spec = await engine.create("fail me")
+        steps = spec.steps
+        await engine.update_step(spec.id, steps[0].id, status=StepStatus.FAILED)
+        for step in steps[1:]:
+            await engine.update_step(spec.id, step.id, status=StepStatus.SKIPPED)
+
+        await asyncio.sleep(0.05)
+        assert engine.get(spec.id).status == SpecStatus.FAILED
+        failed_events = [d for et, d in events if et == "spec_failed"]
+        assert len(failed_events) == 1
+        assert failed_events[0]["failed_steps"][0]["id"] == steps[0].id
+
+    @pytest.mark.asyncio
+    async def test_stream_terminates_on_spec_completed(self):
+        engine = SpecEngine()
+        spec = await engine.create("stream me")
+        received: list[str] = []
+
+        async def consumer():
+            async for event in engine.stream(spec.id):
+                received.append(event.event_type)
+
+        task = asyncio.create_task(consumer())
+        await asyncio.sleep(0.01)
+        for step in spec.steps:
+            await engine.update_step(spec.id, step.id, status=StepStatus.COMPLETED)
+
+        await asyncio.wait_for(task, timeout=2.0)
+        assert received[-1] == "spec_completed"
 
 
 class TestAgentSpec:

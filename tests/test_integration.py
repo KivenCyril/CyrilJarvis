@@ -45,7 +45,6 @@ class TestFullStack:
             ("reply to this email", "comms-agent"),
             ("check server health", "ops-agent"),
             ("analyze this CSV data", "data-agent"),
-            ("audit code security vulnerabilities", "security-agent"),
             ("deploy with Docker", "devops-agent"),
             ("write documentation", "writing-agent"),
             ("research market trends", "research-agent"),

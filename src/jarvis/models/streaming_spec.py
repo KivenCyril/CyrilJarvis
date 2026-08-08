@@ -104,7 +104,6 @@ class StreamingSpec(BaseModel):
     changelog: list[SpecChange] = Field(default_factory=list)
     version: int = 1  # increments on every edit
     tags: list[str] = Field(default_factory=list)
-    parent_spec_id: str | None = None  # for spec chains
 
     # ── Properties ──────────────────────────────────────────────────────
 
@@ -176,19 +175,9 @@ class StreamingSpec(BaseModel):
         be shorter than ``self.steps``.
         """
         step_map = {s.id: s for s in self.steps}
-        in_degree: dict[str, int] = {s.id: 0 for s in self.steps}
 
-        # Count in-degrees based on actual step IDs in the graph
-        for step in self.steps:
-            for dep_id in step.depends_on:
-                if dep_id in step_map:
-                    in_degree[step.id] = in_degree.get(step.id, 0)
-                    # dep_id -> step.id means step.id depends on dep_id
-                    # in_degree for step.id is already counted by len(depends_on)
-                    pass
-
-        # Recount properly: in_degree = number of dependencies that exist in the graph
-        in_degree = {}
+        # in_degree = number of dependencies that exist in the graph
+        in_degree: dict[str, int] = {}
         for step in self.steps:
             count = sum(1 for d in step.depends_on if d in step_map)
             in_degree[step.id] = count
