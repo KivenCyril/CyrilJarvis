@@ -177,16 +177,24 @@ class ConversationLoop:
         for turn in range(self.max_turns):
             full_content = ""
             tool_calls_in_turn: list[ToolCall] = []
+            chunk_count = 0
+            max_chunks = 2000  # 安全上限，防止无限循环
 
             async for chunk in self.llm.stream(
                 messages=state.messages,
                 tools=self.tools if self.tool_executor else None,
             ):
+                chunk_count += 1
                 if chunk.delta:
                     full_content += chunk.delta
                     yield chunk.delta
                 if chunk.tool_calls:
                     tool_calls_in_turn.extend(chunk.tool_calls)
+                if chunk.finish_reason:
+                    break
+                if chunk_count >= max_chunks:
+                    logger.warning("Stream hit max_chunks limit (%d), breaking", max_chunks)
+                    break
 
             if not tool_calls_in_turn:
                 break

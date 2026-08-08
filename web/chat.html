@@ -1037,11 +1037,13 @@ function renderMessages() {
   const container = document.getElementById('messagesContainer');
   const empty = document.getElementById('chatEmpty');
 
+  if (!container) return;
+
   if (!messages.length) {
-    empty.style.display = 'flex';
+    if (empty) empty.style.display = 'flex';
     return;
   }
-  empty.style.display = 'none';
+  if (empty) empty.style.display = 'none';
 
   container.innerHTML = messages.map(m => {
     const isUser = m.role === 'user';
@@ -1165,7 +1167,8 @@ window.clearChat = function() {
   messages = [];
   sessionId = 'chat-' + Math.random().toString(36).slice(2, 10);
   renderMessages();
-  document.getElementById('chatEmpty').style.display = 'flex';
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.style.display = 'flex';
   setAvatarState('idle');
 };
 

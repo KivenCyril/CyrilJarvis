@@ -21,6 +21,7 @@ _MODEL_PROVIDER_HINTS = {
     "o1": "openai",
     "o3": "openai",
     "o4": "openai",
+    "LongCat-": "openai",
     "claude-": "anthropic",
     "qwen": "anthropic",
     "Qwen": "anthropic",
@@ -66,6 +67,12 @@ class LLMRegistry:
             for k, v in _DEEPSEEK_DEFAULTS.items():
                 kwargs.setdefault(k, v)
             kwargs.setdefault("api_key", os.getenv("DEEPSEEK_API_KEY"))
+
+        if provider_name == "openai":
+            base_url = os.getenv("OPENAI_BASE_URL")
+            if base_url:
+                kwargs.setdefault("base_url", base_url)
+            kwargs.setdefault("api_key", os.getenv("OPENAI_API_KEY"))
 
         if provider_name == "anthropic":
             base_url = os.getenv("ANTHROPIC_BASE_URL")

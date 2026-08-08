@@ -292,6 +292,10 @@ class CodeAgent(BaseAgent):
     async def execute(self, message: str, context: AgentContext) -> TaskResult:
         logger.info("[CodeAgent] Processing: %s", message[:80])
 
+        # 检测是否是项目分析任务 → 使用 subagent 并行分析
+        if self._is_project_analysis(message):
+            return await self._execute_project_analysis(message, context)
+
         strategy = self._classify(message)
         language = detect_language(message)
 
@@ -331,6 +335,72 @@ class CodeAgent(BaseAgent):
         msg = message.lower()
         hits = sum(1 for k in keywords if k in msg)
         return min(hits * 0.25, 1.0)
+
+    # -- SubAgent project analysis ----------------------------------------
+
+    _PROJECT_ANALYSIS_KEYWORDS = [
+        "分析项目", "analyze project", "项目架构", "project architecture",
+        "技术分析", "technical analysis", "代码分析", "code analysis",
+        "深度分析", "analyze the project", "分析.*项目",
+    ]
+
+    def _is_project_analysis(self, message: str) -> bool:
+        """检测消息是否是请求分析整个项目的任务。"""
+        import re
+        msg = message.lower()
+        # 必须包含"分析"类动词 + 项目/路径
+        has_analysis = any(kw in msg for kw in [
+            "分析", "analyze", "架构", "architecture", "技术细节", "technical",
+        ])
+        has_project = any(kw in msg for kw in [
+            "项目", "project", "仓库", "repo", "代码库", "codebase",
+        ]) or bool(re.search(r'[/\\][a-zA-Z_-]+', message))  # 包含路径
+        return has_analysis and has_project
+
+    async def _execute_project_analysis(
+        self, message: str, context: AgentContext
+    ) -> TaskResult:
+        """使用 subagent 并行分析项目。"""
+        logger.info("[CodeAgent] Detected project analysis task, spawning sub-agents")
+
+        # 提取项目路径（如果消息中包含）
+        import re
+        path_match = re.search(r'([/\\][a-zA-Z0-9_.-]+(?:[/\\][a-zA-Z0-9_.-]+)+)', message)
+        project_path = path_match.group(1) if path_match else "."
+
+        # 定义分析维度子任务
+        sub_tasks = [
+            ("code-agent", f"分析项目 {project_path} 的整体架构、模块划分、组件关系和目录结构。输出清晰的架构描述。"),
+            ("code-agent", f"分析项目 {project_path} 的核心代码实现、关键算法、设计模式和技术亮点。"),
+            ("devops-agent", f"分析项目 {project_path} 的技术栈、依赖管理、构建配置和部署方式。"),
+            ("research-agent", f"分析项目 {project_path} 的业务逻辑、数据流、API 端点和接口设计。"),
+        ]
+        descriptions = ["架构分析", "代码实现分析", "技术栈与部署", "业务与API分析"]
+
+        # 并行执行
+        results = await self.spawn_parallel_subagents(
+            tasks=sub_tasks,
+            context=context,
+            descriptions=descriptions,
+        )
+
+        # 汇总结果
+        from jarvis.agents.subagent_manager import SubAgentManager
+        manager = SubAgentManager(self._orchestrator)
+        summary = manager.aggregate_results(results)
+
+        header = f"# 项目技术分析报告\n\n"
+        header += f"**项目路径**: `{project_path}`\n"
+        header += f"**分析维度**: {len(sub_tasks)} 个\n"
+        header += f"**成功**: {sum(1 for r in results if r.success)}/{len(results)}\n\n"
+        header += "---\n\n"
+
+        return TaskResult(
+            task_id=context.task_id,
+            agent_name=self.name,
+            success=True,
+            output=header + summary,
+        )
 
     # -- private helpers ---------------------------------------------------
 

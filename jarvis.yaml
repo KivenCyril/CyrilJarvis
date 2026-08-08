@@ -25,7 +25,7 @@ agents:
     - knowledge-agent
     - comms-agent
     - ops-agent
-  default_model: claude-sonnet-4-6
+  default_model: LongCat-2.0
   max_concurrent: 5
   timeout: 120  # seconds per agent call
 

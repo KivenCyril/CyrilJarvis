@@ -3611,7 +3611,7 @@ async function sendChatMessage(message) {
       body: JSON.stringify({ message }),
     });
     const agentName = response.agent || 'JARVIS';
-    const reply = response.response || response.message || JSON.stringify(response);
+    const reply = response.output || response.response || response.message || JSON.stringify(response);
     addChatMessageToUI(agentName, reply, 'agent');
   } catch {
     addChatMessageToUI('System', 'Failed to get response', 'agent');
@@ -3660,7 +3660,7 @@ async function sendQuickChat() {
       method: 'POST',
       body: JSON.stringify({ message: msg }),
     });
-    const reply = response.response || response.message || JSON.stringify(response);
+    const reply = response.output || response.response || response.message || JSON.stringify(response);
     dom.quickChatResponse.textContent = reply;
     dom.quickChatInput.value = '';
   } catch {

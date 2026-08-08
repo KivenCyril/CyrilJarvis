@@ -6,8 +6,10 @@ from jarvis.agents.specialists.devops_agent import DevOpsAgent
 from jarvis.agents.specialists.knowledge_agent import KnowledgeAgent
 from jarvis.agents.specialists.ops_agent import OpsAgent
 from jarvis.agents.specialists.research_agent import ResearchAgent
-from jarvis.agents.specialists.security_agent import SecurityAgent
 from jarvis.agents.specialists.writing_agent import WritingAgent
+
+# 导入所有从 Claude Code skills 转换的 agents
+from jarvis.agents.specialists.imported import *
 
 __all__ = [
     "CalendarAgent",
@@ -18,6 +20,5 @@ __all__ = [
     "KnowledgeAgent",
     "OpsAgent",
     "ResearchAgent",
-    "SecurityAgent",
     "WritingAgent",
 ]

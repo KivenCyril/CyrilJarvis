@@ -7,7 +7,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from jarvis.agents.subagent_manager import SubAgentResult
 
 logger = logging.getLogger(__name__)
 
@@ -238,6 +241,64 @@ class BaseAgent(ABC):
             constraints=context.constraints.copy(),
         )
         return await self._orchestrator.delegate(agent_name, message, child_context)
+
+    async def spawn_subagent(
+        self,
+        agent_name: str,
+        message: str,
+        context: AgentContext | None = None,
+        description: str = "",
+        timeout: float = 60.0,
+    ) -> "SubAgentResult":
+        """生成单个子 agent 执行子任务。
+
+        这是 delegate() 的高级版本，返回 SubAgentResult 包含更多元数据。
+        """
+        from jarvis.agents.subagent_manager import SubAgentManager, SubAgentTask
+
+        if context is None:
+            context = AgentContext()
+
+        manager = SubAgentManager(self._orchestrator)
+        task = SubAgentTask(
+            agent_name=agent_name,
+            message=message,
+            description=description,
+            timeout=timeout,
+        )
+        return await manager.spawn_single(task, context)
+
+    async def spawn_parallel_subagents(
+        self,
+        tasks: list[tuple[str, str]],
+        context: AgentContext | None = None,
+        descriptions: list[str] | None = None,
+        max_concurrency: int = 5,
+    ) -> "list[SubAgentResult]":
+        """并行生成多个子 agent 执行各自任务。
+
+        Args:
+            tasks: [(agent_name, message), ...] 列表
+            context: 父上下文
+            descriptions: 每个任务的描述（可选）
+            max_concurrency: 最大并发数
+        """
+        from jarvis.agents.subagent_manager import SubAgentManager, SubAgentTask
+
+        if context is None:
+            context = AgentContext()
+
+        subtasks = []
+        for i, (agent_name, message) in enumerate(tasks):
+            desc = descriptions[i] if descriptions and i < len(descriptions) else ""
+            subtasks.append(SubAgentTask(
+                agent_name=agent_name,
+                message=message,
+                description=desc,
+            ))
+
+        manager = SubAgentManager(self._orchestrator)
+        return await manager.spawn_parallel(subtasks, context, max_concurrency)
 
     def can_handle(self, message: str) -> float:
         """Return a confidence score (0.0–1.0) for whether this agent can handle the message.

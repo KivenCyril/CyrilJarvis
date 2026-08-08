@@ -14,7 +14,6 @@ from jarvis.agents.specialists.devops_agent import DevOpsAgent
 from jarvis.agents.specialists.knowledge_agent import KnowledgeAgent
 from jarvis.agents.specialists.ops_agent import OpsAgent
 from jarvis.agents.specialists.research_agent import ResearchAgent
-from jarvis.agents.specialists.security_agent import SecurityAgent
 from jarvis.agents.specialists.writing_agent import WritingAgent
 from jarvis.engine.executor import SpecExecutor
 from jarvis.engine.spec_engine import SpecEngine
@@ -75,6 +74,7 @@ class JarvisApp:
         """Register all built-in agents and initialize the system."""
         self._init_tools()
 
+        # 原始核心 agents
         agents = [
             GeneralAgent(),
             CodeAgent(),
@@ -83,11 +83,24 @@ class JarvisApp:
             CommsAgent(),
             OpsAgent(),
             DataAgent(),
-            SecurityAgent(),
             DevOpsAgent(),
             WritingAgent(),
             ResearchAgent(),
         ]
+
+        # 自动发现导入的 skill agents
+        try:
+            import jarvis.agents.specialists.imported as imported_mod
+            if hasattr(imported_mod, '__all__'):
+                for name in imported_mod.__all__:
+                    cls = getattr(imported_mod, name, None)
+                    if cls and isinstance(cls, type) and hasattr(cls, '__mro__'):
+                        from jarvis.agents.base import BaseAgent
+                        if BaseAgent in cls.__mro__:
+                            agents.append(cls())
+        except Exception:
+            pass
+
         for agent in agents:
             agent.set_llm_registry(self.llm_registry)
             if self._tool_registry:

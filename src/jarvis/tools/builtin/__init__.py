@@ -48,6 +48,10 @@ from jarvis.tools.builtin.xml_ops import XMLToJsonTool, XMLQueryTool
 from jarvis.tools.builtin.color_ops import ColorConvertTool, ColorPaletteTool
 from jarvis.tools.builtin.random_ops import RandomStringTool, RandomNumberTool, RandomChoiceTool
 
+# --- SubAgent tools ---
+from jarvis.tools.builtin.subagent_tool import SpawnSubAgentTool, SpawnParallelSubAgentsTool
+from jarvis.tools.builtin.analyze_project_tool import AnalyzeProjectTool
+
 _BUILTIN_TOOLS = [
     # Original tools
     ShellTool(),
@@ -141,6 +145,10 @@ _BUILTIN_TOOLS = [
     RandomStringTool(),
     RandomNumberTool(),
     RandomChoiceTool(),
+    # --- SubAgent tools ---
+    SpawnSubAgentTool(),
+    SpawnParallelSubAgentsTool(),
+    AnalyzeProjectTool(),
 ]
 
 for _tool in _BUILTIN_TOOLS:

@@ -2,8 +2,21 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
+from pathlib import Path
 
 import typer
+
+# Load .env file if present
+try:
+    from dotenv import load_dotenv
+    _env_path = Path.cwd() / ".env"
+    if _env_path.exists():
+        load_dotenv(_env_path)
+    else:
+        load_dotenv()
+except ImportError:
+    pass
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -154,11 +167,16 @@ def agent_chat(message: str = typer.Argument(help="Message to send to agents")):
     """Send a message to the orchestrator for routing."""
     async def _do():
         j = await _init_app()
+        # 检测复杂任务 → 使用 handle_complex 自动分解
+        if j.orchestrator.is_complex_task(message):
+            console.print("[dim]检测到复杂任务，启用 SubAgent 并行分析...[/dim]")
+            return await j.orchestrator.handle_complex(message)
         return await j.orchestrator.handle(message)
 
     result = _run(_do())
     if result.success:
-        console.print(f"[cyan]{result.agent_name}[/cyan] → {result.output}")
+        console.print(f"[cyan]{result.agent_name}[/cyan] →")
+        console.print(result.output)
     else:
         console.print(f"[red]Error:[/red] {result.error}")
 

@@ -100,8 +100,19 @@ class OpenAIProvider(LLMProvider):
         response = await self._client.chat.completions.create(**kwargs)
         choice = response.choices[0]
 
+        # LongCat-2.0 兼容：内容可能在 reasoning_content 而非 content
+        raw_content = choice.message.content or ""
+        if not raw_content:
+            # 尝试 LongCat 格式的 reasoning_content
+            reasoning = getattr(choice.message, "reasoning_content", None)
+            if reasoning:
+                raw_content = reasoning
+            # 也尝试顶层 content 字段（LongCat 流式格式）
+            if not raw_content and hasattr(response, "content"):
+                raw_content = response.content or ""
+
         return LLMResponse(
-            content=choice.message.content or "",
+            content=raw_content,
             tool_calls=self._parse_tool_calls(choice.message.tool_calls),
             finish_reason=choice.finish_reason or "stop",
             model=response.model,
@@ -137,7 +148,12 @@ class OpenAIProvider(LLMProvider):
             if not delta:
                 continue
 
+            # LongCat-2.0 兼容：内容可能在 reasoning_content 而非 content
             text_delta = delta.content or ""
+            if not text_delta:
+                reasoning = getattr(delta, "reasoning_content", None)
+                if reasoning:
+                    text_delta = reasoning
 
             if delta.tool_calls:
                 for tc_delta in delta.tool_calls:
